@@ -1,3 +1,4 @@
+using Domain.Entities;
 using Infrastructure;
 using Infrastructure.DbContexts;
 using Microsoft.AspNetCore.Identity;
@@ -9,7 +10,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     {
         options.Password.RequiredUniqueChars = 0;
         options.User.RequireUniqueEmail = true;
@@ -18,8 +19,6 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
         options.Password.RequireUppercase=true;
         options.Password.RequiredLength=8;
         options.Lockout.MaxFailedAccessAttempts = 10;
-        options.User.AllowedUserNameCharacters =
-            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-";
         options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
 
     })
@@ -41,6 +40,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

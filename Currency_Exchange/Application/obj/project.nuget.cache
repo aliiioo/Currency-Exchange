@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "H/3qKOLGbfZH+laRww/vRgPBuBDEFOS5EwHOPfLxZjKcYfsKTXB6tYzdZsg4EjyzKBtiAC+W3r0/YPBhZ102jA==",
+  "dgSpecHash": "adgBuiTDZpceUDLOqyD+mScrUQfoFQ43VZduI985dVtzjU1Xz5WNkAsLImJPq/ye6ELmi5yGKXKEqHKN7Tmhgg==",
   "success": true,
   "projectFilePath": "D:\\Currency Exchange\\Currency_Exchange\\Application\\Application.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\SHPA-N6\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\6.0.0\\microsoft.extensions.dependencyinjection.abstractions.6.0.0.nupkg.sha512"
+  ],
   "logs": []
 }

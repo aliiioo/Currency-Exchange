@@ -1,0 +1,40 @@
+﻿@model Application.Dtos.LoginViewModel
+
+<section class="book_section layout_padding">
+    <div class="container">
+        <div class="heading_container">
+            <h2>
+                Login
+            </h2>
+        </div>
+        <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <div class="form_container">
+                    <form asp-action="Login" asp-controller="Account" method="post">
+                        <div>
+                            <input asp-for="Email" class="form-control" placeholder="Email" />
+                        </div>
+                        <br />
+                        <div>
+                            <input type="password" asp-for="Password" class="form-control" placeholder="Password" />
+                        </div>
+                        <br />
+                        <div>
+                            <label>Remember Me</label>
+                            <input asp-for="RememberMe" />
+                        </div>
+                        <br />
+                          <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <br/>
+                        <div class="btn_box">
+                            <button type="submit">
+                                Login
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

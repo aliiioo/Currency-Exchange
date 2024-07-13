@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Application.Contracts;
+using Infrastructure.Repositories;
 
 namespace Infrastructure
 {
@@ -18,6 +20,7 @@ namespace Infrastructure
             services.AddDbContext<CurrencyDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("SqlServer")));
 
+            services.AddScoped<IMessageSender, MessageSender>();
 
             return services;
 
