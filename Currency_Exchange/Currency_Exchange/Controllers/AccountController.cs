@@ -12,13 +12,16 @@ namespace Currency_Exchange.Controllers
         private readonly IMessageSender _messageSender;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AccountController(IMessageSender messageSender, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public AccountController(IMessageSender messageSender, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager)
         {
             _messageSender = messageSender;
             _userManager = userManager;
-            _signInManager = signInManager; 
+            _signInManager = signInManager;
+            _roleManager = roleManager; 
         }
+
         [HttpGet]
         public IActionResult Register()
         {
@@ -42,6 +45,12 @@ namespace Currency_Exchange.Controllers
                             Request.Scheme);
                     if (emailMessage != null)
                         _messageSender.SendEmailAsync(model.Email, "Email confirmation", emailMessage);
+
+                    if (!await _roleManager.RoleExistsAsync("Customer"))
+                    {
+                        RedirectToAction("CreateRole", "RoleManager");
+                    }
+                    await _userManager.AddToRoleAsync(user, "Customer");
                     await _userManager.AddClaimAsync(user, new Claim("FullName", model.FullName));
                     return RedirectToAction("Login", "Account");
                 }
