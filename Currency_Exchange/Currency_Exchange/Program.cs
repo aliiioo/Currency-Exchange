@@ -1,7 +1,30 @@
+using Infrastructure;
+using Infrastructure.DbContexts;
+using Microsoft.AspNetCore.Identity;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddInfrastructureServices(builder.Configuration);
+
+
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+    {
+        options.Password.RequiredUniqueChars = 0;
+        options.User.RequireUniqueEmail = true;
+        options.Password.RequireDigit=true;
+        options.Password.RequireLowercase=true;
+        options.Password.RequireUppercase=true;
+        options.Password.RequiredLength=8;
+        options.Lockout.MaxFailedAccessAttempts = 10;
+        options.User.AllowedUserNameCharacters =
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-";
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
+
+    })
+    .AddEntityFrameworkStores<CurrencyDbContext>()
+    .AddDefaultTokenProviders();
 
 var app = builder.Build();
 
