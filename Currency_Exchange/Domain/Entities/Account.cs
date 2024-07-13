@@ -13,8 +13,6 @@ namespace Domain.Entities
         [Key]
         public int AccountId { get; set; }
         public string UserId { get; set; }
-        
-        public AccountTypeEnum AccountType { get; set; } // 'Self' or 'Other'
         public string Currency { get; set; } // 'USD', 'EUR', 'JPY', etc.
         public decimal Balance { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;

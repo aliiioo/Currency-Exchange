@@ -10,3 +10,6 @@ D:\Currency Exchange\Currency_Exchange\Application\obj\Debug\net6.0\Application.
 D:\Currency Exchange\Currency_Exchange\Application\obj\Debug\net6.0\refint\Application.dll
 D:\Currency Exchange\Currency_Exchange\Application\obj\Debug\net6.0\Application.pdb
 D:\Currency Exchange\Currency_Exchange\Application\obj\Debug\net6.0\ref\Application.dll
+D:\Currency Exchange\Currency_Exchange\Application\bin\Debug\net6.0\Domain.dll
+D:\Currency Exchange\Currency_Exchange\Application\bin\Debug\net6.0\Domain.pdb
+D:\Currency Exchange\Currency_Exchange\Application\obj\Debug\net6.0\Application.csproj.CopyComplete

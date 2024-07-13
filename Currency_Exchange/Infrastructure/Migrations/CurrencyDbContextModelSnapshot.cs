@@ -30,9 +30,6 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AccountId"), 1L, 1);
 
-                    b.Property<int>("AccountType")
-                        .HasColumnType("int");
-
                     b.Property<decimal>("Balance")
                         .HasColumnType("decimal(18,2)");
 
@@ -134,8 +131,8 @@ namespace Infrastructure.Migrations
                         {
                             Id = "1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "3b346d5a-291f-4a1e-977d-0f5628650442",
-                            CreatedAt = new DateTime(2024, 7, 13, 14, 22, 20, 132, DateTimeKind.Local).AddTicks(8081),
+                            ConcurrencyStamp = "a817bfc1-3ac8-4b7d-8598-ee773637d39c",
+                            CreatedAt = new DateTime(2024, 7, 13, 15, 25, 16, 758, DateTimeKind.Local).AddTicks(3445),
                             DailyWithdrawalLimit = 10000.00m,
                             Email = "admin@example.com",
                             EmailConfirmed = true,
@@ -143,7 +140,7 @@ namespace Infrastructure.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN@EXAMPLE.COM",
-                            PasswordHash = "AQAAAAEAACcQAAAAEPzZJqGQtRcYSIJ+xg6fLgHEQc1jnGYXSQ9LO+YFfFQ3KEMyW3tC25li/sqB27Wlew==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEN0UyckBT1LZhzSVI5Q+EUNwQyE0VfuIZAkbIxcy0nvNFc1XQkYpdEVmAJEVt0p6KQ==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "",
                             TwoFactorEnabled = false,
@@ -237,6 +234,32 @@ namespace Infrastructure.Migrations
                     b.ToTable("ExchangeRates");
                 });
 
+            modelBuilder.Entity("Domain.Entities.OthersAccount", b =>
+                {
+                    b.Property<int>("AccountId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AccountId"), 1L, 1);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("AccountId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("OthersAccount");
+                });
+
             modelBuilder.Entity("Domain.Entities.SystemLog", b =>
                 {
                     b.Property<int>("LogId")
@@ -314,6 +337,9 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("ToOtherAccountId")
+                        .HasColumnType("int");
+
                     b.HasKey("TransactionId");
 
                     b.HasIndex("ApplicationUserId");
@@ -321,6 +347,8 @@ namespace Infrastructure.Migrations
                     b.HasIndex("FromAccountId");
 
                     b.HasIndex("ToAccountId");
+
+                    b.HasIndex("ToOtherAccountId");
 
                     b.ToTable("Transactions");
                 });
@@ -387,14 +415,14 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = "1",
-                            ConcurrencyStamp = "7cdf3514-d2dd-4234-8bc5-d988fcaa97fc",
+                            ConcurrencyStamp = "88062efa-edc9-49a9-96b1-3916d5e05d2c",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "2",
-                            ConcurrencyStamp = "f6c6a517-8dfd-4ecc-ae67-c7eedae0606b",
+                            ConcurrencyStamp = "0aee63d2-6e5a-4f2b-af6b-d656df8f1446",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         });
@@ -524,6 +552,17 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.Entities.OthersAccount", b =>
+                {
+                    b.HasOne("Domain.Entities.ApplicationUser", "User")
+                        .WithMany("OthersAccounts")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Domain.Entities.SystemLog", b =>
                 {
                     b.HasOne("Domain.Entities.ApplicationUser", "User")
@@ -553,9 +592,17 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Domain.Entities.OthersAccount", "TpOthersAccount")
+                        .WithMany("Transactions")
+                        .HasForeignKey("ToOtherAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("FromAccount");
 
                     b.Navigation("ToAccount");
+
+                    b.Navigation("TpOthersAccount");
                 });
 
             modelBuilder.Entity("Domain.Entities.TwoFactorAuthentication", b =>
@@ -629,9 +676,16 @@ namespace Infrastructure.Migrations
                 {
                     b.Navigation("Accounts");
 
+                    b.Navigation("OthersAccounts");
+
                     b.Navigation("Transactions");
 
                     b.Navigation("TwoFactorAuthentications");
+                });
+
+            modelBuilder.Entity("Domain.Entities.OthersAccount", b =>
+                {
+                    b.Navigation("Transactions");
                 });
 #pragma warning restore 612, 618
         }

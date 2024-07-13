@@ -1,5 +1,5 @@
 ﻿using Application.Contracts;
-using Application.Dtos;
+using Application.Dtos.OthersAccountDtos;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

@@ -14,6 +14,7 @@ namespace Domain.Entities
         public int TransactionId { get; set; }
         public int FromAccountId { get; set; }
         public int ToAccountId { get; set; }
+        public int ToOtherAccountId { get; set; }
         [Required]
         public string FromCurrency { get; set; }
         [Required]
@@ -33,6 +34,9 @@ namespace Domain.Entities
         public Account FromAccount { get; set; }
         [ForeignKey("ToAccountId")]
         public Account ToAccount { get; set; }
+
+        [ForeignKey("ToOtherAccountId")]
+        public OthersAccount TpOthersAccount{ get; set; }
     }
 
 }

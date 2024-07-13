@@ -21,6 +21,7 @@ namespace Domain.Entities
 
         // Navigation properties
         public ICollection<Account> Accounts { get; set; }
+        public ICollection<OthersAccount> OthersAccounts { get; set; }
         public ICollection<Transaction> Transactions { get; set; }
         public ICollection<TwoFactorAuthentication> TwoFactorAuthentications { get; set; }
     }
