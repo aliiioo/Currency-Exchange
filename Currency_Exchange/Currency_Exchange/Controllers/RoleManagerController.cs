@@ -12,27 +12,13 @@ namespace Currency_Exchange.Controllers
     {
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly string[] roles = { "Admin", "Customer" };
-
+       
         public RoleManagerController(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
         {
             _roleManager = roleManager;
             _userManager = userManager;
         }
         [HttpGet]
-        public async Task CreateRole()
-        {
-            foreach (var role in roles)
-            {
-                var roleExist = await _roleManager.RoleExistsAsync(role);
-                if (!roleExist)
-                {
-                    await _roleManager.CreateAsync(new IdentityRole(role));
-                }
-            }
-
-            Task.CompletedTask.Wait();
-        }
 
         public async Task<bool> AssignUserToRole(string username, string role)
         {
