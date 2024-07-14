@@ -12,7 +12,6 @@ namespace Domain.Entities
     {
         [Key]
         public int CurrencyId { get; set; }
-        public int ExchangeRateId { get; set; }
         [MaxLength(20)]
         [MinLength(1)]
         [Required]
@@ -24,10 +23,8 @@ namespace Domain.Entities
         public DateTime LastUpdated { get; set; } = DateTime.Now;
 
         public List<CurrencyExchangeFees> CurrencyExchangeFees { get; set; }
-        public List<CurrencyTransformFees> CurrencyTransformFees{ get; set; }
-
-        [ForeignKey("ExchangeRateId")]
-        public ExchangeRate ExchangeRate { get; set; }
+        public List<CurrencyTransformFees> CurrencyTransformFees { get; set; }
+        public List<ExchangeRate> ExchangeRate { get; set; }
        
 
 

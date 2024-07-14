@@ -1,0 +1,59 @@
+﻿@model IEnumerable<Domain.Entities.ExchangeRate>
+
+@{
+    ViewData["Title"] = "DetailCurrencyTransformRate";
+}
+
+<h1>DetailCurrencyTransformRate</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ExchangeRateId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FromCurrency)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ToCurrency)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Rate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LastUpdated)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ExchangeRateId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FromCurrency)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ToCurrency)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Rate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastUpdated)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

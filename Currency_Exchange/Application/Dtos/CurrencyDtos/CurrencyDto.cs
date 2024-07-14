@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Application.Dtos.CurrencyDtos
 {
-    public class CreateCurrencyDto
+    public class CurrencyDto
     {
         [MaxLength(4)]
         [MinLength(2)]

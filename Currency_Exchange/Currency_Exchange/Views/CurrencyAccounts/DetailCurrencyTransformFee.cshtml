@@ -1,0 +1,77 @@
+﻿@model IEnumerable<Domain.Entities.CurrencyTransformFees>
+
+@{
+    ViewData["Title"] = "DetailCurrencyTransformFee";
+}
+
+<h1>DetailCurrencyTransformFee</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.FeeId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CurrencyId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FromCurrency)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ToCurrency)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StartRange)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EndRange)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PriceFee)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LastUpdated)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.FeeId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CurrencyId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FromCurrency)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ToCurrency)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StartRange)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EndRange)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PriceFee)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastUpdated)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

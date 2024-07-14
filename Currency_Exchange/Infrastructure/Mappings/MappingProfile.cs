@@ -18,11 +18,12 @@ namespace Infrastructure.Mappings
         {
             CreateMap<Account, AccountViewModel>().ReverseMap();
             CreateMap<Account, OtherAccountViewModel>().ReverseMap();
-            CreateMap<Currency, CreateCurrencyDto>().ReverseMap();
+            CreateMap<Currency, CurrencyDto>().ReverseMap();
             CreateMap<CurrencyExchangeFees, CreateFeeDtos>().ReverseMap();
             CreateMap<ExchangeRate, RateDtos>().ReverseMap();
             CreateMap<Transaction, TransactionDto>().ReverseMap();
             CreateMap<Transaction, CreateTransactionDtos>().ReverseMap();
+            CreateMap<Currency, CurrencyDetailDto>().ReverseMap();
         }
     }
 }

@@ -26,6 +26,40 @@ namespace Infrastructure.Repositories.Persistence
             _mapper = mapper;
         }
 
+        public async Task<CurrencyDetailDto> GetCurrencyDetail(int currencyId)
+        {
+            var currency = await _context.Currencies.Include(x=>x.CurrencyTransformFees)
+                .Include(x=>x.CurrencyExchangeFees).Include(x=>x.ExchangeRate)
+                .SingleOrDefaultAsync(x => x.CurrencyId.Equals(currencyId));
+            var currencyDto = _mapper.Map<CurrencyDetailDto>(currency);
+            return currencyDto;
+        }
+
+        public async Task<List<CurrencyExchangeFees>> GetCurrencyExchangeFeeAsync(int currencyId)
+        {
+            var currency =await _context.Currencies.Include(x => x.CurrencyExchangeFees)
+                .SingleOrDefaultAsync(x => x.CurrencyId.Equals(currencyId));
+            return currency.CurrencyExchangeFees;
+        }
+
+        public async Task<List<CurrencyTransformFees>> GetCurrencyTransformFeeAsync(int currencyId)
+        {
+            var currency = await _context.Currencies.Include(x => x.CurrencyTransformFees)
+                .SingleOrDefaultAsync(x => x.CurrencyId.Equals(currencyId));
+            return currency.CurrencyTransformFees;
+        }
+
+        public async Task<List<ExchangeRate>> GetCurrencyRatesAsync(int currencyId)
+        {
+            var currency = await _context.Currencies.Include(x => x.ExchangeRate)
+                .SingleOrDefaultAsync(x => x.CurrencyId.Equals(currencyId));
+            return currency.ExchangeRate;
+        }
+
+        public async Task<List<CurrencyDto>> GetListCurrency()
+        {
+            return _mapper.Map<List<CurrencyDto>>(await _context.Currencies.ToListAsync());
+        }
         public async Task<Currency?> GetCurrencyByIdAsync(int currencyId)
         {
             return await _context.Currencies.SingleOrDefaultAsync(x => x.CurrencyId.Equals(currencyId));
@@ -103,7 +137,7 @@ namespace Infrastructure.Repositories.Persistence
             return rate != null ? rate : null;
         }
 
-        public async Task<int> CreateCurrency(CreateCurrencyDto currencyVM)
+        public async Task<int> CreateCurrency(CurrencyDto currencyVM)
         {
             var isExistCurrency = await IsExistCurrencyByCodeAsync(currencyVM.CurrencyCode);
             if (isExistCurrency == false) return 0;

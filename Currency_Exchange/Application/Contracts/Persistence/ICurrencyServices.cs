@@ -22,12 +22,17 @@ namespace Application.Contracts.Persistence
         public Task<List<CurrencyTransformFees>> GetListTransformFeesAsync(string fromCurrency, string toCurrency);
         public Task<decimal> GetPriceRateExchange(string fromCurrency, string toCurrency);
         public Task<ExchangeRate> GetRateExchange(string fromCurrency, string toCurrency);
+        public Task<List<CurrencyDto>> GetListCurrency();
+        public Task<CurrencyDetailDto> GetCurrencyDetail(int currencyId);
+        public Task<List<CurrencyExchangeFees>> GetCurrencyExchangeFeeAsync(int currencyId);
+        public Task<List<CurrencyTransformFees>> GetCurrencyTransformFeeAsync(int currencyId);
+        public Task<List<ExchangeRate>> GetCurrencyRatesAsync(int currencyId);
 
 
         public Task<bool> IsExistCurrencyByCodeAsync(string codeCurrency);
         public Task<bool> IsExistCurrencyByCodeAsync(string firstCodeCurrency, string secondCodeCurrency);
         public Task<decimal> CurrencyConvertor(string fromCurrency, string toCurrency, decimal amount);
-        public Task<int> CreateCurrency(CreateCurrencyDto  currencyVM);
+        public Task<int> CreateCurrency(CurrencyDto  currencyVM);
 
 
         //Fee's
