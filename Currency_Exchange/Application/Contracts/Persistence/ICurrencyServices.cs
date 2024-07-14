@@ -12,21 +12,32 @@ namespace Application.Contracts.Persistence
 {
     public interface ICurrencyServices
     {
+        public Task<Currency?> GetCurrencyByIdAsync(int currencyId);
+        public Task<Currency?> GetCurrencyByCodeAsync(string currencyCode);
+        public Task<CurrencyExchangeFees?> GetExchangeFeeCurrencyByIdAsync(int id);
+        public Task<List<CurrencyExchangeFees>> GetListExchangeFeesAsync(string fromCurrency ,string toCurrency);
+        public Task<CurrencyTransformFees?> GetTransformFeeCurrencyByIdAsync(int id);
+        public Task<List<CurrencyTransformFees>> GetListTransformFeesAsync(string fromCurrency, string toCurrency);
+        public Task<decimal> GetPriceRateExchange(string fromCurrency, string toCurrency);
+        public Task<ExchangeRate> GetRateExchange(string fromCurrency, string toCurrency);
+
         public Task<bool> IsCurrencyByCodeAsync(string codeCurrency);
         public Task<bool> IsCurrencyByCodeAsync(string firstCodeCurrency, string secondCodeCurrency);
+
         public Task<decimal> CurrencyConvertor(string fromCurrency, string toCurrency, decimal amount);
-        public Task<decimal> GetRateConversions(string fromCurrency, string toCurrency);
 
         public Task<int> CreateCurrency(CreateCurrencyDto  currencyVM);
 
-        public Task CreateTransformFeeToCurrency(int currencyId,decimal amount);
-        public Task UpdateTransformFeeToCurrency(int currencyId, decimal amount);
-        public Task CreateExchangeFeeToCurrency(int currencyId,decimal amount);
-        public Task UpdateExchangeFeeToCurrency(int currencyId, decimal amount);
+
+        public Task<int> CreateTransformFeeToCurrency(CreateFeeDtos Model);
+        public Task<bool> UpdateTransformFeeToCurrency(UpdateFeeDtos Model);
+
+        public Task<int> CreateExchangeFeeToCurrency(CreateFeeDtos Model);
+        public Task<bool> UpdateExchangeFeeToCurrency(UpdateFeeDtos Model);
 
 
-        public Task CreateExchangeRateCurrency(string currency1, string currency2, decimal amount);
-        public Task UpdateExchangeFeeToCurrency(string currency1, string currency2, decimal amount);
+        public Task<int> CreateExchangeRateCurrency(RateDtos rateVM);
+        public Task<bool> UpdateExchangeRateToCurrency(RateDtos rateVM);
 
 
 

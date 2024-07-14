@@ -1,27 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Entities
+namespace Application.Dtos.CurrencyDtos
 {
-    public class ExchangeRate
+    public class RateDtos
     {
-        [Key]
-        public int ExchangeRateId { get; set; }
         [Required]
         public string FromCurrency { get; set; }
         [Required]
         public string ToCurrency { get; set; }
         [Required]
         public decimal Rate { get; set; } = 0;
-        public DateTime LastUpdated { get; set; } = DateTime.Now;
-
-       
-
     }
-
 }

@@ -22,11 +22,12 @@ namespace Infrastructure.DbContexts
 
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
-        public DbSet<Currency> Currencies { get; set; }
+        public DbSet<Currency?> Currencies { get; set; }
         public DbSet<TwoFactorAuthentication> TwoFactorAuthentications { get; set; }
         public DbSet<SystemLog> SystemLogs { get; set; }
         public DbSet<ExchangeRate> ExchangeRates { get; set; }
-        public DbSet<CurrencyConversion> CurrencyConversions { get; set; }
+        public DbSet<CurrencyExchangeFees> CurrencyExchangeFees{ get; set; }
+        public DbSet<CurrencyTransformFees> CurrencyTransformFees{ get; set; }
         public DbSet<OthersAccount>  OthersAccounts{ get; set; }
 
 

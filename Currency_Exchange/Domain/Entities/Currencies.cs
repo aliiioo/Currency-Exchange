@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ namespace Domain.Entities
     {
         [Key]
         public int CurrencyId { get; set; }
+        public int ExchangeRateId { get; set; }
         [MaxLength(20)]
         [MinLength(1)]
         [Required]
@@ -19,9 +21,17 @@ namespace Domain.Entities
         [MinLength(1)]
         [Required]
         public string CurrencyName { get; set; }
-        public decimal ExchangeRate { get; set; } = 0;
-        public decimal FeePercentage { get; set; } = 0;
         public DateTime LastUpdated { get; set; } = DateTime.Now;
+
+        public List<CurrencyExchangeFees> CurrencyExchangeFees { get; set; }
+        public List<CurrencyTransformFees> CurrencyTransformFees{ get; set; }
+
+        [ForeignKey("ExchangeRateId")]
+        public ExchangeRate ExchangeRate { get; set; }
+       
+
+
+
     }
 
 }

@@ -45,7 +45,7 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task DeleteOthersAccountAsync(int accountId)
         {
-            var account=await _context.OthersAccounts.SingleOrDefaultAsync(x=>x.AccountId.Equals(accountId)));
+            var account=await _context.OthersAccounts.SingleOrDefaultAsync(x=>x.AccountId.Equals(accountId));
             if (account!=null)
             {
                 _context.OthersAccounts.Remove(account);
