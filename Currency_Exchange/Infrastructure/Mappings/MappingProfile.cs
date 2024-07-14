@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Entities;
+using Application.Dtos.OthersAccountDto;
 
 namespace Infrastructure.Mappings
 {
@@ -14,6 +15,7 @@ namespace Infrastructure.Mappings
         public MappingProfile()
         {
             CreateMap<Account, AccountViewModel>().ReverseMap();
+            CreateMap<Account, OtherAccountViewModel>().ReverseMap();
 
         }
     }

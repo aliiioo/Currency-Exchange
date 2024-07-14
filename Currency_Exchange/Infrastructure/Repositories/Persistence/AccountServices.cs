@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ using Domain.Entities;
 using Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Application.Statics;
+using Microsoft.EntityFrameworkCore.Update;
 
 namespace Infrastructure.Repositories.Persistence
 {
@@ -54,15 +56,17 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<int> UpdateAccount(UpdateAccountViewModel accountVM)
         {
-            var existCurrency = await _currency.IsCurrencyByCodeAsync(accountVM.Currency);
-            if (!existCurrency) return 0;
-            // var amount = await _currency.CurrencyConvertor(accountVM.Currency, "USD", accountVM.Balance);
-            // if (amount < MinimumAmount.MinBalance) return 0;
+            var amount = await _currency.CurrencyConvertor(accountVM.Currency, "USD", accountVM.Balance);
+            if (amount < MinimumAmount.MinBalance) return 0;
+            var account=await _context.Accounts.SingleOrDefaultAsync(x=>x.AccountId.Equals(accountVM.AccountId)&&x.UserId.Equals(accountVM.UserId));
+            if (account == null) return 0;
 
-            var newAccount = _mapper.Map<Account>(accountVM);
-            await _context.Accounts.AddAsync(newAccount);
+            account.Balance=accountVM.Balance;
+            account.AccountName=accountVM.AccountName;
+
+            _context.Accounts.Update(account);
             await _context.SaveChangesAsync();
-            return newAccount.AccountId;
+            return account.AccountId;
 
 
 
@@ -71,12 +75,17 @@ namespace Infrastructure.Repositories.Persistence
         public async Task DeleteAccountAsync(int accountId)
         {
             var account = await _context.Accounts.FirstOrDefaultAsync(x=>x.AccountId==accountId);
-             _context.Accounts.Remove(account);
+            if (account != null) _context.Accounts.Remove(account);
+            await _context.SaveChangesAsync();
         }
 
-        public Task IncreseAccountBalance(int accountId, int amount)
+        public async Task IncreaseAccountBalance(int accountId, int amount)
         {
-            throw new NotImplementedException();
+            var account = await _context.Accounts.FirstOrDefaultAsync(x => x.AccountId == accountId);
+            if (account!=null) account.Balance += amount;
+            _context.Accounts.Update(account);
+            await _context.SaveChangesAsync();
+
         }
     }
 }

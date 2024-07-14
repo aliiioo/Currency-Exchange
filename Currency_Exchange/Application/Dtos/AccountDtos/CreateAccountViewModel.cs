@@ -14,8 +14,9 @@ namespace Application.Dtos.AccountDtos
         [MinLength(1)]
         public string Currency { get; set; } // 'USD', 'EUR', 'JPY', etc.
 
+        public string AccountName { get; set; } = string.Empty;
+
         [Range(50, double.MaxValue, ErrorMessage = "The value must be 50$ or higher.")]
         public decimal Balance { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }

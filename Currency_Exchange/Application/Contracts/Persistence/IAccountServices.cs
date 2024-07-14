@@ -16,7 +16,7 @@ namespace Application.Contracts.Persistence
         public Task<int> CreateAccount(CreateAccountViewModel accountVM);
         public Task<int> UpdateAccount(UpdateAccountViewModel accountVM);
         public Task DeleteAccountAsync(int accountId);
-        public Task IncreseAccountBalance(int accountId,int amount);
+        public Task IncreaseAccountBalance(int accountId,int amount);
 
 
     }

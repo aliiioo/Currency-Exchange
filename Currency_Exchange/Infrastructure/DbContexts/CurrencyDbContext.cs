@@ -27,6 +27,9 @@ namespace Infrastructure.DbContexts
         public DbSet<SystemLog> SystemLogs { get; set; }
         public DbSet<ExchangeRate> ExchangeRates { get; set; }
         public DbSet<CurrencyConversion> CurrencyConversions { get; set; }
+        public DbSet<OthersAccount>  OthersAccounts{ get; set; }
+
+
 
 
         protected override void OnModelCreating(ModelBuilder builder)

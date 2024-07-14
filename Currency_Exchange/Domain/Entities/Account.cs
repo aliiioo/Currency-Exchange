@@ -15,6 +15,8 @@ namespace Domain.Entities
         public string UserId { get; set; }
         public string Currency { get; set; } // 'USD', 'EUR', 'JPY', etc.
         public decimal Balance { get; set; }
+        public string AccountName { get; set; } = string.Empty;
+        public string CartNumber { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         // Navigation properties
