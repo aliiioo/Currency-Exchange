@@ -13,7 +13,7 @@ namespace Domain.Entities
         [Key]
         public int AccountId { get; set; }
         public string UserId { get; set; }
-        public string Currency { get; set; } // 'USD', 'EUR', 'JPY', etc.
+        public string Currency { get; set; } =string.Empty // 'USD', 'EUR', 'JPY', etc.
 
         public string AccountName { get; set; } = string.Empty;
 

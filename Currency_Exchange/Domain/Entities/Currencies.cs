@@ -19,8 +19,8 @@ namespace Domain.Entities
         [MinLength(1)]
         [Required]
         public string CurrencyName { get; set; }
-        public decimal ExchangeRate { get; set; }
-        public decimal FeePercentage { get; set; }
+        public decimal ExchangeRate { get; set; } = 0;
+        public decimal FeePercentage { get; set; } = 0;
         public DateTime LastUpdated { get; set; } = DateTime.Now;
     }
 

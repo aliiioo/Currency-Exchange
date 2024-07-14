@@ -16,7 +16,7 @@ namespace Domain.Entities
         [Required]
         public string ToCurrency { get; set; } // 'USD', 'EUR', 'JPY', etc.
         [Required]
-        public decimal Rate { get; set; } // Exchange rate from FromCurrency to ToCurrency
+        public decimal Rate { get; set; } = 0; // Exchange rate from FromCurrency to ToCurrency
         public DateTime LastUpdated { get; set; } = DateTime.Now;
     }
 

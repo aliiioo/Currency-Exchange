@@ -16,7 +16,7 @@ namespace Domain.Entities
         [Required]
         public string ToCurrency { get; set; }
         [Required]
-        public decimal Rate { get; set; }
+        public decimal Rate { get; set; } = 0;
         public DateTime LastUpdated { get; set; } = DateTime.Now;
     }
 

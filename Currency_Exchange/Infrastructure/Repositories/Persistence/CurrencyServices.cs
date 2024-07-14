@@ -4,19 +4,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Dtos.CurrencyDtos;
 using Domain.Entities;
 using Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 namespace Infrastructure.Repositories.Persistence
 {
     public class CurrencyServices: ICurrencyServices
     {
         private readonly CurrencyDbContext _context;
+        private readonly IMapper _mapper;
 
-        public CurrencyServices(CurrencyDbContext context)
+        public CurrencyServices(CurrencyDbContext currencyDbContext, IMapper mapper)
         {
-            _context = context;
+            _context=currencyDbContext;
+            _mapper=mapper;
         }
 
         public async Task<bool> IsCurrencyByCodeAsync(string codeCurrency)
@@ -47,5 +51,43 @@ namespace Infrastructure.Repositories.Persistence
             return rate != null ? rate.Rate : 0;
         }
 
+        public async Task<int> CreateCurrency(CreateCurrencyDto currencyVM)
+        {
+            var isExistCurrency = await IsCurrencyByCodeAsync(currencyVM.CurrencyCode);
+            if (isExistCurrency == false) return 0;
+            var Currency= 
+
+            
+        }
+
+        public Task CreateTransformFeeToCurrency(int currencyId, decimal amount)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateTransformFeeToCurrency(int currencyId, decimal amount)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task CreateExchangeFeeToCurrency(int currencyId, decimal amount)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateExchangeFeeToCurrency(int currencyId, decimal amount)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task CreateExchangeRateCurrency(string currency1, string currency2, decimal amount)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateExchangeFeeToCurrency(string currency1, string currency2, decimal amount)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

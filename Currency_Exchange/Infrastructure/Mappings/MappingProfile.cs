@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Domain.Entities;
 using Application.Dtos.OthersAccountDto;
+using Application.Dtos.CurrencyDtos;
 
 namespace Infrastructure.Mappings
 {
@@ -16,7 +17,7 @@ namespace Infrastructure.Mappings
         {
             CreateMap<Account, AccountViewModel>().ReverseMap();
             CreateMap<Account, OtherAccountViewModel>().ReverseMap();
-
+            CreateMap<Currency, CreateCurrencyDto>().ReverseMap();
         }
     }
 }
