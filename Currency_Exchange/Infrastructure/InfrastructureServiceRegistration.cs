@@ -8,7 +8,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Application.Contracts;
+using Application.Contracts.Persistence;
 using Infrastructure.Repositories;
+using Infrastructure.Repositories.Persistence;
+using System.Reflection;
 
 namespace Infrastructure
 {
@@ -19,8 +22,12 @@ namespace Infrastructure
         {
             services.AddDbContext<CurrencyDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("SqlServer")));
-
+            services.AddAutoMapper(Assembly.GetExecutingAssembly());
             services.AddScoped<IMessageSender, MessageSender>();
+            services.AddScoped<IAccountServices, AccountServices>();
+            services.AddScoped<ICurrencyServices, CurrencyServices>();
+            services.AddScoped<IOthersAccountServices, OthersAccountServices>();
+            services.AddScoped<IProviderServices,ProviderServices>();
 
             return services;
 

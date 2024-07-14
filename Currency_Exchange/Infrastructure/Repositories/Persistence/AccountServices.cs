@@ -61,7 +61,7 @@ namespace Infrastructure.Repositories.Persistence
             var account=await _context.Accounts.SingleOrDefaultAsync(x=>x.AccountId.Equals(accountVM.AccountId)&&x.UserId.Equals(accountVM.UserId));
             if (account == null) return 0;
 
-            account.Balance=accountVM.Balance;
+            account.Balance-=accountVM.Balance;
             account.AccountName=accountVM.AccountName;
 
             _context.Accounts.Update(account);

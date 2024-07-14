@@ -15,7 +15,7 @@ namespace Application.Contracts.Persistence
         public Task<List<Transaction>> GetListTransactions(int fromIdAccount);
         public Task<List<Transaction>> GetListTransactionsForAdmin();
 
-        public Task<bool> TransformCurrency(CreateTransactionDtos  transaction);
+        public Task<bool> TransformCurrency(CreateTransactionDtos  transactionVM);
 
 
 

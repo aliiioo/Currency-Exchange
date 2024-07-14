@@ -22,7 +22,7 @@ namespace Infrastructure.Mappings
             CreateMap<CurrencyExchangeFees, CreateFeeDtos>().ReverseMap();
             CreateMap<ExchangeRate, RateDtos>().ReverseMap();
             CreateMap<Transaction, TransactionDto>().ReverseMap();
-            CreateMap<Transaction, TransformCurrencyDtos>().ReverseMap();
+            CreateMap<Transaction, CreateTransactionDtos>().ReverseMap();
         }
     }
 }
