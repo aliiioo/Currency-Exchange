@@ -11,6 +11,7 @@ using Domain.Entities;
 using Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Infrastructure.Repositories.Persistence
 {
@@ -46,6 +47,13 @@ namespace Infrastructure.Repositories.Persistence
                 x.FromCurrency.Equals(fromCurrency) && x.ToCurrency.Equals(toCurrency)).ToListAsync();
         }
 
+        public async Task<decimal> GetTransformFeeCurrencyAsync(string fromCurrency, string toCurrency, decimal price)
+        {
+            var priceFee=await _context.CurrencyTransformFees.SingleOrDefaultAsync(x =>
+                x.FromCurrency.Equals(fromCurrency) && x.ToCurrency.Equals(toCurrency) && x.PriceFee.Equals(price));
+            return priceFee?.PriceFee ?? 0;
+        }
+
         public async Task<CurrencyTransformFees?> GetTransformFeeCurrencyByIdAsync(int id)
         {
             return await _context.CurrencyTransformFees.SingleOrDefaultAsync(x => x.FeeId.Equals(id));
@@ -58,14 +66,14 @@ namespace Infrastructure.Repositories.Persistence
         }
 
 
-        public async Task<bool> IsCurrencyByCodeAsync(string codeCurrency)
+        public async Task<bool> IsExistCurrencyByCodeAsync(string codeCurrency)
         {
             var currency = await _context.Currencies.AnyAsync(x => x.CurrencyCode.Equals(codeCurrency));
             return currency;
 
         }
 
-        public async Task<bool> IsCurrencyByCodeAsync(string firstCodeCurrency, string secondCodeCurrency)
+        public async Task<bool> IsExistCurrencyByCodeAsync(string firstCodeCurrency, string secondCodeCurrency)
         {
             var currency = await _context.Currencies.AnyAsync(x => x.CurrencyCode.Equals(firstCodeCurrency) && x.CurrencyCode.Equals(secondCodeCurrency));
             return currency;
@@ -81,8 +89,10 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<decimal> GetPriceRateExchange(string fromCurrency, string toCurrency)
         {
+            if (fromCurrency.Equals(toCurrency)) return 0;
+
             var rate = await _context.ExchangeRates
-                .FirstOrDefaultAsync(x => x.FromCurrency.Equals(fromCurrency) && x.ToCurrency.Equals(toCurrency));
+            .FirstOrDefaultAsync(x => x.FromCurrency.Equals(fromCurrency) && x.ToCurrency.Equals(toCurrency));
             return rate != null ? rate.Rate : 0;
         }
 
@@ -95,7 +105,7 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<int> CreateCurrency(CreateCurrencyDto currencyVM)
         {
-            var isExistCurrency = await IsCurrencyByCodeAsync(currencyVM.CurrencyCode);
+            var isExistCurrency = await IsExistCurrencyByCodeAsync(currencyVM.CurrencyCode);
             if (isExistCurrency == false) return 0;
             var Currency = _mapper.Map<Currency>(currencyVM);
             await _context.Currencies.AddAsync(Currency);

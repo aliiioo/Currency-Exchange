@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Domain.Entities;
 using Application.Dtos.OthersAccountDto;
 using Application.Dtos.CurrencyDtos;
+using Application.Dtos.TransactionDtos;
 
 namespace Infrastructure.Mappings
 {
@@ -20,6 +21,8 @@ namespace Infrastructure.Mappings
             CreateMap<Currency, CreateCurrencyDto>().ReverseMap();
             CreateMap<CurrencyExchangeFees, CreateFeeDtos>().ReverseMap();
             CreateMap<ExchangeRate, RateDtos>().ReverseMap();
+            CreateMap<Transaction, TransactionDto>().ReverseMap();
+            CreateMap<Transaction, TransformCurrencyDtos>().ReverseMap();
         }
     }
 }

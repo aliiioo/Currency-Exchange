@@ -35,7 +35,7 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<int> CreateOthersAccountAsync(CreateOtherAccountViewModel accountVM)
         {
-            var existCurrency = await _currency.IsCurrencyByCodeAsync(accountVM.Currency);
+            var existCurrency = await _currency.IsExistCurrencyByCodeAsync(accountVM.Currency);
             if (!existCurrency) return 0;
             var newOtherAccount = _mapper.Map<OthersAccount>(accountVM);
             await _context.OthersAccounts.AddAsync(newOtherAccount);

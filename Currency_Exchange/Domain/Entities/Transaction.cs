@@ -25,7 +25,7 @@ namespace Domain.Entities
         public decimal ExchangeRate { get; set; } = 0;
         public decimal Fee { get; set; } = 0;
         [Required]
-        public string Status { get; set; } // 'Pending', 'Completed', 'Cancelled'
+        public StatusEnum Status { get; set; } // 'Pending', 'Completed', 'Cancelled'
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime? CompletedAt { get; set; }
 
@@ -38,5 +38,14 @@ namespace Domain.Entities
         [ForeignKey("ToOtherAccountId")]
         public OthersAccount TpOthersAccount{ get; set; }
     }
+
+
+    public enum StatusEnum
+    {
+        Pending,
+        Completed,
+        Cancelled
+    }
+
 
 }

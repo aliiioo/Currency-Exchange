@@ -42,7 +42,7 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<int> CreateAccount(CreateAccountViewModel accountVM)
         {
-            var existCurrency = await _currency.IsCurrencyByCodeAsync(accountVM.Currency);
+            var existCurrency = await _currency.IsExistCurrencyByCodeAsync(accountVM.Currency);
             if (!existCurrency) return 0;
             var amount=await _currency.CurrencyConvertor(accountVM.Currency, "USD", accountVM.Balance);
             if (amount < MinimumAmount.MinBalance) return 0;

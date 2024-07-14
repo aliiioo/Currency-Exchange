@@ -8,5 +8,9 @@ namespace Application.Dtos.AccountDtos
 {
     public class AccountViewModel
     {
+        public string Currency { get; set; } // 'USD', 'EUR', 'JPY', etc.
+        public decimal Balance { get; set; } = 0;
+        public string AccountName { get; set; } = string.Empty;
+        public string CartNumber { get; set; } = string.Empty;
     }
 }
