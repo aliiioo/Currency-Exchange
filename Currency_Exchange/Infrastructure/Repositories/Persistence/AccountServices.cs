@@ -1,6 +1,7 @@
 ﻿using Application.Contracts.Persistence;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -32,6 +33,12 @@ namespace Infrastructure.Repositories.Persistence
         {
             var account=await _context.Accounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId)&&x.UserId.Equals(username));
             return _mapper.Map<AccountViewModel>(account);
+        }
+
+        public async Task<UpdateAccountViewModel> GetAccountByIdAsyncForUpdate(string username, int accountId)
+        {
+            var account = await _context.Accounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId) && x.UserId.Equals(username));
+            return _mapper.Map<UpdateAccountViewModel>(account);
         }
 
         public async Task<List<AccountViewModel>> GetListAccountsByNameAsync(string username)
@@ -79,13 +86,16 @@ namespace Infrastructure.Repositories.Persistence
             await _context.SaveChangesAsync();
         }
 
-        public async Task IncreaseAccountBalance(int accountId, int amount)
+        public async Task IncreaseAccountBalance(IncreaseBalanceDto balanceDto)
         {
-            var account = await _context.Accounts.FirstOrDefaultAsync(x => x.AccountId == accountId);
-            if (account!=null) account.Balance += amount;
+            var account = await _context.Accounts.FirstOrDefaultAsync(x => x.AccountId == balanceDto.AccountId);
+            if (account!=null) account.Balance += balanceDto.Amount;
             _context.Accounts.Update(account);
             await _context.SaveChangesAsync();
 
         }
+
+
+        
     }
 }

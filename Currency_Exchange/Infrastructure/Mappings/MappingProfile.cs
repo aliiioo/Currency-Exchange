@@ -17,6 +17,7 @@ namespace Infrastructure.Mappings
         public MappingProfile()
         {
             CreateMap<Account, AccountViewModel>().ReverseMap();
+            CreateMap<Account, UpdateAccountViewModel>().ReverseMap();
             CreateMap<Account, OtherAccountViewModel>().ReverseMap();
             CreateMap<Currency, CurrencyDto>().ReverseMap();
             CreateMap<CurrencyExchangeFees, CreateFeeDtos>().ReverseMap();
