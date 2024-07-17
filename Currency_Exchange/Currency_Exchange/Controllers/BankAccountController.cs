@@ -104,7 +104,8 @@ namespace Currency_Exchange.Controllers
             {
                 return View(balanceDto);
             }
-            await _accountServices.IncreaseAccountBalance(balanceDto,User.Identity.Name);
+            var result=await _accountServices.IncreaseAccountBalance(balanceDto,User.Identity.Name);
+            if (result==false) return Unauthorized();
             return RedirectToAction("Index", new { User.Identity.Name });
         }
     }
