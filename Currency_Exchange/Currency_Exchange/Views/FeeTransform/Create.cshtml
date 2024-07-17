@@ -1,0 +1,48 @@
+﻿@model Application.Dtos.CurrencyDtos.CreateFeeDtos
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>CreateFeeDtos</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="EndRange" class="control-label"></label>
+                <input asp-for="EndRange" class="form-control" />
+                <span asp-validation-for="EndRange" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FromCurrency" class="control-label"></label>
+                <input asp-for="FromCurrency" class="form-control" />
+                <span asp-validation-for="FromCurrency" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ToCurrency" class="control-label"></label>
+                <input asp-for="ToCurrency" class="form-control" />
+                <span asp-validation-for="ToCurrency" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PriceFee" class="control-label"></label>
+                <input asp-for="PriceFee" class="form-control" />
+                <span asp-validation-for="PriceFee" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

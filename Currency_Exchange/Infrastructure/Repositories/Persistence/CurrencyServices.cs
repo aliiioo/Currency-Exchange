@@ -56,6 +56,12 @@ namespace Infrastructure.Repositories.Persistence
             return currency.ExchangeRate;
         }
 
+        public async Task<UpdateRateDtos> GetCurrencyRateByIdAsync(int rateId)
+        {
+            var rate= await _context.ExchangeRates.SingleOrDefaultAsync(x => x.ExchangeRateId == rateId);
+            return _mapper.Map<UpdateRateDtos>(rate);
+        }
+
         public async Task<List<CurrencyDto>> GetListCurrency()
         {
             return _mapper.Map<List<CurrencyDto>>(await _context.Currencies.ToListAsync());
@@ -70,9 +76,10 @@ namespace Infrastructure.Repositories.Persistence
             return await _context.Currencies.SingleOrDefaultAsync(x => x.CurrencyCode.Equals(currencyCode));
         }
 
-        public async Task<CurrencyExchangeFees?> GetExchangeFeeCurrencyByIdAsync(int id)
+        public async Task<UpdateFeeDtos?> GetExchangeFeeCurrencyByIdAsync(int id)
         {
-            return await _context.CurrencyExchangeFees.SingleOrDefaultAsync(x => x.FeeId.Equals(id));
+            var fee= await _context.CurrencyExchangeFees.SingleOrDefaultAsync(x => x.FeeId.Equals(id));
+            return _mapper.Map<UpdateFeeDtos>(fee);
         }
 
         public async Task<List<CurrencyExchangeFees>> GetListExchangeFeesAsync(string fromCurrency, string toCurrency)
@@ -88,9 +95,10 @@ namespace Infrastructure.Repositories.Persistence
             return priceFee?.PriceFee ?? 0;
         }
 
-        public async Task<CurrencyTransformFees?> GetTransformFeeCurrencyByIdAsync(int id)
+        public async Task<UpdateFeeDtos?> GetTransformFeeCurrencyByIdAsync(int id)
         {
-            return await _context.CurrencyTransformFees.SingleOrDefaultAsync(x => x.FeeId.Equals(id));
+            var fees= await _context.CurrencyTransformFees.SingleOrDefaultAsync(x => x.FeeId.Equals(id));
+            return _mapper.Map<UpdateFeeDtos>(fees);
         }
 
         public async Task<List<CurrencyTransformFees>> GetListTransformFeesAsync(string fromCurrency, string toCurrency)
@@ -158,12 +166,13 @@ namespace Infrastructure.Repositories.Persistence
             return rate.ExchangeRateId;
         }
 
-        public async Task<bool> UpdateExchangeRateToCurrency(RateDtos rateVM)
+        public async Task<bool> UpdateExchangeRateToCurrency(UpdateRateDtos rateVM)
         {
-            var existRate = await GetRateExchange(rateVM.FromCurrency, rateVM.ToCurrency);
+            var existRate = await GetCurrencyRateByIdAsync(rateVM.ExchangeRateId);
             if (existRate == null) return false;
             existRate.Rate = rateVM.Rate;
-            _context.ExchangeRates.Update(existRate);
+            var rate= _mapper.Map<ExchangeRate>(existRate);
+            _context.ExchangeRates.Update(rate);
             await _context.SaveChangesAsync();
             return true;
         }
@@ -192,7 +201,7 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<bool> UpdateTransformFeeToCurrency(UpdateFeeDtos Model)
         {
-            var fee = await GetExchangeFeeCurrencyByIdAsync(Model.FeeId);
+            var fee = await GetTransformFeeCurrencyByIdAsync(Model.FeeId);
             if (fee == null) return false;
             fee.PriceFee = Model.PriceFee;
             return true;

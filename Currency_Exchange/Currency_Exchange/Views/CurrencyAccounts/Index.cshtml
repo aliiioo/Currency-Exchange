@@ -32,7 +32,9 @@
                     @Html.DisplayFor(modelItem => item.CurrencyName)
                 </td>
                 <td>
-                    @Html.ActionLink("Edit", "Details", new { /* id=item.PrimaryKey */ }) |
+                    @Html.ActionLink("List Rate", "Details", new { /* id=item.PrimaryKey */ }) |
+                    @Html.ActionLink("List Transforms Fees", "Details", new { /* id=item.PrimaryKey */ }) |
+                    @Html.ActionLink("List Exchange Fees", "Details", new { /* id=item.PrimaryKey */ }) |
                 </td>
             </tr>
         }

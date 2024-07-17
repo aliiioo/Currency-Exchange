@@ -44,12 +44,36 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3VycmVuY3lBY2NvdW50c1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/Currency Exchange/Currency_Exchange/Currency_Exchange/Views/FeeExchange/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmVlRXhjaGFuZ2VcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Currency Exchange/Currency_Exchange/Currency_Exchange/Views/FeeExchange/Update.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmVlRXhjaGFuZ2VcVXBkYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Currency Exchange/Currency_Exchange/Currency_Exchange/Views/FeeTransform/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmVlVHJhbnNmb3JtXENyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Currency Exchange/Currency_Exchange/Currency_Exchange/Views/FeeTransform/Update.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmVlVHJhbnNmb3JtXFVwZGF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/Currency Exchange/Currency_Exchange/Currency_Exchange/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/Currency Exchange/Currency_Exchange/Currency_Exchange/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Currency Exchange/Currency_Exchange/Currency_Exchange/Views/Rate/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmF0ZVxDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Currency Exchange/Currency_Exchange/Currency_Exchange/Views/Rate/Update.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmF0ZVxVcGRhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/Currency Exchange/Currency_Exchange/Currency_Exchange/Views/RoleManager/Index.cshtml]
