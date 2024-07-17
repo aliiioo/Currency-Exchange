@@ -79,16 +79,18 @@ namespace Infrastructure.Repositories.Persistence
 
         }
 
-        public async Task DeleteAccountAsync(int accountId)
+        public async Task<bool> DeleteAccountAsync(int accountId,string username)
         {
-            var account = await _context.Accounts.FirstOrDefaultAsync(x=>x.AccountId==accountId);
-            if (account != null) _context.Accounts.Remove(account);
+            var account = await _context.Accounts.FirstOrDefaultAsync(x=>x.AccountId.Equals(accountId)&&x.UserId.Equals(username));
+            if (account == null) return false;
+            _context.Accounts.Remove(account);
             await _context.SaveChangesAsync();
+            return true;
         }
 
-        public async Task IncreaseAccountBalance(IncreaseBalanceDto balanceDto)
+        public async Task IncreaseAccountBalance(IncreaseBalanceDto balanceDto, string username)
         {
-            var account = await _context.Accounts.FirstOrDefaultAsync(x => x.AccountId == balanceDto.AccountId);
+            var account = await _context.Accounts.FirstOrDefaultAsync(x => x.AccountId.Equals(balanceDto.AccountId) && x.UserId.Equals(username));
             if (account!=null) account.Balance += balanceDto.Amount;
             _context.Accounts.Update(account);
             await _context.SaveChangesAsync();

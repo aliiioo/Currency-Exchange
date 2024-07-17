@@ -16,8 +16,8 @@ namespace Application.Contracts.Persistence
         public Task<List<AccountViewModel>> GetListAccountsByNameAsync(string username);
         public Task<int> CreateAccount(CreateAccountViewModel accountVM);
         public Task<int> UpdateAccount(UpdateAccountViewModel accountVM);
-        public Task DeleteAccountAsync(int accountId);
-        public Task IncreaseAccountBalance(IncreaseBalanceDto balanceDto);
+        public Task<bool> DeleteAccountAsync(int accountId, string username);
+        public Task IncreaseAccountBalance(IncreaseBalanceDto balanceDto,string username);
 
 
     }

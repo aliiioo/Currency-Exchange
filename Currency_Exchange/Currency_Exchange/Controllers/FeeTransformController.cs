@@ -21,6 +21,7 @@ namespace Currency_Exchange.Controllers
             return View();
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateFeeDtos Model)
         {
             if (!ModelState.IsValid)
@@ -44,6 +45,7 @@ namespace Currency_Exchange.Controllers
 
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Update(UpdateFeeDtos feeDtos)
         {
             if (!ModelState.IsValid)

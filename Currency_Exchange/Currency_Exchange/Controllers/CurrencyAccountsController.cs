@@ -28,6 +28,7 @@ namespace Currency_Exchange.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateCurrency(CurrencyDto Model)
         {
             if (!TryValidateModel(model:Model))
