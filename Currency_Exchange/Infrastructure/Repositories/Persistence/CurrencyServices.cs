@@ -125,13 +125,13 @@ namespace Infrastructure.Repositories.Persistence
         public async Task<decimal> CurrencyConvertor(string fromCurrency, string toCurrency, decimal amount)
         {
             var rate = await GetPriceRateExchange(fromCurrency, toCurrency);
-            return rate != 0 ? amount * rate : 0;
+            return rate != 1 ? amount * rate : 1;
 
         }
 
         public async Task<decimal> GetPriceRateExchange(string fromCurrency, string toCurrency)
         {
-            if (fromCurrency.Equals(toCurrency)) return 0;
+            if (fromCurrency.Equals(toCurrency)) return 1;
 
             var rate = await _context.ExchangeRates
             .FirstOrDefaultAsync(x => x.FromCurrency.Equals(fromCurrency) && x.ToCurrency.Equals(toCurrency));

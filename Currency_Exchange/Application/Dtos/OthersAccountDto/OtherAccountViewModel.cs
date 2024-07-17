@@ -12,5 +12,6 @@ namespace Application.Dtos.OthersAccountDto
         public string Currency { get; set; } = string.Empty; // 'USD', 'EUR', 'JPY', etc.
         public string AccountName { get; set; } = string.Empty;
         public string CartNumber { get; set; } = string.Empty;
+        public decimal Balance { get; set; }
     }
 }

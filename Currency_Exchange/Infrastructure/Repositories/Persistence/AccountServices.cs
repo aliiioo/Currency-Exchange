@@ -15,6 +15,7 @@ using Domain.Entities;
 using Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Application.Statics;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Update;
 
 namespace Infrastructure.Repositories.Persistence
@@ -108,6 +109,11 @@ namespace Infrastructure.Repositories.Persistence
             await _context.SaveChangesAsync();
             return true;
 
+        }
+
+        public async Task<bool> IsAccountForUser(string username, int accountId)
+        {
+            return await _context.Accounts.AnyAsync(x => x.UserId.Equals(username) && x.AccountId.Equals(accountId));
         }
 
 

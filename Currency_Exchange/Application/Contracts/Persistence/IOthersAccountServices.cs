@@ -16,7 +16,8 @@ namespace Application.Contracts.Persistence
         public Task<int> CreateOthersAccountAsync(CreateOtherAccountViewModel othersAccountViewModel);
         public Task<bool> DeleteOthersAccountAsync( int accountId,string username);
         public Task<int> UpdateOthersAccountAsync(UpdateOtherAccountViewModel otherAccountViewModel);
-        
+        public Task<bool> IsAccountForOthers(string username,int accountId);
+
 
 
 

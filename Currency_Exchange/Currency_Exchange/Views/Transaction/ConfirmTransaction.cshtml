@@ -1,0 +1,88 @@
+﻿@model Application.Dtos.TransactionDtos.TransactionDto
+
+@{
+    ViewData["Title"] = "ConfirmTransaction";
+}
+
+<h1>ConfirmTransaction</h1>
+
+<h4>TransactionDto</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="ConfirmTransaction">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="TransactionId" class="control-label"></label>
+                <input asp-for="TransactionId" class="form-control" />
+                <span asp-validation-for="TransactionId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FromAccount" class="control-label"></label>
+                <input asp-for="FromAccount" class="form-control" />
+                <span asp-validation-for="FromAccount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ToAccount" class="control-label"></label>
+                <input asp-for="ToAccount" class="form-control" />
+                <span asp-validation-for="ToAccount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FromCurrency" class="control-label"></label>
+                <input asp-for="FromCurrency" class="form-control" />
+                <span asp-validation-for="FromCurrency" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ToCurrency" class="control-label"></label>
+                <input asp-for="ToCurrency" class="form-control" />
+                <span asp-validation-for="ToCurrency" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Amount" class="control-label"></label>
+                <input asp-for="Amount" class="form-control" />
+                <span asp-validation-for="Amount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ConvertedAmount" class="control-label"></label>
+                <input asp-for="ConvertedAmount" class="form-control" />
+                <span asp-validation-for="ConvertedAmount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ExchangeRate" class="control-label"></label>
+                <input asp-for="ExchangeRate" class="form-control" />
+                <span asp-validation-for="ExchangeRate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Fee" class="control-label"></label>
+                <input asp-for="Fee" class="form-control" />
+                <span asp-validation-for="Fee" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Status" class="control-label"></label>
+                <input asp-for="Status" class="form-control" />
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedAt" class="control-label"></label>
+                <input asp-for="CreatedAt" class="form-control" />
+                <span asp-validation-for="CreatedAt" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CompletedAt" class="control-label"></label>
+                <input asp-for="CompletedAt" class="form-control" />
+                <span asp-validation-for="CompletedAt" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

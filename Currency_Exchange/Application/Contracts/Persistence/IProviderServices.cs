@@ -10,12 +10,14 @@ namespace Application.Contracts.Persistence
 {
     public interface IProviderServices
     {
-        public Task<Transaction> GetTransaction(int idTransaction);
+        public Task<TransactionDto> GetTransaction(int idTransaction);
 
-        public Task<List<Transaction>> GetListTransactions(int fromIdAccount);
+        public Task<List<TransactionDto>> GetListTransactions(int fromIdAccount);
         public Task<List<Transaction>> GetListTransactionsForAdmin();
 
-        public Task<bool> TransformCurrency(CreateTransactionDtos  transactionVM);
+        public Task<bool> TransformCurrency(CreateTransactionDtos  transactionVM, string username);
+        public Task<bool> TransformToSelfAccountCurrency(CreateTransactionDtos  transactionVM, string username);
+        public Task<bool> ConfirmTransaction(int transactionId, string username, bool isConfirm);
 
 
 

@@ -74,15 +74,17 @@ namespace Infrastructure.Repositories.Persistence
         {            
             var account = await _context.OthersAccounts.SingleOrDefaultAsync(x => x.AccountId.Equals(otherAccountViewModel.AccountId) && x.UserId.Equals(otherAccountViewModel.UserId));
             if (account == null) return 0;
-
             account.AccountName = otherAccountViewModel.AccountName;
-
+            account.Balance=otherAccountViewModel.Balance;
             _context.OthersAccounts.Update(account);
             await _context.SaveChangesAsync();
             return account.AccountId;
         }
 
-     
-       
+        public async Task<bool> IsAccountForOthers(string username, int accountId)
+        {
+            return await _context.OthersAccounts.AnyAsync(x => x.UserId.Equals(username) && x.AccountId.Equals(accountId));
+        }
+
     }
 }

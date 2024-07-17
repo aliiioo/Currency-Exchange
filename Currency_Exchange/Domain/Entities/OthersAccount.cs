@@ -18,6 +18,7 @@ namespace Domain.Entities
         public string AccountName { get; set; } = string.Empty;
 
         public string CartNumber { get; set; } = string.Empty;
+        public decimal Balance { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         // Navigation properties
