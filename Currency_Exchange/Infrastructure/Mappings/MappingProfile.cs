@@ -29,6 +29,9 @@ namespace Infrastructure.Mappings
             CreateMap<Transaction, TransactionDto>().ReverseMap();
             CreateMap<Transaction, CreateTransactionDtos>().ReverseMap();
             CreateMap<Currency, CurrencyDetailDto>().ReverseMap();
+            CreateMap<OthersAccount, CreateOtherAccountViewModel>().ReverseMap();
+            CreateMap<OthersAccount, UpdateOtherAccountViewModel>().ReverseMap();
+            CreateMap<OthersAccount, OtherAccountViewModel>().ReverseMap();
         }
     }
 }

@@ -88,6 +88,22 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/Currency Exchange/Currency_Exchange/Currency_Exchange/Views/OthersBank/CreateOthersBankAccount.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcT3RoZXJzQmFua1xDcmVhdGVPdGhlcnNCYW5rQWNjb3VudC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Currency Exchange/Currency_Exchange/Currency_Exchange/Views/OthersBank/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcT3RoZXJzQmFua1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Currency Exchange/Currency_Exchange/Currency_Exchange/Views/OthersBank/OthersBank.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcT3RoZXJzQmFua1xPdGhlcnNCYW5rLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Currency Exchange/Currency_Exchange/Currency_Exchange/Views/OthersBank/UpdateBankAccount.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcT3RoZXJzQmFua1xVcGRhdGVCYW5rQWNjb3VudC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/Currency Exchange/Currency_Exchange/Currency_Exchange/Views/Rate/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmF0ZVxDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 

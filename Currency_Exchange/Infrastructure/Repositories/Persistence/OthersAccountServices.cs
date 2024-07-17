@@ -33,6 +33,20 @@ namespace Infrastructure.Repositories.Persistence
             return _mapper.Map<List<OtherAccountViewModel>>(accounts);
         }
 
+        public async Task<UpdateOtherAccountViewModel> GetOtherAccountByNameForUpdateAsync(int accountId)
+        {
+            var accounts = await _context.OthersAccounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId));
+            return _mapper.Map<UpdateOtherAccountViewModel>(accounts);
+
+        }
+
+        public async Task<OtherAccountViewModel> GetOtherAccountByIdAsync(int accountId, string username)
+        {
+            var accounts = await _context.OthersAccounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId)&&x.UserId.Equals(username));
+            return _mapper.Map<OtherAccountViewModel>(accounts);
+        }
+
+
         public async Task<int> CreateOthersAccountAsync(CreateOtherAccountViewModel accountVM)
         {
             var existCurrency = await _currency.IsExistCurrencyByCodeAsync(accountVM.Currency);
@@ -43,14 +57,17 @@ namespace Infrastructure.Repositories.Persistence
             return newOtherAccount.AccountId;
         }
 
-        public async Task DeleteOthersAccountAsync(int accountId)
+        public async Task<bool> DeleteOthersAccountAsync(int accountId ,string username)
         {
-            var account=await _context.OthersAccounts.SingleOrDefaultAsync(x=>x.AccountId.Equals(accountId));
+            var account=await _context.OthersAccounts.SingleOrDefaultAsync(x=>x.AccountId.Equals(accountId)&&x.UserId.Equals(username));
             if (account!=null)
             {
                 _context.OthersAccounts.Remove(account);
                 await _context.SaveChangesAsync();
+                return true;
             }
+            return false;
+
         }
 
         public async Task<int> UpdateOthersAccountAsync(UpdateOtherAccountViewModel otherAccountViewModel)
@@ -65,10 +82,7 @@ namespace Infrastructure.Repositories.Persistence
             return account.AccountId;
         }
 
-        public async Task<OtherAccountViewModel> GetOtherAccountByNameAsync(int accountId)
-        {
-            var accounts = await _context.OthersAccounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId));
-            return _mapper.Map<OtherAccountViewModel>(accounts);
-        }
+     
+       
     }
 }

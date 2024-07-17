@@ -11,9 +11,10 @@ namespace Application.Contracts.Persistence
     public interface IOthersAccountServices
     {
         public Task<List<OtherAccountViewModel>> GetListOthersAccountsByNameAsync(string username);
-        public Task<OtherAccountViewModel> GetOtherAccountByNameAsync(int accountId);
+        public Task<OtherAccountViewModel> GetOtherAccountByIdAsync(int accountId,string username);
+        public Task<UpdateOtherAccountViewModel> GetOtherAccountByNameForUpdateAsync(int accountId);
         public Task<int> CreateOthersAccountAsync(CreateOtherAccountViewModel othersAccountViewModel);
-        public Task DeleteOthersAccountAsync( int accountId);
+        public Task<bool> DeleteOthersAccountAsync( int accountId,string username);
         public Task<int> UpdateOthersAccountAsync(UpdateOtherAccountViewModel otherAccountViewModel);
         
 

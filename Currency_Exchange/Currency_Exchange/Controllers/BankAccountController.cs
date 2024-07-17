@@ -55,7 +55,8 @@ namespace Currency_Exchange.Controllers
             return View(account);
 
         }
-        
+
+        [HttpPost]
         public async Task<IActionResult> UpdateBankAccount(UpdateAccountViewModel accountVM)
         {
             if (!ModelState.IsValid)
