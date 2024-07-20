@@ -40,17 +40,9 @@ namespace Application.API_Calls
                 {
                     PropertyNameCaseInsensitive = true,
                 };
-                var data=await response.Content.ReadAsStringAsync();
-                ExchangeRateResponse data1 = JsonSerializer.Deserialize<ExchangeRateResponse>(data, options);
-                return new decimal();
-                // if (data1)
-                // {
-                //     
-                // }
-                // else
-                // {
-                //     throw new KeyNotFoundException($"Currency '{targetCurrency}' not found in response.");
-                // }
+                var dataReder=await response.Content.ReadAsStringAsync();
+                var data = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, decimal>>>(dataReder);
+                return data.Values.FirstOrDefault().FirstOrDefault().Value;
             }
             catch (HttpRequestException ex)
             {
@@ -59,18 +51,5 @@ namespace Application.API_Calls
                 throw;
             }
         }
-    }
-
-    public class ExchangeRateResponse
-    {
-        public string Base { get; set; }
-        public DateTime Date { get; set; }
-        public Rates Rates { get; set; }
-    }
-
-    public class Rates
-    {
-        public decimal USD { get; set; }
-        // Add other currency properties here as needed
     }
 }
