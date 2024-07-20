@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Reflection.Metadata;
 using System.Security.Principal;
 using System.Text;
@@ -35,7 +36,7 @@ namespace Infrastructure.DbContexts
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            base.OnModelCreating(builder);
+           
 
             #region Seedata
 
@@ -84,9 +85,9 @@ namespace Infrastructure.DbContexts
 
             #endregion
             //
-            // builder.Entity<ApplicationUser>()
-            //     .Property(p => p.Id)
-            //     .HasColumnName("UserId");
+
+
+            builder.Entity<Account>().HasQueryFilter(e => !e.IsDeleted);
 
             builder.Entity<Transaction>()
                 .HasOne(t => t.FromAccount)
@@ -99,6 +100,8 @@ namespace Infrastructure.DbContexts
                 .WithMany()
                 .HasForeignKey(t => t.ToAccountId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            base.OnModelCreating(builder);
         }
     }
 }

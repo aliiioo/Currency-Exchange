@@ -32,6 +32,13 @@ namespace Currency_Exchange.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> DeleteAccounts()
+        {
+            var bankAccounts = await _accountServices.GetListAccountsByNameAsync(User.GetUserId());
+            return View(bankAccounts);
+        }
+
+        [HttpGet]
         public async Task<IActionResult> BankAccount(int accountId)
         {
             var bankAccount = await _accountServices.GetAccountByIdAsync(User.GetUserId(),accountId);
@@ -98,9 +105,9 @@ namespace Currency_Exchange.Controllers
 
         public async Task<IActionResult> DeleteAccount(int accountId)
         {
-            var result= await _accountServices.DeleteAccountAsync(accountId,User.Identity.Name);
+            var result= await _accountServices.DeleteAccountAsync(accountId,User.GetUserId());
             if (result==false) return Unauthorized();
-            return RedirectToAction("Index", new { User.Identity.Name });
+            return RedirectToAction("Index");
         }
 
         [HttpGet]

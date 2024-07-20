@@ -18,6 +18,8 @@ namespace Domain.Entities
         public string AccountName { get; set; } = string.Empty;
         public string CartNumber { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public bool IsDeleted { get; set; }=false;
+        public bool IsActive { get; set; }=true;
 
         // Navigation properties
         [ForeignKey("UserId")]

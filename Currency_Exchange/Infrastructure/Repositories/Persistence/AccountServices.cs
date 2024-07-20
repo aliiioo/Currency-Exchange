@@ -52,6 +52,12 @@ namespace Infrastructure.Repositories.Persistence
             return _mapper.Map<List<AccountViewModel>>(accounts);
         }
 
+        public async Task<List<AccountViewModel>> GetListDeleteAccountsByNameAsync(string userId)
+        {
+            var accounts = await _context.Accounts.IgnoreQueryFilters().Where(x => x.UserId.Equals(userId)&&x.IsDeleted).ToListAsync();
+            return _mapper.Map<List<AccountViewModel>>(accounts);
+        }
+
         public async Task<int> CreateAccount(CreateAccountViewModel accountVM)
         {
             var existCurrency = await _currency.IsExistCurrencyByCodeAsync(accountVM.Currency);
@@ -60,7 +66,12 @@ namespace Infrastructure.Repositories.Persistence
             if (amount < MinimumAmount.MinBalance) return 0;
 
             var account = _mapper.Map<Account>(accountVM);
-            account.CartNumber = CartNumbers.GenerateUnique16DigitNumbers();
+            var cartNumber = CartNumbers.GenerateUnique16DigitNumbers();
+            while (await IsCartNumberExist(cartNumber) == false)
+            {
+                cartNumber=CartNumbers.GenerateUnique16DigitNumbers();
+            }
+            account.CartNumber=cartNumber;
             await _context.Accounts.AddAsync(account);
             await _context.SaveChangesAsync();
             return account.AccountId;
@@ -85,11 +96,12 @@ namespace Infrastructure.Repositories.Persistence
 
         }
 
-        public async Task<bool> DeleteAccountAsync(int accountId, string username)
+        public async Task<bool> DeleteAccountAsync(int accountId, string userId)
         {
-            var account = await _context.Accounts.FirstOrDefaultAsync(x => x.AccountId.Equals(accountId) && x.UserId.Equals(username));
+            var account = await _context.Accounts.FirstOrDefaultAsync(x => x.AccountId.Equals(accountId) && x.UserId.Equals(userId));
             if (account == null) return false;
-            _context.Accounts.Remove(account);
+            account.IsDeleted=true;
+            _context.Accounts.Update(account);
             await _context.SaveChangesAsync();
             return true;
         }
@@ -112,6 +124,13 @@ namespace Infrastructure.Repositories.Persistence
             await _context.SaveChangesAsync();
             return true;
 
+        }
+
+        public async Task<bool> IsCartNumberExist(string cartNumber)
+        {
+            var result = await _context.Accounts.SingleOrDefaultAsync(x => x.CartNumber.Equals(cartNumber));
+            if (result == null) return true;
+            return false;
         }
 
         public async Task<bool> IsAccountForUser(string username, int accountId)

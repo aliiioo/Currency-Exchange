@@ -9,6 +9,9 @@
 <p>
     <a asp-controller="BankAccount" asp-action="CreateBankAccount">Create New</a>
 </p>
+<p>
+    <a asp-controller="BankAccount" asp-action="DeleteAccounts">Deleted Account</a>
+</p>
 <table class="table">
     <thead>
         <tr>
@@ -43,15 +46,15 @@
                 @Html.DisplayFor(modelItem => item.CartNumber)
             </td>
             <td>
-                <a asp-controller="CurrencyAccounts" asp-action="DetailCurrencyTransformRate" asp-route-currencyId="@item.CurrencyId" asp-route-currentCode="@item.CurrencyCode">
+                    <a asp-controller="BankAccount" asp-action="DeleteAccount" asp-route-accountId="@item.AccountId">
                     Delete |
                 </a>
-                <a asp-controller="CurrencyAccounts" asp-action="DetailCurrencyTransformFee" asp-route-currencyId="@item.CurrencyId" asp-route-currentCode="@item.CurrencyCode">
+                    <a asp-controller="BankAccount" asp-action="UpdateBankAccount" asp-route-accountId="@item.AccountId">
                    Update | 
                 </a>
-                <a asp-controller="CurrencyAccounts" asp-action="DetailCurrencyExchangeFee" asp-route-currencyId="@item.CurrencyId" asp-route-currentCode="@item.CurrencyCode">
-                 Details
-                </a>
+                @* <a asp-controller="CurrencyAccounts" asp-action="DetailCurrencyExchangeFee" asp-route-currencyId="@item.CurrencyId" asp-route-currentCode="@item.CurrencyCode"> *@
+                @*  Details *@
+                @* </a> *@
             </td>
         </tr>
 }
