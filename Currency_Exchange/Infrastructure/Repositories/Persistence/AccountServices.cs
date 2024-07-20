@@ -25,28 +25,30 @@ namespace Infrastructure.Repositories.Persistence
         private readonly CurrencyDbContext _context;
         private readonly ICurrencyServices _currency;
         private readonly IMapper _mapper;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public AccountServices(CurrencyDbContext context, ICurrencyServices currency, IMapper mapper)
+        public AccountServices(CurrencyDbContext context, ICurrencyServices currency, IMapper mapper, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _currency = currency;
             _mapper = mapper;
+            _userManager = userManager;
         }
-        public async Task<AccountViewModel> GetAccountByIdAsync(string username, int accountId)
+        public async Task<AccountViewModel> GetAccountByIdAsync(string userId, int accountId)
         {
-            var account = await _context.Accounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId) && x.UserId.Equals(username));
+            var account = await _context.Accounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId) && x.UserId.Equals(userId));
             return _mapper.Map<AccountViewModel>(account);
         }
 
-        public async Task<UpdateAccountViewModel> GetAccountByIdAsyncForUpdate(string username, int accountId)
+        public async Task<UpdateAccountViewModel> GetAccountByIdAsyncForUpdate(string userId, int accountId)
         {
-            var account = await _context.Accounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId) && x.UserId.Equals(username));
+            var account = await _context.Accounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId) && x.UserId.Equals(userId));
             return _mapper.Map<UpdateAccountViewModel>(account);
         }
 
-        public async Task<List<AccountViewModel>> GetListAccountsByNameAsync(string username)
+        public async Task<List<AccountViewModel>> GetListAccountsByNameAsync(string userId)
         {
-            var accounts = await _context.Accounts.Where(x => x.UserId.Equals(username)).ToListAsync();
+            var accounts = await _context.Accounts.Where(x => x.UserId.Equals(userId)).ToListAsync();
             return _mapper.Map<List<AccountViewModel>>(accounts);
         }
 
@@ -57,10 +59,11 @@ namespace Infrastructure.Repositories.Persistence
             var amount = await _currency.CurrencyConvertor(accountVM.Currency, "USD", accountVM.Balance);
             if (amount < MinimumAmount.MinBalance) return 0;
 
-            var newAccount = _mapper.Map<Account>(accountVM);
-            await _context.Accounts.AddAsync(newAccount);
+            var account = _mapper.Map<Account>(accountVM);
+            account.CartNumber = CartNumbers.GenerateUnique16DigitNumbers();
+            await _context.Accounts.AddAsync(account);
             await _context.SaveChangesAsync();
-            return newAccount.AccountId;
+            return account.AccountId;
 
         }
 

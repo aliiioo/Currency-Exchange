@@ -1,6 +1,7 @@
 ﻿using Application.Contracts.Persistence;
 using Application.Dtos.CurrencyDtos;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Currency_Exchange.Controllers
 {
@@ -14,8 +15,14 @@ namespace Currency_Exchange.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public IActionResult Create(int currentId,string currencyCode)
         {
+            List<SelectListItem> currency = _currencyServices.GetListCurrency().Result
+                .Select(x => new SelectListItem { Value = x.CurrencyCode.ToString(), Text = x.CurrencyCode.ToString() }).ToList();
+            currency.Insert(0, new SelectListItem { Value = "", Text = "انتحاب کنید" });
+            ViewBag.currency=currency;
+            ViewBag.currentId=currentId;
+            ViewBag.currencyCode=currencyCode;
             return View();
         }
         [HttpPost]
@@ -24,6 +31,10 @@ namespace Currency_Exchange.Controllers
         {
             if (!ModelState.IsValid)
             {
+                List<SelectListItem> currency = _currencyServices.GetListCurrency().Result
+                    .Select(x => new SelectListItem { Value = x.CurrencyCode.ToString(), Text = x.CurrencyCode.ToString() }).ToList();
+                currency.Insert(0, new SelectListItem { Value = "", Text = "انتحاب کنید" });
+                ViewBag.currency = currency;
                 return View(rateDto);
             }
             var rate = await _currencyServices.CreateExchangeRateCurrency(rateDto);

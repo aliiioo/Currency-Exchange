@@ -12,6 +12,7 @@ namespace Domain.Entities
     {
         [Key]
         public int ExchangeRateId { get; set; }
+        public int CurrencyId { get; set; }
         [Required]
         public string FromCurrency { get; set; }
         [Required]
@@ -20,7 +21,15 @@ namespace Domain.Entities
         public decimal Rate { get; set; } = 0;
         public DateTime LastUpdated { get; set; } = DateTime.Now;
 
-       
+
+
+
+        [ForeignKey("CurrencyId")]
+        public Currency Currency { get; set; }
+
+
+
+
 
     }
 

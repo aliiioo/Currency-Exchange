@@ -1,4 +1,4 @@
-﻿@model Application.Dtos.CurrencyDtos.UpdateFeeDtos
+﻿@* @model Application.Dtos.CurrencyDtos.UpdateFeeDtos *@
 
 @{
     ViewData["Title"] = "Update";
@@ -13,14 +13,11 @@
         <form asp-action="Update">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="FeeId" class="control-label"></label>
-                <input asp-for="FeeId" class="form-control" />
-                <span asp-validation-for="FeeId" class="text-danger"></span>
+                <input name="feeId" value="@ViewBag.transformFeeId" readonly="readonly" type="hidden" class="form-control" />
             </div>
             <div class="form-group">
-                <label asp-for="PriceFee" class="control-label"></label>
-                <input asp-for="PriceFee" class="form-control" />
-                <span asp-validation-for="PriceFee" class="text-danger"></span>
+                <label class="control-label"> Fee Price</label>
+                <input name="feePrice" class="form-control" />
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

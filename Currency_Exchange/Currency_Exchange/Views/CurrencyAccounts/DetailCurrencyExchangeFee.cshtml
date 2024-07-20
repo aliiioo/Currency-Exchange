@@ -7,17 +7,11 @@
 <h1>DetailCurrencyExchangeFee</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-controller="FeeExchange" asp-action="Create" asp-route-currencyCode="@ViewBag.currentCode" asp-route-currentId="@ViewBag.currencyId">Create New</a>
 </p>
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.FeeId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CurrencyId)
-            </th>
             <th>
                 @Html.DisplayNameFor(model => model.FromCurrency)
             </th>
@@ -43,12 +37,6 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.FeeId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CurrencyId)
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.FromCurrency)
             </td>
             <td>
@@ -67,9 +55,9 @@
                 @Html.DisplayFor(modelItem => item.LastUpdated)
             </td>
             <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                    <a asp-controller="FeeExchange" asp-action="Update" asp-route-exchangeFeeId="@item.FeeId">
+                    Update
+                </a>
             </td>
         </tr>
 }

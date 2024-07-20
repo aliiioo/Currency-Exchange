@@ -7,7 +7,7 @@
 <h1>Index</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-controller="BankAccount" asp-action="CreateBankAccount">Create New</a>
 </p>
 <table class="table">
     <thead>
@@ -43,9 +43,15 @@
                 @Html.DisplayFor(modelItem => item.CartNumber)
             </td>
             <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                <a asp-controller="CurrencyAccounts" asp-action="DetailCurrencyTransformRate" asp-route-currencyId="@item.CurrencyId" asp-route-currentCode="@item.CurrencyCode">
+                    Delete |
+                </a>
+                <a asp-controller="CurrencyAccounts" asp-action="DetailCurrencyTransformFee" asp-route-currencyId="@item.CurrencyId" asp-route-currentCode="@item.CurrencyCode">
+                   Update | 
+                </a>
+                <a asp-controller="CurrencyAccounts" asp-action="DetailCurrencyExchangeFee" asp-route-currencyId="@item.CurrencyId" asp-route-currentCode="@item.CurrencyCode">
+                 Details
+                </a>
             </td>
         </tr>
 }

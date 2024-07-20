@@ -16,22 +16,6 @@ namespace Currency_Exchange.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var httpClient = new HttpClient();
-            var currencyService = new CurrencyService(httpClient);
-
-            string baseCurrency = "EUR"; // Euro
-            string targetCurrency = "USD"; // US Dollar
-
-            try
-            {
-                decimal exchangeRate = await currencyService.GetExchangeRateAsync(baseCurrency, targetCurrency);
-               
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}");
-            }
-
             return View();
         }
 

@@ -14,17 +14,17 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="ExchangeRateId" class="control-label"></label>
-                <input readonly="" asp-for="ExchangeRateId" class="form-control" />
+                <input type="hidden" readonly="" asp-for="ExchangeRateId" class="form-control" />
                 <span asp-validation-for="ExchangeRateId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="FromCurrency" class="control-label"></label>
-                <input asp-for="FromCurrency" class="form-control" />
+                <input readonly="readonly"  asp-for="FromCurrency" class="form-control" />
                 <span asp-validation-for="FromCurrency" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="ToCurrency" class="control-label"></label>
-                <input asp-for="ToCurrency" class="form-control" />
+                <input readonly="readonly" asp-for="ToCurrency" class="form-control" />
                 <span asp-validation-for="ToCurrency" class="text-danger"></span>
             </div>
             <div class="form-group">

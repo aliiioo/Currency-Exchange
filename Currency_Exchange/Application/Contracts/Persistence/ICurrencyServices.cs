@@ -22,7 +22,8 @@ namespace Application.Contracts.Persistence
         public Task<List<CurrencyTransformFees>> GetListTransformFeesAsync(string fromCurrency, string toCurrency);
         public Task<decimal> GetPriceRateExchange(string fromCurrency, string toCurrency);
         public Task<ExchangeRate> GetRateExchange(string fromCurrency, string toCurrency);
-        public Task<List<CurrencyDto>> GetListCurrency();
+        public Task<List<CurrencyDtoShow>> GetListCurrency();
+        public Task<List<CurrencyDtoShow>> GetListCurrencyWithoutBase(string currencyCode);
         public Task<CurrencyDetailDto> GetCurrencyDetail(int currencyId);
         public Task<List<CurrencyExchangeFees>> GetCurrencyExchangeFeeAsync(int currencyId);
         public Task<List<CurrencyTransformFees>> GetCurrencyTransformFeeAsync(int currencyId);
@@ -38,9 +39,9 @@ namespace Application.Contracts.Persistence
 
         //Fee's
         public Task<int> CreateTransformFeeToCurrency(CreateFeeDtos Model);
-        public Task<bool> UpdateTransformFeeToCurrency(UpdateFeeDtos Model);
+        public Task<bool> UpdateTransformFeeToCurrency(int feeId, decimal feePrice);
         public Task<int> CreateExchangeFeeToCurrency(CreateFeeDtos Model);
-        public Task<bool> UpdateExchangeFeeToCurrency(UpdateFeeDtos Model);
+        public Task<bool> UpdateExchangeFeeToCurrency(int feeId, decimal feePrice);
 
         // Rate's
         public Task<int> CreateExchangeRateCurrency(RateDtos rateVM);

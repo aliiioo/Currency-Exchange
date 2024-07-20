@@ -41,27 +41,33 @@ namespace Currency_Exchange.Controllers
                 return View(model: Model);
             }
 
-            return RedirectToAction("CreateCurrency", "CurrencyAccounts");
+            return RedirectToAction("Index", "CurrencyAccounts");
         }
 
         [HttpGet]
-        public async Task<IActionResult> DetailCurrencyExchangeFee(int currencyId)
+        public async Task<IActionResult> DetailCurrencyExchangeFee(int currencyId,string currentCode)
         {
             var currencyExchangeFee = await _currencyServices.GetCurrencyExchangeFeeAsync(currencyId);
+            ViewBag.currentCode=currentCode;
+            ViewBag.currencyId = currencyId;
             return View(currencyExchangeFee);
         }
 
         [HttpGet]
-        public async Task<IActionResult> DetailCurrencyTransformFee(int currencyId)
+        public async Task<IActionResult> DetailCurrencyTransformFee(int currencyId, string currentCode)
         {
             var currencyTransformFee = await _currencyServices.GetCurrencyTransformFeeAsync(currencyId);
+            ViewBag.currentCode = currentCode;
+            ViewBag.currencyId = currencyId;
             return View(currencyTransformFee);
         }
 
         [HttpGet]
-        public async Task<IActionResult> DetailCurrencyTransformRate(int currencyId)
+        public async Task<IActionResult> DetailCurrencyTransformRate(int currencyId, string currentCode)
         {
             var currencyRates = await _currencyServices.GetCurrencyRatesAsync(currencyId);
+            ViewBag.currentCode = currentCode;
+            ViewBag.currencyId=currencyId;
             return View(currencyRates);
         }
 

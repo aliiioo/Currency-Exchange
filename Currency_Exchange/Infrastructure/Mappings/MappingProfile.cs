@@ -12,14 +12,16 @@ using Application.Dtos.TransactionDtos;
 
 namespace Infrastructure.Mappings
 {
-    public class MappingProfile: Profile
+    public class MappingProfile : Profile
     {
         public MappingProfile()
         {
             CreateMap<Account, AccountViewModel>().ReverseMap();
             CreateMap<Account, UpdateAccountViewModel>().ReverseMap();
             CreateMap<Account, OtherAccountViewModel>().ReverseMap();
+            CreateMap<Account, CreateAccountViewModel>().ReverseMap();
             CreateMap<Currency, CurrencyDto>().ReverseMap();
+            CreateMap<Currency, CurrencyDtoShow>().ReverseMap();
             CreateMap<CurrencyExchangeFees, CreateFeeDtos>().ReverseMap();
             CreateMap<CurrencyExchangeFees, UpdateFeeDtos>().ReverseMap();
             CreateMap<CurrencyTransformFees, UpdateFeeDtos>().ReverseMap();
@@ -33,6 +35,8 @@ namespace Infrastructure.Mappings
             CreateMap<OthersAccount, UpdateOtherAccountViewModel>().ReverseMap();
             CreateMap<OthersAccount, UpdateOtherAccountViewModel>().ReverseMap();
             CreateMap<OtherAccountViewModel, UpdateOtherAccountViewModel>().ReverseMap();
+            CreateMap<ApplicationUser, CreateAccountViewModel>()
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id)).ReverseMap();
         }
     }
 }

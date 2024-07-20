@@ -1,10 +1,12 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Application.Contracts.Persistence;
 using Application.Dtos.AccountDtos;
+using Application.Statics;
 using Domain.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Currency_Exchange.Controllers
 {
@@ -13,24 +15,26 @@ namespace Currency_Exchange.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IAccountServices _accountServices;
+        private readonly ICurrencyServices _currencyServices;
 
-        public BankAccountController(ILogger<HomeController> logger, IAccountServices accountServices)
+        public BankAccountController(ILogger<HomeController> logger, IAccountServices accountServices, ICurrencyServices currencyServices)
         {
             _logger = logger;
             _accountServices = accountServices;
+            _currencyServices = currencyServices;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(string username)
+        public async Task<IActionResult> Index()
         {
-            var bankAccounts =await _accountServices.GetListAccountsByNameAsync(username);
+            var bankAccounts =await _accountServices.GetListAccountsByNameAsync(User.GetUserId());
             return View(bankAccounts);
         }
 
         [HttpGet]
-        public async Task<IActionResult> BankAccount(string username,int accountId)
+        public async Task<IActionResult> BankAccount(int accountId)
         {
-            var bankAccount = await _accountServices.GetAccountByIdAsync(username,accountId);
+            var bankAccount = await _accountServices.GetAccountByIdAsync(User.GetUserId(),accountId);
             return View(bankAccount);
         }
 
@@ -38,6 +42,10 @@ namespace Currency_Exchange.Controllers
         [HttpGet]
         public IActionResult CreateBankAccount()
         {
+            var currency = _currencyServices.GetListCurrency().Result
+                .Select(x => new SelectListItem { Value = x.CurrencyCode.ToString(), Text = x.CurrencyCode.ToString() }).ToList();
+            currency.Insert(0, new SelectListItem { Value = "", Text = "انتحاب کنید" });
+            ViewBag.currency = currency;
             return View();
         }
 
@@ -48,9 +56,13 @@ namespace Currency_Exchange.Controllers
         {
             if (!ModelState.IsValid)
             {
+                var currency = _currencyServices.GetListCurrency().Result
+                    .Select(x => new SelectListItem { Value = x.CurrencyCode.ToString(), Text = x.CurrencyCode.ToString() }).ToList();
+                currency.Insert(0, new SelectListItem { Value = "", Text = "انتحاب کنید" });
+                ViewBag.currency = currency;
                 return View(createAccountVM);
             }
-            if (User.Identity.Name!=createAccountVM.AccountName)
+            if (!User.GetUserId().Equals(createAccountVM.UserId))
             {
                 _logger.LogError($"Unauthorized entry {User.Identity.Name}");
                 return Unauthorized();
@@ -62,7 +74,7 @@ namespace Currency_Exchange.Controllers
         [HttpGet]
         public async Task<IActionResult> UpdateBankAccount(int accountId)
         {
-            var account = await _accountServices.GetAccountByIdAsyncForUpdate(User.Identity.Name, accountId);
+            var account = await _accountServices.GetAccountByIdAsyncForUpdate(User.GetUserId(), accountId);
             return View(account);
 
         }

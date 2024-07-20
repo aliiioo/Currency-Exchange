@@ -2,6 +2,8 @@
 using Application.Dtos.CurrencyDtos;
 using AutoMapper.Configuration.Annotations;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using NuGet.Protocol;
 
 namespace Currency_Exchange.Controllers
 {
@@ -16,8 +18,14 @@ namespace Currency_Exchange.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public IActionResult Create(int currentId,string currencyCode)
         {
+            List<SelectListItem> currency = _currencyServices.GetListCurrency().Result
+                .Select(x => new SelectListItem { Value = x.CurrencyCode.ToString(), Text = x.CurrencyCode.ToString() }).ToList();
+            currency.Insert(0, new SelectListItem { Value= "", Text = "انتحاب کنید" });
+            ViewBag.currency = currency;
+            ViewBag.currentId = currentId;
+            ViewBag.currencyCode=currencyCode;
             return View();
         }
         [HttpPost]
@@ -26,6 +34,12 @@ namespace Currency_Exchange.Controllers
         {
             if (!ModelState.IsValid)
             {
+                List<SelectListItem> currency = _currencyServices.GetListCurrency().Result
+                    .Select(x => new SelectListItem { Value = x.CurrencyCode.ToString(), Text = x.CurrencyCode.ToString() }).ToList();
+                currency.Insert(0, new SelectListItem { Value = "", Text = "انتحاب کنید" });
+                ViewBag.currency = currency;
+                ViewBag.currentId = Model.CurrencyId;
+                ViewBag.currencyCode = Model.FromCurrency;
                 return View(Model);
             }
             var fee = await _currencyServices.CreateTransformFeeToCurrency(Model);
@@ -33,26 +47,27 @@ namespace Currency_Exchange.Controllers
             {
                 return View(Model);
             }
-            return View();
+            return RedirectToAction("index", "CurrencyAccounts");
         }
 
         [HttpGet]
         public async Task<IActionResult> Update(int transformFeeId)
         {
-            var transformFee = await _currencyServices.GetTransformFeeCurrencyByIdAsync(transformFeeId);
-            return View(transformFee);
+            // var transformFee = await _currencyServices.GetTransformFeeCurrencyByIdAsync(transformFeeId);
+            ViewBag.transformFeeId = transformFeeId;
+            return View();
         }
 
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Update(UpdateFeeDtos feeDtos)
+        public async Task<IActionResult> Update(int feeId, decimal feePrice)
         {
-            if (!ModelState.IsValid)
+            if (feeId == 0 || feePrice == 0)
             {
-                return View(feeDtos);
+                return View();
             }
-            var transformFee = await _currencyServices.UpdateTransformFeeToCurrency(feeDtos);
+            var transformFee = await _currencyServices.UpdateTransformFeeToCurrency(feeId,feePrice);
             return RedirectToAction("index", "CurrencyAccounts");
         }
 

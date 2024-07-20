@@ -83,8 +83,10 @@ namespace Infrastructure.DbContexts
             );
 
             #endregion
-
-
+            //
+            // builder.Entity<ApplicationUser>()
+            //     .Property(p => p.Id)
+            //     .HasColumnName("UserId");
 
             builder.Entity<Transaction>()
                 .HasOne(t => t.FromAccount)

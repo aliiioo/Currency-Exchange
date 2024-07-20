@@ -20,10 +20,10 @@ namespace Domain.Entities
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         // Navigation properties
-        public ICollection<Account> Accounts { get; set; }
-        public ICollection<OthersAccount> OthersAccounts { get; set; }
-        public ICollection<Transaction> Transactions { get; set; }
-        public ICollection<TwoFactorAuthentication> TwoFactorAuthentications { get; set; }
+        public ICollection<Account> Accounts { get; set; } = new List<Account>();
+        public ICollection<OthersAccount> OthersAccounts { get; set; } = new List<OthersAccount>();
+        public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
+        public ICollection<TwoFactorAuthentication> TwoFactorAuthentications { get; set; } = new List<TwoFactorAuthentication>();
     }
 
 }

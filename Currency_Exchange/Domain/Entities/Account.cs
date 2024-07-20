@@ -22,7 +22,7 @@ namespace Domain.Entities
         // Navigation properties
         [ForeignKey("UserId")]
         public ApplicationUser User { get; set; }
-        public ICollection<Transaction> Transactions { get; set; }
+        public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
     }
 
     public enum AccountTypeEnum

@@ -12,6 +12,7 @@
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input readonly="" type="hidden" asp-for="CurrencyId" value="@ViewBag.currentId" />
             <div class="form-group">
                 <label asp-for="EndRange" class="control-label"></label>
                 <input asp-for="EndRange" class="form-control" />
@@ -19,12 +20,12 @@
             </div>
             <div class="form-group">
                 <label asp-for="FromCurrency" class="control-label"></label>
-                <input asp-for="FromCurrency" class="form-control" />
+                <input asp-for="FromCurrency" value="@ViewBag.currencyCode" readonly="readonly" class="form-control" />
                 <span asp-validation-for="FromCurrency" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="ToCurrency" class="control-label"></label>
-                <input asp-for="ToCurrency" class="form-control" />
+                <select asp-for="ToCurrency" class="form-control" asp-items="@ViewBag.currency"></select>
                 <span asp-validation-for="ToCurrency" class="text-danger"></span>
             </div>
             <div class="form-group">

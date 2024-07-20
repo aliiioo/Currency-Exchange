@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Application.Dtos.CurrencyDtos.CurrencyDto>
+﻿@model IEnumerable<Application.Dtos.CurrencyDtos.CurrencyDtoShow>
 
 @{
     ViewData["Title"] = "Index";
@@ -7,7 +7,7 @@
 <h1>Index</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="CreateCurrency">Create New</a>
 </p>
 <table class="table">
     <thead>
@@ -32,9 +32,15 @@
                     @Html.DisplayFor(modelItem => item.CurrencyName)
                 </td>
                 <td>
-                    @Html.ActionLink("List Rate", "Details", new { /* id=item.PrimaryKey */ }) |
-                    @Html.ActionLink("List Transforms Fees", "Details", new { /* id=item.PrimaryKey */ }) |
-                    @Html.ActionLink("List Exchange Fees", "Details", new { /* id=item.PrimaryKey */ }) |
+                    <a asp-controller="CurrencyAccounts" asp-action="DetailCurrencyTransformRate" asp-route-currencyId="@item.CurrencyId" asp-route-currentCode="@item.CurrencyCode">
+                         List Rate | 
+                    </a>
+                    <a asp-controller="CurrencyAccounts" asp-action="DetailCurrencyTransformFee" asp-route-currencyId="@item.CurrencyId" asp-route-currentCode="@item.CurrencyCode">
+                         List Transforms Fees | 
+                    </a>
+                    <a asp-controller="CurrencyAccounts" asp-action="DetailCurrencyExchangeFee" asp-route-currencyId="@item.CurrencyId" asp-route-currentCode="@item.CurrencyCode">
+                         List Exchange Fees
+                    </a>
                 </td>
             </tr>
         }
