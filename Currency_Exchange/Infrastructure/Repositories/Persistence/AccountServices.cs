@@ -25,20 +25,19 @@ namespace Infrastructure.Repositories.Persistence
         private readonly CurrencyDbContext _context;
         private readonly ICurrencyServices _currency;
         private readonly IMapper _mapper;
-        private readonly UserManager<ApplicationUser> _userManager;
-
-        public AccountServices(CurrencyDbContext context, ICurrencyServices currency, IMapper mapper, UserManager<ApplicationUser> userManager)
+        public AccountServices(CurrencyDbContext context, ICurrencyServices currency, IMapper mapper)
         {
             _context = context;
             _currency = currency;
             _mapper = mapper;
-            _userManager = userManager;
         }
         public async Task<AccountViewModel> GetAccountByIdAsync(string userId, int accountId)
         {
             var account = await _context.Accounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId) && x.UserId.Equals(userId));
             return _mapper.Map<AccountViewModel>(account);
         }
+
+     
 
         public async Task<UpdateAccountViewModel> GetAccountByIdAsyncForUpdate(string userId, int accountId)
         {

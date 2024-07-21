@@ -88,6 +88,7 @@ namespace Infrastructure.DbContexts
 
 
             builder.Entity<Account>().HasQueryFilter(e => !e.IsDeleted);
+            builder.Entity<Account>().HasQueryFilter(e => e.IsActive);
 
             builder.Entity<Transaction>()
                 .HasOne(t => t.FromAccount)
