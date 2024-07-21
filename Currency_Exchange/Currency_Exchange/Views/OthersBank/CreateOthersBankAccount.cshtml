@@ -1,4 +1,6 @@
-﻿@model Application.Dtos.OthersAccountDto.CreateOtherAccountViewModel
+﻿@using Microsoft.AspNetCore.Identity
+@using Application.Statics
+@model Application.Dtos.OthersAccountDto.CreateOtherAccountViewModel
 
 @{
     ViewData["Title"] = "CreateOthersBankAccount";
@@ -13,13 +15,11 @@
         <form asp-action="CreateOthersBankAccount">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="UserId" class="control-label"></label>
-                <input asp-for="UserId" class="form-control" />
-                <span asp-validation-for="UserId" class="text-danger"></span>
+                <input asp-for="UserId" type="hidden" value="@User.GetUserId()" class="form-control" />
             </div>
             <div class="form-group">
                 <label asp-for="Currency" class="control-label"></label>
-                <input asp-for="Currency" class="form-control" />
+                <select asp-for="Currency" class="form-control" asp-items="@ViewBag.currency"></select>
                 <span asp-validation-for="Currency" class="text-danger"></span>
             </div>
             <div class="form-group">

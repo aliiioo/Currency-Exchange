@@ -9,18 +9,19 @@ namespace Application.Dtos.TransactionDtos
 {
     public class TransactionDto
     {
-        public int TransactionId { get;}
-        public string FromAccount { get; }
-        public string ToAccount { get; }
-        public string FromCurrency { get; }
-        public string ToCurrency { get; }
-        public decimal Amount { get; } 
-        public decimal ConvertedAmount { get; } 
-        public decimal ExchangeRate { get;}
-        public decimal Fee { get; }
+        public int TransactionId { get; set; }
+        public string FromAccountId { get; set; }
+        public string ToOtherAccountId { get; set; }
+        public string ToAccountId { get; set; }
+        public string FromCurrency { get; set; }
+        public string ToCurrency { get; set; }
+        public decimal Amount { get; set; } 
+        public decimal ConvertedAmount { get; set; } 
+        public decimal ExchangeRate { get; set; }
+        public decimal Fee { get; set; }
         [Required]
-        public string Status { get; } // 'Pending', 'Completed', 'Cancelled'
-        public DateTime CreatedAt { get; } = DateTime.Now;
+        public string Status { get; set; } // 'Pending', 'Completed', 'Cancelled'
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime? CompletedAt { get; }
     }
 }

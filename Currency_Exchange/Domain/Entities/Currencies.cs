@@ -22,9 +22,9 @@ namespace Domain.Entities
         public string CurrencyName { get; set; }
         public DateTime LastUpdated { get; set; } = DateTime.Now;
 
-        public List<CurrencyExchangeFees> CurrencyExchangeFees { get; set; }
-        public List<CurrencyTransformFees> CurrencyTransformFees { get; set; }
-        public List<ExchangeRate> ExchangeRate { get; set; }
+        public List<CurrencyExchangeFees> CurrencyExchangeFees { get; set; } = new List<CurrencyExchangeFees>();
+        public List<CurrencyTransformFees> CurrencyTransformFees { get; set; } = new List<CurrencyTransformFees>();
+        public List<ExchangeRate> ExchangeRate { get; set; }= new List<ExchangeRate>();
        
 
 

@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Application.Dtos.AccountDtos;
+using Application.Dtos.TransactionDtos;
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.DbContexts;
@@ -37,8 +38,6 @@ namespace Infrastructure.Repositories.Persistence
             return _mapper.Map<AccountViewModel>(account);
         }
 
-     
-
         public async Task<UpdateAccountViewModel> GetAccountByIdAsyncForUpdate(string userId, int accountId)
         {
             var account = await _context.Accounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId) && x.UserId.Equals(userId));
@@ -53,7 +52,7 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<List<AccountViewModel>> GetListDeleteAccountsByNameAsync(string userId)
         {
-            var accounts = await _context.Accounts.IgnoreQueryFilters().Where(x => x.UserId.Equals(userId)&&x.IsDeleted).ToListAsync();
+            var accounts = await _context.Accounts.IgnoreQueryFilters().Where(x => x.UserId.Equals(userId) && x.IsDeleted).ToListAsync();
             return _mapper.Map<List<AccountViewModel>>(accounts);
         }
 
@@ -68,25 +67,23 @@ namespace Infrastructure.Repositories.Persistence
             var cartNumber = CartNumbers.GenerateUnique16DigitNumbers();
             while (await IsCartNumberExist(cartNumber) == false)
             {
-                cartNumber=CartNumbers.GenerateUnique16DigitNumbers();
+                cartNumber = CartNumbers.GenerateUnique16DigitNumbers();
             }
-            account.CartNumber=cartNumber;
+            account.CartNumber = cartNumber;
             await _context.Accounts.AddAsync(account);
             await _context.SaveChangesAsync();
             return account.AccountId;
 
         }
 
-        public async Task<int> UpdateAccount(UpdateAccountViewModel accountVM)
+        public async Task<int> UpdateAccount(UpdateAccountViewModel accountVM, string userid)
         {
             var amount = await _currency.CurrencyConvertor(accountVM.Currency, "USD", accountVM.Balance);
             if (amount < MinimumAmount.MinBalance) return 0;
-            var account = await _context.Accounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountVM.AccountId) && x.UserId.Equals(accountVM.UserId));
+            var account = await _context.Accounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountVM.AccountId) && x.UserId.Equals(userid));
             if (account == null) return 0;
-
-            account.Balance -= accountVM.Balance;
+            account.Balance = accountVM.Balance;
             account.AccountName = accountVM.AccountName;
-
             _context.Accounts.Update(account);
             await _context.SaveChangesAsync();
             return account.AccountId;
@@ -99,7 +96,7 @@ namespace Infrastructure.Repositories.Persistence
         {
             var account = await _context.Accounts.FirstOrDefaultAsync(x => x.AccountId.Equals(accountId) && x.UserId.Equals(userId));
             if (account == null) return false;
-            account.IsDeleted=true;
+            account.IsDeleted = true;
             _context.Accounts.Update(account);
             await _context.SaveChangesAsync();
             return true;
@@ -107,18 +104,30 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<bool> IncreaseAccountBalance(IncreaseBalanceDto balanceDto, string username)
         {
-            var amount = new decimal();
+            if (balanceDto.Amount < 0) return false;
+            var account = await _context.Accounts.FirstOrDefaultAsync(x => x.AccountId.Equals(balanceDto.AccountId) && x.UserId.Equals(username));
+            if (account == null) return false;
+            if (!balanceDto.ToCurrency.Equals(account.Currency)) return false;
             if (balanceDto.FromCurrency != balanceDto.ToCurrency)
             {
-                amount = await _currency.CurrencyConvertor(balanceDto.FromCurrency, balanceDto.ToCurrency, balanceDto.Amount);
+                account.Balance += await _currency.CurrencyConvertor(balanceDto.FromCurrency, balanceDto.ToCurrency, balanceDto.Amount);
             }
             else
             {
-                amount = balanceDto.Amount;
+                account.Balance += balanceDto.Amount;
             }
-            var account = await _context.Accounts.FirstOrDefaultAsync(x => x.AccountId.Equals(balanceDto.AccountId) && x.UserId.Equals(username));
-            if (account == null) return false;
-            account.Balance += amount;
+            var transaction = new Transaction()
+            {
+                FromCurrency = account.Currency,
+                ToCurrency = account.Currency,
+                Amount = balanceDto.Amount,
+                CompletedAt = DateTime.UtcNow,
+                FromAccountId = account.AccountId,
+                ToAccountId = account.AccountId,
+                Status = StatusEnum.Completed,
+                UserId = username
+            };
+            await _context.Transactions.AddAsync(transaction);
             _context.Accounts.Update(account);
             await _context.SaveChangesAsync();
             return true;
@@ -130,6 +139,44 @@ namespace Infrastructure.Repositories.Persistence
             var result = await _context.Accounts.SingleOrDefaultAsync(x => x.CartNumber.Equals(cartNumber));
             if (result == null) return true;
             return false;
+        }
+
+        public async Task<List<TransactionDto>> GetAccountTransactionsAsync(int accountId)
+        {
+            var transactions= await _context.Transactions.Where(x=>x.FromAccountId==accountId).ToListAsync();
+            return _mapper.Map<List<TransactionDto>>(transactions);
+        }
+
+        public async Task<List<TransactionDto>> GetUserTransactions(string userId)
+        {
+            var transaction =await _context.Users.Include(x=>x.Transactions).Where(x=>x.Id.Equals(userId)).SelectMany(x=>x.Transactions).ToListAsync();
+            return _mapper.Map<List<TransactionDto>>(transaction);
+        }
+
+
+        public async Task<bool> Withdrawal(int accountId, string userId, decimal amount)
+        {
+            if (amount < 0) return false;
+            var account = await _context.Accounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId) && x.UserId.Equals(userId));
+            if (account == null) return false;
+            var dollar = await _currency.CurrencyConvertor(account.Currency, "USD",account.Balance-amount);
+            if ( dollar< MinimumAmount.MinBalance) return false;
+            account.Balance -= amount;
+            var transaction = new Transaction()
+            {
+                FromCurrency = account.Currency,
+                ToCurrency = account.Currency,
+                Amount = amount,
+                CompletedAt = DateTime.UtcNow,
+                FromAccountId = accountId,
+                ToAccountId = accountId,
+                Status = StatusEnum.Completed,
+                UserId = userId
+            };
+            await _context.Transactions.AddAsync(transaction);
+            _context.Accounts.Update(account);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<bool> IsAccountForUser(string username, int accountId)

@@ -1,10 +1,12 @@
 ﻿using Application.Contracts.Persistence;
 using Application.Dtos.AccountDtos;
 using Application.Dtos.OthersAccountDto;
+using Application.Statics;
 using Infrastructure.Repositories.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Core.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Currency_Exchange.Controllers
 {
@@ -13,22 +15,25 @@ namespace Currency_Exchange.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IOthersAccountServices _othersAccountServices;
+        private readonly ICurrencyServices _currencyServices;
 
-        public OthersBankController(IOthersAccountServices othersAccountServices)
+        public OthersBankController(ILogger<HomeController> logger, IOthersAccountServices othersAccountServices, ICurrencyServices currencyServices)
         {
+            _logger = logger;
             _othersAccountServices = othersAccountServices;
+            _currencyServices = currencyServices;
         }
         [HttpGet]
-        public async Task<IActionResult> Index(string username)
+        public async Task<IActionResult> Index()
         {
-            var othersBank = await _othersAccountServices.GetListOthersAccountsByNameAsync(username);
+            var othersBank = await _othersAccountServices.GetListOthersAccountsByNameAsync(User.GetUserId());
             return View(othersBank);
         }
 
         [HttpGet]
         public async Task<IActionResult> OthersBank(int accountId)
         {
-            var othersBank = await _othersAccountServices.GetOtherAccountByIdAsync(accountId,User.Identity.Name);
+            var othersBank = await _othersAccountServices.GetOtherAccountByIdAsync(accountId,User.GetUserId());
             return View(othersBank);
         }
 
@@ -36,6 +41,10 @@ namespace Currency_Exchange.Controllers
         [HttpGet]
         public IActionResult CreateOthersBankAccount()
         {
+            var currency = _currencyServices.GetListCurrency().Result
+                .Select(x => new SelectListItem { Value = x.CurrencyCode.ToString(), Text = x.CurrencyCode.ToString()}).ToList();
+            currency.Insert(0, new SelectListItem { Value = "", Text = "انتحاب کنید" });
+            ViewBag.currency= currency;
             return View();
         }
 
@@ -47,7 +56,7 @@ namespace Currency_Exchange.Controllers
             {
                 return View(createAccountVM);
             }
-            if (createAccountVM.UserId != User.Identity.Name)
+            if (createAccountVM.UserId != User.GetUserId())
             {
                 _logger.LogError($"Unauthorized entry {User.Identity.Name}");
                 return Unauthorized();
@@ -72,13 +81,13 @@ namespace Currency_Exchange.Controllers
             {
                 return View(accountVM);
             }
-            if (accountVM.UserId != User.Identity.Name)
+            if (accountVM.UserId != User.GetUserId())
             {
                 _logger.LogError($"Unauthorized entry {User.Identity.Name}");
                 return Unauthorized();
             }
-            await _othersAccountServices.UpdateOthersAccountAsync(accountVM);
-            return RedirectToAction("Index", new { User.Identity.Name });
+            await _othersAccountServices.UpdateOthersAccountAsync(accountVM,accountVM.UserId);
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
@@ -89,16 +98,6 @@ namespace Currency_Exchange.Controllers
             return RedirectToAction("Index", new { User.Identity.Name });
         }
 
-
-
-
-
-
-
-
-
-
-
-
+        
     }
 }

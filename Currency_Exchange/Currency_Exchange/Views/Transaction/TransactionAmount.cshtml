@@ -1,4 +1,5 @@
-﻿@model Application.Dtos.TransactionDtos.CreateTransactionDtos
+﻿@using Application.Statics
+@model Application.Dtos.TransactionDtos.CreateTransactionDtos
 
 @{
     ViewData["Title"] = "TransactionAmount";
@@ -12,30 +13,17 @@
     <div class="col-md-4">
         <form asp-action="TransactionAmount">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" value="@User.GetUserId()" readonly="readonly" asp-for="Username"/>
+            <input asp-for="SelfAccountId" type="hidden" readonly="readonly" value="@ViewBag.accountId" class="form-control" />
             <div class="form-group">
-                <label asp-for="Username" class="control-label"></label>
-                <input asp-for="Username" class="form-control" />
-                <span asp-validation-for="Username" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="SelfAccountId" class="control-label"></label>
-                <input asp-for="SelfAccountId" class="form-control" />
-                <span asp-validation-for="SelfAccountId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="OthersAccountId" class="control-label"></label>
-                <input asp-for="OthersAccountId" class="form-control" />
-                <span asp-validation-for="OthersAccountId" class="text-danger"></span>
+                <label asp-for="OthersAccountIdAsString" class="control-label"></label>
+                <select asp-for="OthersAccountIdAsString" class="form-control" asp-items="@ViewBag.othersAccount"></select>
+                <span asp-validation-for="OthersAccountIdAsString" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="FromCurrency" class="control-label"></label>
-                <input asp-for="FromCurrency" class="form-control" />
+                <input asp-for="FromCurrency" value="@ViewBag.fromCurrency" readonly="readonly" class="form-control" />
                 <span asp-validation-for="FromCurrency" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ToCurrency" class="control-label"></label>
-                <input asp-for="ToCurrency" class="form-control" />
-                <span asp-validation-for="ToCurrency" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Amount" class="control-label"></label>

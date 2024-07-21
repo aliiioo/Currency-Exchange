@@ -12,15 +12,16 @@ namespace Domain.Entities
     {
         [Key]
         public int TransactionId { get; set; }
+        public string? UserId { get; set; }
         public int FromAccountId { get; set; }
-        public int ToAccountId { get; set; }
-        public int ToOtherAccountId { get; set; }
+        public int? ToAccountId { get; set; }
+        public int? ToOtherAccountId { get; set; }
         [Required]
         public string FromCurrency { get; set; }
         [Required]
         public string ToCurrency { get; set; }
         [Required]
-        public decimal Amount { get; set; } = 0;    
+        public decimal Amount { get; set; } = 0;        
         public decimal ConvertedAmount { get; set; } = 0;
         public decimal ExchangeRate { get; set; } = 0;
         public decimal Fee { get; set; } = 0;
@@ -33,10 +34,15 @@ namespace Domain.Entities
         [ForeignKey("FromAccountId")]
         public Account FromAccount { get; set; }
         [ForeignKey("ToAccountId")]
-        public Account ToAccount { get; set; }
+        public Account? ToAccount { get; set; }
 
         [ForeignKey("ToOtherAccountId")]
-        public OthersAccount TpOthersAccount{ get; set; }
+        public OthersAccount? ToOthersAccount{ get; set; }
+
+        [ForeignKey("UserId")]
+        public ApplicationUser? User { get; set; }
+
+
     }
 
 

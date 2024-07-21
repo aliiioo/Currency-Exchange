@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ using Application.Contracts.Persistence;
 using Infrastructure.Repositories;
 using Infrastructure.Repositories.Persistence;
 using System.Reflection;
+using Application.API_Calls;
 
 namespace Infrastructure
 {
@@ -28,6 +30,8 @@ namespace Infrastructure
             services.AddScoped<ICurrencyServices, CurrencyServices>();
             services.AddScoped<IOthersAccountServices, OthersAccountServices>();
             services.AddScoped<IProviderServices,ProviderServices>();
+            services.AddTransient<IApiServices, CurrencyService>();
+           
 
             return services;
 

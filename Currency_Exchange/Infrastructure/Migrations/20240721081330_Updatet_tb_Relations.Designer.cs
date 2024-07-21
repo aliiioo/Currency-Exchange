@@ -4,6 +4,7 @@ using Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(CurrencyDbContext))]
-    partial class CurrencyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240721081330_Updatet_tb_Relations")]
+    partial class Updatet_tb_Relations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -145,8 +147,8 @@ namespace Infrastructure.Migrations
                         {
                             Id = "1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "836d1634-6850-47f4-af45-6a4a0b9224f7",
-                            CreatedAt = new DateTime(2024, 7, 21, 16, 24, 55, 446, DateTimeKind.Local).AddTicks(5094),
+                            ConcurrencyStamp = "7aea79e6-bc9e-4dc8-8f14-4ed219433d00",
+                            CreatedAt = new DateTime(2024, 7, 21, 11, 43, 27, 815, DateTimeKind.Local).AddTicks(2073),
                             DailyWithdrawalLimit = 10000.00m,
                             Email = "admin@example.com",
                             EmailConfirmed = true,
@@ -154,7 +156,7 @@ namespace Infrastructure.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN@EXAMPLE.COM",
-                            PasswordHash = "AQAAAAEAACcQAAAAEDn8hj/Wfq7l3DTH8oJRJFxzjfWap3+xgrtJd1IH2M+5xDja777TtmS6Z2SJgbaCqQ==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEJshbJ9WxoQKQ0cCtXx4Rbp7Rzufl+D3WT78db34Wbvt6ZvDPAv6zQAQ+j/STvlgDQ==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "",
                             TwoFactorEnabled = false,
@@ -374,6 +376,9 @@ namespace Infrastructure.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("datetime2");
 
@@ -399,7 +404,7 @@ namespace Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ToAccountId")
+                    b.Property<int>("ToAccountId")
                         .HasColumnType("int");
 
                     b.Property<string>("ToCurrency")
@@ -409,18 +414,15 @@ namespace Infrastructure.Migrations
                     b.Property<int?>("ToOtherAccountId")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("TransactionId");
+
+                    b.HasIndex("ApplicationUserId");
 
                     b.HasIndex("FromAccountId");
 
                     b.HasIndex("ToAccountId");
 
                     b.HasIndex("ToOtherAccountId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Transactions");
                 });
@@ -487,14 +489,14 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = "1",
-                            ConcurrencyStamp = "eb370209-6097-44a7-9b14-a8c30e5e8d71",
+                            ConcurrencyStamp = "b303afcd-0531-414a-b664-2df2c56d3b5e",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "2",
-                            ConcurrencyStamp = "93543648-61b9-4d3f-bbda-b8d1132b38d6",
+                            ConcurrencyStamp = "ea171813-5a22-4d11-9827-941bb8a5820b",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         });
@@ -681,6 +683,10 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Transaction", b =>
                 {
+                    b.HasOne("Domain.Entities.ApplicationUser", null)
+                        .WithMany("Transactions")
+                        .HasForeignKey("ApplicationUserId");
+
                     b.HasOne("Domain.Entities.Account", "FromAccount")
                         .WithMany("Transactions")
                         .HasForeignKey("FromAccountId")
@@ -690,23 +696,18 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Entities.Account", "ToAccount")
                         .WithMany()
                         .HasForeignKey("ToAccountId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("Domain.Entities.OthersAccount", "ToOthersAccount")
                         .WithMany("Transactions")
                         .HasForeignKey("ToOtherAccountId");
-
-                    b.HasOne("Domain.Entities.ApplicationUser", "User")
-                        .WithMany("Transactions")
-                        .HasForeignKey("UserId");
 
                     b.Navigation("FromAccount");
 
                     b.Navigation("ToAccount");
 
                     b.Navigation("ToOthersAccount");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.Entities.TwoFactorAuthentication", b =>

@@ -29,7 +29,10 @@ namespace Infrastructure.Mappings
             CreateMap<ExchangeRate, RateDtos>().ReverseMap();
             CreateMap<ExchangeRate, UpdateRateDtos>().ReverseMap();
             CreateMap<Transaction, TransactionDto>().ReverseMap();
-            CreateMap<Transaction, CreateTransactionDtos>().ReverseMap();
+            CreateMap<Transaction, CreateTransactionDtos>()
+                .ForMember(x => x.SelfAccountId, z => z.MapFrom(s => s.FromAccountId))
+                .ForMember(x => x.Username, z => z.MapFrom(s => s.UserId))
+                .ReverseMap();
             CreateMap<Currency, CurrencyDetailDto>().ReverseMap();
             CreateMap<OthersAccount, CreateOtherAccountViewModel>().ReverseMap();
             CreateMap<OthersAccount, UpdateOtherAccountViewModel>().ReverseMap();
@@ -37,6 +40,11 @@ namespace Infrastructure.Mappings
             CreateMap<OtherAccountViewModel, UpdateOtherAccountViewModel>().ReverseMap();
             CreateMap<ApplicationUser, CreateAccountViewModel>()
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id)).ReverseMap();
+            CreateMap<Transaction, TransactionDto>().ReverseMap();
+            CreateMap<OthersAccount, OtherAccountViewModel>().ReverseMap();
+            CreateMap<AccountViewModel, UpdateAccountViewModel>().ReverseMap();
+
+
         }
     }
 }

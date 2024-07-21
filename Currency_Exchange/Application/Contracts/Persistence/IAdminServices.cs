@@ -13,7 +13,7 @@ namespace Application.Contracts.Persistence
         public Task<List<AccountViewModel>> GetDeletedAccountsForAdminAsync();
         public Task<List<AccountViewModel>> GetDisActiveAccountsForAdmin();
 
-        public Task<bool> ActiveAccount(int accountId);
-        public Task<bool> DisActiveAccount(int accountId);
+        public Task<bool> ActivateAccount(int accountId);
+        public Task<bool> DeActivateAccount(int accountId);
     }
 }

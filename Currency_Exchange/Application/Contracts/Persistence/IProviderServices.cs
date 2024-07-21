@@ -15,8 +15,8 @@ namespace Application.Contracts.Persistence
         public Task<List<TransactionDto>> GetListTransactions(int fromIdAccount);
         public Task<List<Transaction>> GetListTransactionsForAdmin();
 
-        public Task<bool> TransformCurrency(CreateTransactionDtos  transactionVM, string username);
-        public Task<bool> TransformToSelfAccountCurrency(CreateTransactionDtos  transactionVM, string username);
+        public Task<int> TransformCurrency(CreateTransactionDtos  transactionVM, string username);
+        public Task<int> TransformToSelfAccountCurrency(CreateTransactionDtos  transactionVM, string username);
         public Task<bool> ConfirmTransaction(int transactionId, string username, bool isConfirm);
 
 

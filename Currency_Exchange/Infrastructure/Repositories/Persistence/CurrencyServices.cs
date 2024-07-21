@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Application.Contracts;
 using Application.Dtos.CurrencyDtos;
 using Domain.Entities;
 using Infrastructure.DbContexts;
@@ -20,13 +21,14 @@ namespace Infrastructure.Repositories.Persistence
     {
         private readonly CurrencyDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IApiServices _apiServices;
 
-        public CurrencyServices(CurrencyDbContext currencyDbContext, IMapper mapper)
+        public CurrencyServices(CurrencyDbContext context, IMapper mapper, IApiServices apiServices)
         {
-            _context = currencyDbContext;
+            _context = context;
             _mapper = mapper;
+            _apiServices = apiServices;
         }
-
         public async Task<CurrencyDetailDto> GetCurrencyDetail(int currencyId)
         {
             var currency = await _context.Currencies.Include(x=>x.CurrencyTransformFees)
@@ -136,8 +138,12 @@ namespace Infrastructure.Repositories.Persistence
         public async Task<decimal> CurrencyConvertor(string fromCurrency, string toCurrency, decimal amount)
         {
             var rate = await GetPriceRateExchange(fromCurrency, toCurrency);
-            return rate != 0 ? amount * rate : 1;
+            if (rate==0)
+            {
+               rate= await _apiServices.GetExchangeRateAsync(fromCurrency,toCurrency);
+            }
 
+            return amount * rate;
         }
 
         public async Task<decimal> GetPriceRateExchange(string fromCurrency, string toCurrency)

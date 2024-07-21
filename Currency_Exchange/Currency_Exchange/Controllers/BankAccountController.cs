@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using Application.Contracts.Persistence;
 using Application.Dtos.AccountDtos;
 using Application.Statics;
@@ -99,7 +100,7 @@ namespace Currency_Exchange.Controllers
                 _logger.LogError($"Unauthorized entry {User.Identity.Name}");
                 return Unauthorized();
             }
-            await _accountServices.UpdateAccount(accountVM);
+            await _accountServices.UpdateAccount(accountVM,accountVM.UserId);
             return RedirectToAction("Index", new { User.Identity.Name });
         }
 
@@ -111,9 +112,14 @@ namespace Currency_Exchange.Controllers
         }
 
         [HttpGet]
-        public IActionResult IncreaseBalance(int accountid)
+        public IActionResult IncreaseBalance(int accountId,string accountCurrency)
         {
-            ViewBag.accountid = accountid;
+            var currency = _currencyServices.GetListCurrency().Result
+                .Select(x => new SelectListItem { Value = x.CurrencyCode.ToString(), Text = x.CurrencyCode.ToString() }).ToList();
+            currency.Insert(0, new SelectListItem { Value = "", Text = "انتحاب کنید" });
+            ViewBag.currency = currency;
+            ViewBag.accountCurrency = accountCurrency;
+            ViewBag.accountId = accountId;
             return View();
         }
         [HttpPost]
@@ -124,9 +130,45 @@ namespace Currency_Exchange.Controllers
             {
                 return View(balanceDto);
             }
-            var result=await _accountServices.IncreaseAccountBalance(balanceDto,User.Identity.Name);
+            var result=await _accountServices.IncreaseAccountBalance(balanceDto,User.GetUserId());
             if (result==false) return Unauthorized();
-            return RedirectToAction("Index", new { User.Identity.Name });
+            return RedirectToAction("Index");
         }
+
+
+        public async Task<IActionResult> AccountTransactions(int accountId)
+        {
+            var transactions =await _accountServices.GetAccountTransactionsAsync(accountId);
+            return View(transactions);
+        }
+
+        public async Task<IActionResult> UserTransactions()
+        {
+            var transactions = await _accountServices.GetUserTransactions(User.GetUserId());
+            return View(transactions);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Withdrawal(int accountId)
+        {
+            ViewBag.accountId=accountId;
+            return View();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Withdrawal(WithdrawalDto withdrawalDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(withdrawalDto);
+            }
+            var result= await _accountServices.Withdrawal(withdrawalDto.AccountId, User.GetUserId(), withdrawalDto.Amount);
+            if (result==false) return Unauthorized();
+            return RedirectToAction("Index");
+        }
+
+
+
+
     }
 }

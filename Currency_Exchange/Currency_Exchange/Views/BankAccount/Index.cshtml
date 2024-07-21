@@ -12,6 +12,12 @@
 <p>
     <a asp-controller="BankAccount" asp-action="DeleteAccounts">Deleted Account</a>
 </p>
+<p>
+    <a asp-controller="BankAccount" asp-action="UserTransactions">All Transactions</a>
+</p>
+<p>
+    <a asp-controller="OthersBank" asp-action="CreateOthersBankAccount">Register OthersAccounts</a>
+</p>
 <table class="table">
     <thead>
         <tr>
@@ -31,32 +37,42 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Currency)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Balance)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AccountName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CartNumber)
-            </td>
-            <td>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Currency)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Balance)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AccountName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CartNumber)
+                </td>
+                <td>
                     <a asp-controller="BankAccount" asp-action="DeleteAccount" asp-route-accountId="@item.AccountId">
-                    Delete |
-                </a>
+                        Delete |
+                    </a>
                     <a asp-controller="BankAccount" asp-action="UpdateBankAccount" asp-route-accountId="@item.AccountId">
-                   Update | 
-                </a>
-                @* <a asp-controller="CurrencyAccounts" asp-action="DetailCurrencyExchangeFee" asp-route-currencyId="@item.CurrencyId" asp-route-currentCode="@item.CurrencyCode"> *@
-                @*  Details *@
-                @* </a> *@
-            </td>
-        </tr>
-}
+                        Update |
+                    </a>
+                    <a asp-controller="BankAccount" asp-action="IncreaseBalance" asp-route-accountId="@item.AccountId" asp-route-accountCurrency="@item.Currency">
+                        IncreaseBalance |
+                    </a>
+                    <a asp-controller="BankAccount" asp-action="Withdrawal" asp-route-accountId="@item.AccountId">
+                        Withdrawal |
+                    </a>
+                    <a asp-controller="BankAccount" asp-action="AccountTransactions" asp-route-accountId="@item.AccountId">
+                        Transactions |
+                    </a>
+                    <a asp-controller="Transaction" asp-action="TransactionAmount" asp-route-accountId="@item.AccountId" asp-route-fromCurrency="@item.Currency">
+                        Transform
+                    </a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

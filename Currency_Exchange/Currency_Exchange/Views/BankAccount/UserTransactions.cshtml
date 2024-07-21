@@ -1,0 +1,102 @@
+﻿@model IEnumerable<Application.Dtos.TransactionDtos.TransactionDto>
+
+@{
+    ViewData["Title"] = "AccountTransactions";
+}
+
+<h1>AccountTransactions</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Type
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FromAccountId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ToAccountId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FromCurrency)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ToCurrency)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Amount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ConvertedAmount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ExchangeRate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Fee)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedAt)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                @if (item.FromAccountId.Equals(item.ToAccountId))
+                {
+                    <td>Me</td>
+                }
+                else
+                {
+                    <td>Others</td>
+                }
+                <td>
+                    @Html.DisplayFor(modelItem => item.FromAccountId)
+                </td>
+                @if (item.ToAccountId != null)
+                {
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ToAccountId)
+                    </td>
+                }
+                else
+                {
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ToOtherAccountId)
+                    </td>
+                }
+                <td>
+                    @Html.DisplayFor(modelItem => item.FromCurrency)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ToCurrency)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Amount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ConvertedAmount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ExchangeRate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Fee)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedAt)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

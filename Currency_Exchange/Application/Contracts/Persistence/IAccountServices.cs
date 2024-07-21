@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Application.Dtos.AccountDtos;
+using Application.Dtos.TransactionDtos;
 using Domain.Entities;
 
 namespace Application.Contracts.Persistence
@@ -18,10 +19,15 @@ namespace Application.Contracts.Persistence
         public Task<List<AccountViewModel>> GetListDeleteAccountsByNameAsync(string userId);
         public Task<bool> IsAccountForUser(string username,int accountId);
         public Task<int> CreateAccount(CreateAccountViewModel accountVM);
-        public Task<int> UpdateAccount(UpdateAccountViewModel accountVM);
+        public Task<int> UpdateAccount(UpdateAccountViewModel accountVM,string userid);
         public Task<bool> DeleteAccountAsync(int accountId, string userId);
         public Task<bool> IncreaseAccountBalance(IncreaseBalanceDto balanceDto,string username);
         public Task<bool> IsCartNumberExist(string cartNumber);
+
+        public Task<List<TransactionDto>> GetAccountTransactionsAsync(int accountId);
+        public Task<List<TransactionDto>> GetUserTransactions(string userId);
+        public Task<bool> Withdrawal(int accountId,string userId,decimal amount);
+
 
 
     }

@@ -12,16 +12,15 @@
     <div class="col-md-4">
         <form asp-action="IncreaseBalance" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="AccountId" value="@ViewBag.accountid" />
+            <input type="hidden" asp-for="AccountId" value="@ViewBag.accountId" />
             <div class="form-group">
                 <label asp-for="FromCurrency" class="control-label"></label>
-                <input asp-for="FromCurrency" class="form-control" />
+                <select asp-for="FromCurrency" class="form-control" asp-items="@ViewBag.currency"></select>
                 <span asp-validation-for="FromCurrency" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ToCurrency" class="control-label"></label>
-                <input asp-for="ToCurrency" class="form-control" />
-                <span asp-validation-for="ToCurrency" class="text-danger"></span>
+                <label>@ViewBag.accountCurrency</label>
+                <input asp-for="ToCurrency" readonly="readonly" value="@ViewBag.accountCurrency" class="form-control" />
             </div>
             <div class="form-group">
                 <label asp-for="Amount" class="control-label"></label>

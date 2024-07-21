@@ -13,10 +13,10 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.FromAccount)
+                @Html.DisplayNameFor(model => model.FromAccountId)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ToAccount)
+                @Html.DisplayNameFor(model => model.ToAccountId)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.FromCurrency)
@@ -52,10 +52,10 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.FromAccount)
+                @Html.DisplayFor(modelItem => item.FromAccountId)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ToAccount)
+                @Html.DisplayFor(modelItem => item.ToAccountId)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.FromCurrency)

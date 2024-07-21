@@ -41,56 +41,60 @@ namespace Infrastructure.Repositories.Persistence
             return await _context.Transactions.ToListAsync();
         }
 
-        public async Task<bool> TransformCurrency(CreateTransactionDtos transactionVM, string username)
+        public async Task<int> TransformCurrency(CreateTransactionDtos transactionVM, string username)
         {
             var isSelfAccount = await _accountServices.IsAccountForUser(username, transactionVM.SelfAccountId);
-            if (!isSelfAccount) return false;
+            if (!isSelfAccount) return 0;
             var isOtherAccount=await _othersAccountServices.IsAccountForOthers(username,transactionVM.OthersAccountId);
-            if (!isOtherAccount) return false;
-
-            var transaction = _mapper.Map<Transaction>(transactionVM);
-            transaction.Status = StatusEnum.Pending;
-
-            transaction.ExchangeRate = await _currencyServices.GetPriceRateExchange(transactionVM.FromCurrency, transactionVM.ToCurrency);
-            transaction.Fee = await _currencyServices.GetTransformFeeCurrencyAsync(transactionVM.FromCurrency, transactionVM.ToCurrency, transactionVM.Amount);
-
-            var totalPriceToPay = transaction.ExchangeRate + transaction.Fee + transaction.Amount;
+            if (!isOtherAccount) return 0;
             var account = await _accountServices.GetAccountByIdAsync(transactionVM.Username, transactionVM.SelfAccountId);
             var otherAccount = await _othersAccountServices.GetOtherAccountByIdAsync(transactionVM.OthersAccountId, username);
+
+            var transaction = _mapper.Map<Transaction>(transactionVM);
+            transaction.ToOtherAccountId = transactionVM.OthersAccountId;
+            transaction.Status = StatusEnum.Pending;
+            transaction.ExchangeRate = await _currencyServices.GetPriceRateExchange(transactionVM.FromCurrency, otherAccount.Currency);
+            transaction.Fee = await _currencyServices.GetTransformFeeCurrencyAsync(transactionVM.FromCurrency, otherAccount.Currency, transactionVM.Amount);
+            transaction.ToCurrency=otherAccount.Currency;
+
+            var totalPriceToPay = transaction.ExchangeRate + transaction.Fee + transaction.Amount;
             var convertBalance = new decimal();
-            if (!transactionVM.ToCurrency.Equals(transactionVM.FromCurrency))
+            if (!otherAccount.Currency.Equals(transactionVM.FromCurrency))
             {
-                convertBalance = await _currencyServices.CurrencyConvertor(transactionVM.FromCurrency, transactionVM.ToCurrency, transactionVM.Amount);
+                convertBalance = await _currencyServices.CurrencyConvertor(transactionVM.FromCurrency, otherAccount.Currency, transactionVM.Amount);
             }
             else
             {
                 convertBalance = transactionVM.Amount;
             }
-            account.Balance = account.Balance - totalPriceToPay;
-            otherAccount.Balance = convertBalance;
-            await _accountServices.UpdateAccount(_mapper.Map<UpdateAccountViewModel>(account));
-            await _othersAccountServices.UpdateOthersAccountAsync(_mapper.Map<UpdateOtherAccountViewModel>(otherAccount));
+            account.Balance -=totalPriceToPay;
+            otherAccount.Balance += convertBalance;
+            
+            await _accountServices.UpdateAccount(_mapper.Map<UpdateAccountViewModel>(account),transactionVM.Username);
+            await _othersAccountServices.UpdateOthersAccountAsync(_mapper.Map<UpdateOtherAccountViewModel>(otherAccount),transactionVM.Username);
             await _context.Transactions.AddAsync(transaction);
             await _context.SaveChangesAsync();
-            return true;
+            return transaction.TransactionId;
         }
 
-        public async Task<bool> TransformToSelfAccountCurrency(CreateTransactionDtos transactionVM, string username)
+        public async Task<int> TransformToSelfAccountCurrency(CreateTransactionDtos transactionVM, string username)
         {
 
             var isSelfAccount = await _accountServices.IsAccountForUser(username, transactionVM.SelfAccountId);
-            if (!isSelfAccount) return false;
-            
-            var transaction = _mapper.Map<Transaction>(transactionVM);
-            transaction.Status = StatusEnum.Pending;
-            transaction.ExchangeRate = await _currencyServices.GetPriceRateExchange(transactionVM.FromCurrency, transactionVM.ToCurrency);
-            var totalPriceToPay = transaction.ExchangeRate + transaction.Amount;
+            if (!isSelfAccount) return 0;
             var account = await _accountServices.GetAccountByIdAsync(transactionVM.Username, transactionVM.SelfAccountId);
-            var selfAccount = await _accountServices.GetAccountByIdAsync(username,transactionVM.OthersAccountId);
+            var selfAccount = await _accountServices.GetAccountByIdAsync(username, transactionVM.OthersAccountId);
+            var transaction = _mapper.Map<Transaction>(transactionVM);
+            transaction.ToAccountId=transactionVM.SelfAccountId;
+            transaction.Status = StatusEnum.Pending;
+            transaction.ToCurrency = selfAccount.Currency;
+            transaction.ExchangeRate = await _currencyServices.GetPriceRateExchange(transactionVM.FromCurrency, selfAccount.Currency);
+            var totalPriceToPay = transaction.ExchangeRate + transaction.Amount;
+            
             var convertBalance = new decimal();
-            if (!transactionVM.ToCurrency.Equals(transactionVM.FromCurrency))
+            if (!selfAccount.Currency.Equals(transactionVM.FromCurrency))
             {
-                convertBalance = await _currencyServices.CurrencyConvertor(transactionVM.FromCurrency, transactionVM.ToCurrency, transactionVM.Amount);
+                convertBalance = await _currencyServices.CurrencyConvertor(transactionVM.FromCurrency, selfAccount.Currency, transactionVM.Amount);
             }
             else
             {
@@ -98,11 +102,11 @@ namespace Infrastructure.Repositories.Persistence
             }
             account.Balance = account.Balance - totalPriceToPay;
             selfAccount.Balance = convertBalance;
-            await _accountServices.UpdateAccount(_mapper.Map<UpdateAccountViewModel>(account));
-            await _accountServices.UpdateAccount(_mapper.Map<UpdateAccountViewModel>(selfAccount));
+            await _accountServices.UpdateAccount(_mapper.Map<UpdateAccountViewModel>(account),transactionVM.Username);
+            await _accountServices.UpdateAccount(_mapper.Map<UpdateAccountViewModel>(selfAccount),transactionVM.Username);
             await _context.Transactions.AddAsync(transaction);
             await _context.SaveChangesAsync();
-            return true;
+            return transaction.TransactionId;
 
 
         }
@@ -110,18 +114,14 @@ namespace Infrastructure.Repositories.Persistence
         public async Task<bool> ConfirmTransaction(int transactionId, string username, bool isConfirm)
         {
             var transaction= await _context.Transactions.SingleOrDefaultAsync(x =>
-                x.TransactionId.Equals(transactionId) && x.FromAccountId.Equals(username));
+                x.TransactionId.Equals(transactionId) && x.UserId.Equals(username));
             if (transaction == null) return false;
             var expiredDateTime = transaction.CreatedAt.AddMinutes(10);
             if (expiredDateTime<DateTime.UtcNow)
             {
                 return false;
             }
-            if (isConfirm)
-            {
-                transaction.Status = StatusEnum.Completed;
-            }
-            transaction.Status = StatusEnum.Cancelled;
+            transaction.Status = isConfirm ? StatusEnum.Completed : StatusEnum.Cancelled;
             transaction.CompletedAt = DateTime.UtcNow;
             _context.Transactions.Update(transaction);
             await _context.SaveChangesAsync();

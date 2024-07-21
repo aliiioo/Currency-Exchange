@@ -4,6 +4,7 @@ using Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(CurrencyDbContext))]
-    partial class CurrencyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240721122233_Updatet_tb_Relations_Trnsactions4")]
+    partial class Updatet_tb_Relations_Trnsactions4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -145,8 +147,8 @@ namespace Infrastructure.Migrations
                         {
                             Id = "1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "836d1634-6850-47f4-af45-6a4a0b9224f7",
-                            CreatedAt = new DateTime(2024, 7, 21, 16, 24, 55, 446, DateTimeKind.Local).AddTicks(5094),
+                            ConcurrencyStamp = "47e7cf9e-adcf-45a4-ba31-87450377f70b",
+                            CreatedAt = new DateTime(2024, 7, 21, 15, 52, 31, 543, DateTimeKind.Local).AddTicks(8878),
                             DailyWithdrawalLimit = 10000.00m,
                             Email = "admin@example.com",
                             EmailConfirmed = true,
@@ -154,7 +156,7 @@ namespace Infrastructure.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN@EXAMPLE.COM",
-                            PasswordHash = "AQAAAAEAACcQAAAAEDn8hj/Wfq7l3DTH8oJRJFxzjfWap3+xgrtJd1IH2M+5xDja777TtmS6Z2SJgbaCqQ==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEOOwz2UcN5rbbcMWUCYFdZgJi4Vxap+/mTRjYAb/D+/KyMp4ptRDt/TWlfk+DEV59A==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "",
                             TwoFactorEnabled = false,
@@ -389,7 +391,8 @@ namespace Infrastructure.Migrations
                     b.Property<decimal>("Fee")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("FromAccountId")
+                    b.Property<int?>("FromAccountId")
+                        .IsRequired()
                         .HasColumnType("int");
 
                     b.Property<string>("FromCurrency")
@@ -487,14 +490,14 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = "1",
-                            ConcurrencyStamp = "eb370209-6097-44a7-9b14-a8c30e5e8d71",
+                            ConcurrencyStamp = "0b23ae38-2841-4b62-9989-e26315a3f35b",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "2",
-                            ConcurrencyStamp = "93543648-61b9-4d3f-bbda-b8d1132b38d6",
+                            ConcurrencyStamp = "7c71f85b-8514-478d-9ef3-36dd6d340060",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         });

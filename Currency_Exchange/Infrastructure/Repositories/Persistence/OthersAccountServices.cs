@@ -51,6 +51,9 @@ namespace Infrastructure.Repositories.Persistence
         {
             var existCurrency = await _currency.IsExistCurrencyByCodeAsync(accountVM.Currency);
             if (!existCurrency) return 0;
+            var cartNumber = await _context.OthersAccounts.SingleOrDefaultAsync(x =>
+                x.UserId.Equals(accountVM.UserId) && x.CartNumber.Equals(accountVM.CartNumber));
+            if (cartNumber != null) return 0;
             var newOtherAccount = _mapper.Map<OthersAccount>(accountVM);
             await _context.OthersAccounts.AddAsync(newOtherAccount);
             await _context.SaveChangesAsync();
@@ -70,9 +73,9 @@ namespace Infrastructure.Repositories.Persistence
 
         }
 
-        public async Task<int> UpdateOthersAccountAsync(UpdateOtherAccountViewModel otherAccountViewModel)
+        public async Task<int> UpdateOthersAccountAsync(UpdateOtherAccountViewModel otherAccountViewModel, string userId)
         {            
-            var account = await _context.OthersAccounts.SingleOrDefaultAsync(x => x.AccountId.Equals(otherAccountViewModel.AccountId) && x.UserId.Equals(otherAccountViewModel.UserId));
+            var account = await _context.OthersAccounts.SingleOrDefaultAsync(x => x.AccountId.Equals(otherAccountViewModel.AccountId) && x.UserId.Equals(userId));
             if (account == null) return 0;
             account.AccountName = otherAccountViewModel.AccountName;
             account.Balance=otherAccountViewModel.Balance;

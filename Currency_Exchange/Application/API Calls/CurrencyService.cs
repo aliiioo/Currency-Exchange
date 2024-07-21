@@ -5,10 +5,11 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Application.Contracts;
 
 namespace Application.API_Calls
 {
-    public class CurrencyService
+    public class CurrencyService :IApiServices
     {
         private readonly HttpClient _client;
 
