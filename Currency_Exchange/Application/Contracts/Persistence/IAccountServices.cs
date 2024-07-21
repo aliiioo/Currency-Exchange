@@ -12,6 +12,7 @@ namespace Application.Contracts.Persistence
     public interface IAccountServices
     {
         public Task<AccountViewModel> GetAccountByIdAsync(string userId, int accountId);
+      
         public Task<UpdateAccountViewModel> GetAccountByIdAsyncForUpdate(string userId, int accountId);
         public Task<List<AccountViewModel>> GetListAccountsByNameAsync(string userId);
         public Task<List<AccountViewModel>> GetListDeleteAccountsByNameAsync(string userId);

@@ -44,7 +44,7 @@ namespace Infrastructure.Repositories.Persistence
             return _mapper.Map<List<AccountViewModel>>(accounts);
         }
 
-        public async Task<bool> ActiveAccount(int accountId)
+        public async Task<bool> ActivateAccount(int accountId)
         {
             var account =await _context.Accounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId));
             if (account == null) return false;
@@ -55,7 +55,7 @@ namespace Infrastructure.Repositories.Persistence
 
         }
 
-        public async Task<bool> DisActiveAccount(int accountId)
+        public async Task<bool> DeActivateAccount(int accountId)
         {
             var account = await _context.Accounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId));
             if (account == null) return false;
