@@ -22,7 +22,7 @@ namespace Application
                             trigger
                                 .ForJob(jobKey)
                                 .WithSimpleSchedule(s =>
-                                    s.WithIntervalInMinutes(1).RepeatForever()));
+                                    s.WithIntervalInMinutes(10).RepeatForever()));
                 }
             );
             services.AddQuartzHostedService();

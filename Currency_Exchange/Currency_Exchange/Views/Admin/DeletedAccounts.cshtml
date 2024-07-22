@@ -4,11 +4,9 @@
         ViewData["Title"] = "Accounts";
     }
 
-    <h1>Accounts</h1>
+    <h1>Deleted Accounts</h1>
 
-    <p>
-        <a asp-action="Create">Create New</a>
-    </p>
+    
     <table class="table">
         <thead>
         <tr>
@@ -48,11 +46,7 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.CartNumber)
                 </td>
-                <td>
-                    @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                    @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-                </td>
+              
             </tr>
         }
         </tbody>

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualBasic;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
+using Application.Contracts.Persistence;
 using Application.Dtos.RegistrationDto;
 
 namespace Currency_Exchange.Controllers
@@ -14,13 +15,14 @@ namespace Currency_Exchange.Controllers
     {
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
-       
-        public RoleManagerController(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
+        private readonly IAdminServices _adminServices;
+
+        public RoleManagerController(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager, IAdminServices adminServices)
         {
             _roleManager = roleManager;
             _userManager = userManager;
+            _adminServices = adminServices;
         }
-
         [HttpGet]
 
         public async Task<IActionResult> Index()
@@ -29,10 +31,12 @@ namespace Currency_Exchange.Controllers
             var listUserDto = new List<UserDto>();
             foreach (var item in users)
             {
-                var userDto= new UserDto();
-                userDto.Email=item.Email;
-                userDto.FullName=item.FullName;
-                userDto.PhoneNumber=item.PhoneNumber;
+                var userDto= new UserDto
+                {
+                    Email = item.Email,
+                    FullName = item.FullName,
+                    PhoneNumber = item.PhoneNumber
+                };
                 listUserDto.Add(userDto);
             }
 
@@ -80,5 +84,16 @@ namespace Currency_Exchange.Controllers
             return true;
 
         }
+
+        public async Task<IActionResult> UsersAccounts(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return BadRequest();
+            }
+            var accounts =await _adminServices.GetUsersAccountsForAdmin(email);
+            return View(accounts);
+        }
+
     }
 }

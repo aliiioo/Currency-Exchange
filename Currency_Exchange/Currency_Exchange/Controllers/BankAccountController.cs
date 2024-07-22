@@ -91,7 +91,7 @@ namespace Currency_Exchange.Controllers
             {
                 return View(accountVM);
             }
-            if (User.Identity.Name != accountVM.AccountName)
+            if (User.GetUserId() != accountVM.UserId)
             {
                 _logger.LogError($"Unauthorized entry {User.Identity.Name}");
                 return Unauthorized();
@@ -166,7 +166,7 @@ namespace Currency_Exchange.Controllers
         [HttpGet]
         public async Task<IActionResult> DeleteAccounts()
         {
-            var bankAccounts = await _accountServices.GetListAccountsByNameAsync(User.GetUserId());
+            var bankAccounts = await _accountServices.GetListDeleteAccountsByNameAsync(User.GetUserId());
             return View(bankAccounts);
         }
 

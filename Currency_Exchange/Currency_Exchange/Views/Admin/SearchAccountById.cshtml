@@ -1,0 +1,54 @@
+﻿@model Application.Dtos.AccountDtos.AccountViewModel
+
+@{
+    ViewData["Title"] = "SearchAccountById";
+}
+
+<h1>SearchAccountById</h1>
+
+<div>
+    <h4>AccountViewModel</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.AccountId)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.AccountId)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Currency)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Currency)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Balance)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Balance)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.AccountName)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.AccountName)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.CartNumber)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.CartNumber)
+        </dd>
+    </dl>
+</div>
+<div>
+    <td>
+        <a asp-controller="Admin" asp-action="AccountTransactions" asp-route-accountId="@ViewBag.accountId">
+            Transactions |
+        </a>
+        <a asp-controller="Admin" asp-action="DeActivateAccount" asp-route-accountId="@ViewBag.accountId">
+            DeActivate|
+        </a>
+    </td>
+</div>

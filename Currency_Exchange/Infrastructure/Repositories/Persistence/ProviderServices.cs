@@ -36,9 +36,9 @@ namespace Infrastructure.Repositories.Persistence
             return _mapper.Map<List<TransactionDto>>(await _context.Transactions.Where(x => x.FromAccountId.Equals(fromIdAccount)).ToListAsync());
         }
 
-        public async Task<List<Transaction>> GetListTransactionsForAdmin()
+        public async Task<List<TransactionDto>> GetListTransactionsForAdmin()
         {
-            return await _context.Transactions.ToListAsync();
+            return _mapper.Map<List<TransactionDto>>(await _context.Transactions.ToListAsync());
         }
 
         public async Task<int> TransformCurrency(CreateTransactionDtos transactionVM, string username)

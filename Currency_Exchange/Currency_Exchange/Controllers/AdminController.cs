@@ -1,4 +1,6 @@
 ﻿using Application.Contracts.Persistence;
+using Application.Statics;
+using Infrastructure.Migrations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,16 +9,31 @@ namespace Currency_Exchange.Controllers
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
+        private readonly IProviderServices _providerServices;
         private readonly IAdminServices _adminServices;
+       
 
-        public AdminController(IAdminServices adminServices)
+        public AdminController(IProviderServices providerServices, IAdminServices adminServices)
         {
+            _providerServices = providerServices;
             _adminServices = adminServices;
         }
 
         public async Task<IActionResult> Accounts()
         {
             var accounts =await _adminServices.GetAccountsForAdminAsync();
+            return View(accounts);
+        }
+
+        public async Task<IActionResult> AccountTransactions(int accountId)
+        {
+            var accounts = await _providerServices.GetListTransactions(accountId);
+            return View(accounts);
+        }
+
+        public async Task<IActionResult> AllTransactions()
+        {
+            var accounts = await _providerServices.GetListTransactionsForAdmin();
             return View(accounts);
         }
 
@@ -53,6 +70,26 @@ namespace Currency_Exchange.Controllers
             }
             return NotFound();
         }
+
+        public async Task<IActionResult> SearchAccountById(int accountId = 0)
+        {
+            var account = await _adminServices.GetAccountByIdForAdmin(accountId);
+            ViewBag.accountId = accountId;
+            return View(account);
+
+        }
+        public async Task<IActionResult> SearchAccountByCartNumber(string cartNumber)
+        {
+            if (!ValidateCartNumber.IsValidCardNumber(cartNumber))
+            {
+               return RedirectToAction("Error", "Home");
+            }
+            var account = await _adminServices.GetAccountByCartNumberForAdmin(cartNumber);
+            if (account==null) return RedirectToAction("Error", "Home");
+            ViewBag.accountId = account.AccountId;
+            return View(account);
+        }
+
 
 
     }

@@ -36,7 +36,7 @@ namespace Infrastructure.DbContexts
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-           
+            base.OnModelCreating(builder);
 
             #region Seedata
 
@@ -87,8 +87,7 @@ namespace Infrastructure.DbContexts
             //
 
 
-            builder.Entity<Account>().HasQueryFilter(e => !e.IsDeleted);
-            builder.Entity<Account>().HasQueryFilter(e => e.IsActive);
+            builder.Entity<Account>().HasQueryFilter(e => e.IsDeleted==false&&e.IsActive);
 
             builder.Entity<Transaction>()
                 .HasOne(t => t.FromAccount)
@@ -102,7 +101,7 @@ namespace Infrastructure.DbContexts
                 .HasForeignKey(t => t.ToAccountId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            base.OnModelCreating(builder);
+           
         }
     }
 }

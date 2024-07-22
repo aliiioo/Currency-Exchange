@@ -65,9 +65,9 @@ namespace Infrastructure.Repositories.Persistence
             return newOtherAccount.AccountId;
         }
 
-        public async Task<bool> DeleteOthersAccountAsync(int accountId, string username)
+        public async Task<bool> DeleteOthersAccountAsync(int accountId, string userId)
         {
-            var account = await _context.OthersAccounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId) && x.UserId.Equals(username));
+            var account = await _context.OthersAccounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId) && x.UserId.Equals(userId));
             if (account == null) return false;
             _context.OthersAccounts.Remove(account);
             await _context.SaveChangesAsync();

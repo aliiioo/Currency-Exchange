@@ -30,6 +30,7 @@ namespace Infrastructure
             services.AddScoped<ICurrencyServices, CurrencyServices>();
             services.AddScoped<IOthersAccountServices, OthersAccountServices>();
             services.AddScoped<IProviderServices,ProviderServices>();
+            services.AddScoped<IAdminServices,AdminServices>();
             services.AddTransient<IApiServices, CurrencyService>();
            
 

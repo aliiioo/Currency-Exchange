@@ -14,7 +14,7 @@
         <form asp-action="CreateBankAccount">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <input  asp-for="UserId" class="form-control" value="@User.GetUserId()" />
+                <input  asp-for="UserId" class="form-control" readonly="readonly" type="hidden" value="@User.GetUserId()" />
             </div>
             <div class="form-group">
                 <label asp-for="Currency" class="control-label"></label>

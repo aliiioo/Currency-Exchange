@@ -11,9 +11,7 @@ namespace Application.Dtos.AccountDtos
     {
         public int AccountId { get; set; }
         public string UserId { get; set; }
-        [MaxLength(4)]
-        [MinLength(1)]
-
+        
         public string AccountName { get; set; } = string.Empty;
         public string Currency { get; set; } // 'USD', 'EUR', 'JPY', etc.
         public decimal Balance { get; set; }

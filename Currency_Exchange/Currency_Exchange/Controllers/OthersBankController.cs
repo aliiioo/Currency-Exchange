@@ -94,7 +94,7 @@ namespace Currency_Exchange.Controllers
         [HttpGet]
         public async Task<IActionResult> DeleteOthersAccount(int accountId)
         {
-            var result= await _othersAccountServices.DeleteOthersAccountAsync(accountId,User.Identity.Name);
+            var result= await _othersAccountServices.DeleteOthersAccountAsync(accountId,User.GetUserId());
             if (result == false) return Unauthorized();
             return RedirectToAction("Index", new { User.Identity.Name });
         }

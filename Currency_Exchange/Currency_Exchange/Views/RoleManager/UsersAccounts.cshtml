@@ -1,14 +1,11 @@
-﻿@model IEnumerable<Application.Dtos.OthersAccountDto.OtherAccountViewModel>
+﻿@model IEnumerable<Application.Dtos.AccountDtos.AccountViewModel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "UsersAccounts";
 }
 
-<h1>Index</h1>
+<h1>UsersAccounts</h1>
 
-<p>
-    <a asp-action="CreateOthersBankAccount">Create Others Account</a>
-</p>
 <table class="table">
     <thead>
         <tr>
@@ -17,6 +14,9 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Currency)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Balance)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.AccountName)
@@ -37,22 +37,13 @@
                 @Html.DisplayFor(modelItem => item.Currency)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.Balance)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.AccountName)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.CartNumber)
-            </td>
-            <td>
-                    <a asp-controller="OthersBank" asp-action="OthersBank" asp-route-accountId="@item.AccountId">
-                    Detail |
-                </a>
-                    <a asp-controller="OthersBank" asp-action="UpdateBankAccount" asp-route-accountId="@item.AccountId">
-                    Update |
-                </a>
-                    <a asp-controller="OthersBank" asp-action="DeleteOthersAccount" asp-route-accountId="@item.AccountId">
-                    Delete |
-                </a>
-                
             </td>
         </tr>
 }

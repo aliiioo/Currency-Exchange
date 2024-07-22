@@ -4,11 +4,53 @@
     ViewData["Title"] = "Accounts";
 }
 
-<h1>Accounts</h1>
+<h1>Admin</h1>
+
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="AllTransactions">All Transactions</a>
 </p>
+
+<p>
+    <a asp-action="DeletedAccounts">Deleted Accounts</a>
+</p>
+
+<p>
+    <a asp-action="DisActiveAccounts">DisActive Accounts</a>
+</p>
+
+<div class="row">
+    <div class="col-md-4">
+        <form method="get" asp-action="SearchAccountByCartNumber">
+            <p>
+                Cart Number
+            </p>
+            <input type="text" name="cartNumber" maxlength="16"/>
+            <div class="form-group">
+                <input type="submit" value="Search" class="btn btn-primary"/>
+            </div>
+        </form>
+    </div>
+</div>
+<br/>
+<div class="row">
+    <div class="col-md-4">
+        <form method="get" asp-action="SearchAccountById">
+            <p>
+                Account ID
+            </p>
+            <input type="number" name="accountId" maxlength="16"/>
+            <div class="form-group">
+                <input type="submit" value="Search" class="btn btn-primary"/>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+
+
 <table class="table">
     <thead>
         <tr>
@@ -31,29 +73,33 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.AccountId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Currency)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Balance)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AccountName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CartNumber)
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AccountId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Currency)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Balance)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AccountName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CartNumber)
+                </td>
+                <td>
+                    <a asp-controller="Admin" asp-action="AccountTransactions" asp-route-accountId="@item.AccountId">
+                        Transactions |
+                    </a>
+                    <a asp-controller="Admin" asp-action="DeActivateAccount" asp-route-accountId="@item.AccountId">
+                        DeActivate|
+                    </a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

@@ -13,7 +13,7 @@ namespace Application.Contracts.Persistence
         public Task<TransactionDto> GetTransaction(int idTransaction);
 
         public Task<List<TransactionDto>> GetListTransactions(int fromIdAccount);
-        public Task<List<Transaction>> GetListTransactionsForAdmin();
+        public Task<List<TransactionDto>> GetListTransactionsForAdmin();
 
         public Task<int> TransformCurrency(CreateTransactionDtos  transactionVM, string username);
         public Task<Transaction> CreateTransaction(CreateTransactionDtos transactionVM);

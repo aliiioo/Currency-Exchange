@@ -85,6 +85,7 @@ namespace Infrastructure.Repositories.Persistence
         {
             var account = await _context.Accounts.FirstOrDefaultAsync(x => x.AccountId.Equals(accountId) && x.UserId.Equals(userId));
             if (account == null) return false;
+            if (account.Balance > 1) return false;
             account.IsDeleted = true;
             _context.Accounts.Update(account);
             await _context.SaveChangesAsync();
@@ -109,7 +110,7 @@ namespace Infrastructure.Repositories.Persistence
             }
             var transaction = new Transaction()
             {
-                FromCurrency = account.Currency,
+                FromCurrency = balanceDto.FromCurrency,
                 ToCurrency = account.Currency,
                 Amount = balanceDto.Amount,
                 CompletedAt = DateTime.UtcNow,

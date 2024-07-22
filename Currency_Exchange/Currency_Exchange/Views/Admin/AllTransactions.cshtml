@@ -1,0 +1,97 @@
+﻿@model IEnumerable<Application.Dtos.TransactionDtos.TransactionDto>
+
+@{
+    ViewData["Title"] = "Account";
+}
+
+<h1>Admin</h1>
+<h2>Account</h2>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            
+            <th>
+                @Html.DisplayNameFor(model => model.FromAccountId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ToAccountId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ToOtherAccountId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FromCurrency)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ToCurrency)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Amount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ConvertedAmount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ExchangeRate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Fee)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedAt)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CompletedAt)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FromAccountId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ToAccountId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ToOtherAccountId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FromCurrency)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ToCurrency)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Amount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ConvertedAmount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ExchangeRate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Fee)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedAt)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CompletedAt)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
