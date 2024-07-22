@@ -13,19 +13,20 @@
         <form asp-action="UpdateBankAccount">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="AccountId" class="control-label"></label>
-                <input asp-for="AccountId" class="form-control" />
-                <span asp-validation-for="AccountId" class="text-danger"></span>
+                <input asp-for="AccountId" type="hidden" readonly="readonly" class="form-control" />
             </div>
             <div class="form-group">
-                <label asp-for="UserId" class="control-label"></label>
-                <input asp-for="UserId" class="form-control" />
-                <span asp-validation-for="UserId" class="text-danger"></span>
+                <input asp-for="UserId" readonly="readonly" type="hidden" class="form-control" />
             </div>
             <div class="form-group">
                 <label asp-for="AccountName" class="control-label"></label>
                 <input asp-for="AccountName" class="form-control" />
                 <span asp-validation-for="AccountName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CartNumber" class="control-label"></label>
+                <input asp-for="CartNumber" class="form-control" />
+                <span asp-validation-for="CartNumber" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

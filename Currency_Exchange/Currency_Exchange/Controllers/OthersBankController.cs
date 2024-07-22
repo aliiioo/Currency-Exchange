@@ -30,6 +30,7 @@ namespace Currency_Exchange.Controllers
             return View(othersBank);
         }
 
+
         [HttpGet]
         public async Task<IActionResult> OthersBank(int accountId)
         {

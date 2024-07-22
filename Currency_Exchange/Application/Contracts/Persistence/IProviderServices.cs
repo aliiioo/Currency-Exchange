@@ -16,8 +16,13 @@ namespace Application.Contracts.Persistence
         public Task<List<Transaction>> GetListTransactionsForAdmin();
 
         public Task<int> TransformCurrency(CreateTransactionDtos  transactionVM, string username);
+        public Task<Transaction> CreateTransaction(CreateTransactionDtos transactionVM);
         public Task<int> TransformToSelfAccountCurrency(CreateTransactionDtos  transactionVM, string username);
         public Task<bool> ConfirmTransaction(int transactionId, string username, bool isConfirm);
+        public Task<List<Transaction>> CanceledPendingTransactionsByTimePass(int min);
+
+
+
 
 
 

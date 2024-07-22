@@ -57,7 +57,10 @@
                 </td>
                 <td>
                     <a asp-controller="FeeTransform" asp-action="Update" asp-route-transformFeeId="@item.FeeId">
-                        Update
+                        Update | 
+                    </a>
+                    <a asp-controller="FeeTransform" asp-action="Delete" asp-route-feeId="@item.FeeId" asp-route-currentId="@ViewBag.currencyId">
+                        Delete
                     </a>
                 </td>
             </tr>

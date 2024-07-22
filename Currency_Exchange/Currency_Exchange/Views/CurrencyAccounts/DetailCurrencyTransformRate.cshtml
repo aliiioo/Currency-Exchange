@@ -45,7 +45,10 @@
             </td>
             <td>
                 <a asp-controller="Rate" asp-action="Update" asp-route-rateId="@item.ExchangeRateId" >
-                    Update  
+                    Update  | 
+                </a>
+                <a asp-controller="Rate" asp-action="Delete" asp-route-feeId="@item.ExchangeRateId" >
+                    Delete  
                 </a>
             </td>
         </tr>

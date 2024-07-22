@@ -101,15 +101,23 @@ namespace Currency_Exchange.Controllers
                     return Unauthorized();
                 }
                 safeScope.Complete();
-                return RedirectToAction("Index", "BankAccount", new { User.Identity.Name });
+                return RedirectToAction("TransactionDetail", new { confirmTransactionDto.TransactionId});
             }
             catch (Exception e)
             {
                 _logger.LogError($" More Request for Transaction {User.Identity.Name}");
-                throw;
+                return RedirectToAction("Error", "Home");
+
             }
-           
         }
+
+        [HttpGet]
+        public async Task<IActionResult> TransactionDetail(int transactionId)
+        {
+            var transaction =await _providerServices.GetTransaction(transactionId);
+            return View(transaction);
+        }
+
 
 
     }

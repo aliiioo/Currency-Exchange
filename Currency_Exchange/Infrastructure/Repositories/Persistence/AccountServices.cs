@@ -1,23 +1,11 @@
 ﻿using Application.Contracts.Persistence;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Application.Dtos.AccountDtos;
 using Application.Dtos.TransactionDtos;
+using Application.Statics;
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
-using Application.Statics;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore.Update;
 
 namespace Infrastructure.Repositories.Persistence
 {
@@ -58,8 +46,7 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<int> CreateAccount(CreateAccountViewModel accountVM)
         {
-            var existCurrency = await _currency.IsExistCurrencyByCodeAsync(accountVM.Currency);
-            if (!existCurrency) return 0;
+            if (!await _currency.IsExistCurrencyByCodeAsync(accountVM.Currency)) return 0;
             var amount = await _currency.CurrencyConvertor(accountVM.Currency, "USD", accountVM.Balance);
             if (amount < MinimumAmount.MinBalance) return 0;
 
@@ -78,10 +65,12 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<int> UpdateAccount(UpdateAccountViewModel accountVM, string userid)
         {
+            if (!await _currency.IsExistCurrencyByCodeAsync(accountVM.Currency)) return 0;
+            var account = await _context.Accounts.
+                SingleOrDefaultAsync(x => x.AccountId.Equals(accountVM.AccountId) && x.UserId.Equals(userid) && x.Currency.Equals(accountVM.Currency));
+            if (account == null) return 0;
             var amount = await _currency.CurrencyConvertor(accountVM.Currency, "USD", accountVM.Balance);
             if (amount < MinimumAmount.MinBalance) return 0;
-            var account = await _context.Accounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountVM.AccountId) && x.UserId.Equals(userid));
-            if (account == null) return 0;
             account.Balance = accountVM.Balance;
             account.AccountName = accountVM.AccountName;
             _context.Accounts.Update(account);
@@ -105,6 +94,8 @@ namespace Infrastructure.Repositories.Persistence
         public async Task<bool> IncreaseAccountBalance(IncreaseBalanceDto balanceDto, string username)
         {
             if (balanceDto.Amount < 0) return false;
+            if (!await _currency.IsExistCurrencyByCodeAsync(balanceDto.FromCurrency)) return false;
+            if (!await _currency.IsExistCurrencyByCodeAsync(balanceDto.ToCurrency)) return false;
             var account = await _context.Accounts.FirstOrDefaultAsync(x => x.AccountId.Equals(balanceDto.AccountId) && x.UserId.Equals(username));
             if (account == null) return false;
             if (!balanceDto.ToCurrency.Equals(account.Currency)) return false;
@@ -143,13 +134,13 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<List<TransactionDto>> GetAccountTransactionsAsync(int accountId)
         {
-            var transactions= await _context.Transactions.Where(x=>x.FromAccountId==accountId).ToListAsync();
+            var transactions = await _context.Transactions.Where(x => x.FromAccountId == accountId).ToListAsync();
             return _mapper.Map<List<TransactionDto>>(transactions);
         }
 
         public async Task<List<TransactionDto>> GetUserTransactions(string userId)
         {
-            var transaction =await _context.Users.Include(x=>x.Transactions).Where(x=>x.Id.Equals(userId)).SelectMany(x=>x.Transactions).ToListAsync();
+            var transaction = await _context.Users.Include(x => x.Transactions).Where(x => x.Id.Equals(userId)).SelectMany(x => x.Transactions).ToListAsync();
             return _mapper.Map<List<TransactionDto>>(transaction);
         }
 
@@ -159,8 +150,8 @@ namespace Infrastructure.Repositories.Persistence
             if (amount < 0) return false;
             var account = await _context.Accounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId) && x.UserId.Equals(userId));
             if (account == null) return false;
-            var dollar = await _currency.CurrencyConvertor(account.Currency, "USD",account.Balance-amount);
-            if ( dollar< MinimumAmount.MinBalance) return false;
+            var dollar = await _currency.CurrencyConvertor(account.Currency, "USD", account.Balance - amount);
+            if (dollar < MinimumAmount.MinBalance) return false;
             account.Balance -= amount;
             var transaction = new Transaction()
             {

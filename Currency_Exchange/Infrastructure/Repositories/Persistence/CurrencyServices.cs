@@ -13,6 +13,7 @@ using Domain.Entities;
 using Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Infrastructure.Repositories.Persistence
@@ -31,8 +32,8 @@ namespace Infrastructure.Repositories.Persistence
         }
         public async Task<CurrencyDetailDto> GetCurrencyDetail(int currencyId)
         {
-            var currency = await _context.Currencies.Include(x=>x.CurrencyTransformFees)
-                .Include(x=>x.CurrencyExchangeFees).Include(x=>x.ExchangeRate)
+            var currency = await _context.Currencies.Include(x => x.CurrencyTransformFees)
+                .Include(x => x.CurrencyExchangeFees).Include(x => x.ExchangeRate)
                 .SingleOrDefaultAsync(x => x.CurrencyId.Equals(currencyId));
             var currencyDto = _mapper.Map<CurrencyDetailDto>(currency);
             return currencyDto;
@@ -40,32 +41,24 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<List<CurrencyExchangeFees>> GetCurrencyExchangeFeeAsync(int currencyId)
         {
-            return await _context.CurrencyExchangeFees.Where(x=>x.CurrencyId.Equals(currencyId)).OrderBy(x => x.ToCurrency).ToListAsync();
-            // var currency =await _context.Currencies.Include(x => x.CurrencyExchangeFees)
-            //     .SingleOrDefaultAsync(x => x.CurrencyId.Equals(currencyId));
-            // return currency.CurrencyExchangeFees.ToList();
+            return await _context.CurrencyExchangeFees.Where(x => x.CurrencyId.Equals(currencyId))
+                .OrderBy(x => x.ToCurrency).ThenBy(x => x.EndRange).ToListAsync();
         }
 
         public async Task<List<CurrencyTransformFees>> GetCurrencyTransformFeeAsync(int currencyId)
         {
-            return await _context.CurrencyTransformFees.Where(x => x.CurrencyId.Equals(currencyId)).OrderBy(x => x.ToCurrency).ToListAsync();
-
-            // var currency = await _context.Currencies.Include(x => x.CurrencyTransformFees)
-            //     .SingleOrDefaultAsync(x => x.CurrencyId.Equals(currencyId));
-            // return currency.CurrencyTransformFees.ToList();
+            return await _context.CurrencyTransformFees.Where(x => x.CurrencyId.Equals(currencyId))
+                .OrderBy(x => x.ToCurrency).ThenBy(x => x.EndRange).ToListAsync();
         }
 
         public async Task<List<ExchangeRate>> GetCurrencyRatesAsync(int currencyId)
         {
             return await _context.ExchangeRates.Where(x => x.CurrencyId.Equals(currencyId)).ToListAsync();
-            // var currency = await _context.Currencies.Include(x => x.ExchangeRate)
-            //     .SingleOrDefaultAsync(x => x.CurrencyId.Equals(currencyId));
-            // return currency.ExchangeRate;
         }
 
         public async Task<UpdateRateDtos> GetCurrencyRateByIdAsync(int rateId)
         {
-            var rate= await _context.ExchangeRates.SingleOrDefaultAsync(x => x.ExchangeRateId == rateId);
+            var rate = await _context.ExchangeRates.SingleOrDefaultAsync(x => x.ExchangeRateId == rateId);
             return _mapper.Map<UpdateRateDtos>(rate);
         }
 
@@ -76,7 +69,7 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<List<CurrencyDtoShow>> GetListCurrencyWithoutBase(string currencyCode)
         {
-            return _mapper.Map<List<CurrencyDtoShow>>(await _context.Currencies.Where(x=>!x.CurrencyCode.Equals(currencyCode)).ToListAsync());
+            return _mapper.Map<List<CurrencyDtoShow>>(await _context.Currencies.Where(x => !x.CurrencyCode.Equals(currencyCode)).ToListAsync());
         }
 
         public async Task<Currency?> GetCurrencyByIdAsync(int currencyId)
@@ -91,7 +84,7 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<UpdateFeeDtos?> GetExchangeFeeCurrencyByIdAsync(int id)
         {
-            var fee= await _context.CurrencyExchangeFees.SingleOrDefaultAsync(x => x.FeeId.Equals(id));
+            var fee = await _context.CurrencyExchangeFees.SingleOrDefaultAsync(x => x.FeeId.Equals(id));
             return _mapper.Map<UpdateFeeDtos>(fee);
         }
 
@@ -103,14 +96,22 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<decimal> GetTransformFeeCurrencyAsync(string fromCurrency, string toCurrency, decimal price)
         {
-            var priceFee=await _context.CurrencyTransformFees.SingleOrDefaultAsync(x =>
-                x.FromCurrency.Equals(fromCurrency) && x.ToCurrency.Equals(toCurrency) && x.PriceFee.Equals(price));
+            var priceFee = await _context.CurrencyTransformFees.SingleOrDefaultAsync(x =>
+                x.FromCurrency.Equals(fromCurrency) && x.ToCurrency.Equals(toCurrency)&&x.StartRange<price&&x.EndRange>price);
+            return priceFee?.PriceFee ?? 0;
+        }
+
+        public async Task<decimal> GetExchangeFeeCurrencyAsync(string fromCurrency, string toCurrency, decimal price)
+        {
+            if (fromCurrency.Equals(toCurrency)) return 0;
+                var priceFee = await _context.CurrencyExchangeFees.SingleOrDefaultAsync(x =>
+                x.FromCurrency.Equals(fromCurrency) && x.ToCurrency.Equals(toCurrency) && x.StartRange < price && x.EndRange > price);
             return priceFee?.PriceFee ?? 0;
         }
 
         public async Task<UpdateFeeDtos?> GetTransformFeeCurrencyByIdAsync(int id)
         {
-            var fees= await _context.CurrencyTransformFees.SingleOrDefaultAsync(x => x.FeeId.Equals(id));
+            var fees = await _context.CurrencyTransformFees.SingleOrDefaultAsync(x => x.FeeId.Equals(id));
             return _mapper.Map<UpdateFeeDtos>(fees);
         }
 
@@ -138,11 +139,6 @@ namespace Infrastructure.Repositories.Persistence
         public async Task<decimal> CurrencyConvertor(string fromCurrency, string toCurrency, decimal amount)
         {
             var rate = await GetPriceRateExchange(fromCurrency, toCurrency);
-            if (rate==0)
-            {
-               rate= await _apiServices.GetExchangeRateAsync(fromCurrency,toCurrency);
-            }
-
             return amount * rate;
         }
 
@@ -152,7 +148,11 @@ namespace Infrastructure.Repositories.Persistence
 
             var rate = await _context.ExchangeRates
             .FirstOrDefaultAsync(x => x.FromCurrency.Equals(fromCurrency) && x.ToCurrency.Equals(toCurrency));
-            return rate != null ? rate.Rate : 0;
+            if (rate==null)
+            {
+               return await _apiServices.GetExchangeRateAsync(fromCurrency, toCurrency);
+            }
+            return rate.Rate;
         }
 
         public async Task<ExchangeRate> GetRateExchange(string fromCurrency, string toCurrency)
@@ -173,6 +173,28 @@ namespace Infrastructure.Repositories.Persistence
         }
 
 
+        public async Task<bool> DeleteExchangeFeeToCurrency(int feeId, int currencyId)
+        {
+            var feesList = await GetCurrencyExchangeFeeAsync(currencyId);
+            if (feesList == null) return false;
+            if (!feesList.Last().FeeId.Equals(feeId)) return false;
+            var fee = await _context.CurrencyExchangeFees.SingleOrDefaultAsync(x => x.FeeId.Equals(feeId));
+            if (fee != null) _context.CurrencyExchangeFees.Remove(fee);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteTransformFeeToCurrency(int feeId, int currencyId)
+        {
+            var feesList = await GetCurrencyTransformFeeAsync(currencyId);
+            if (feesList == null) return false;
+            if (!feesList.Last().FeeId.Equals(feeId)) return false;
+            var fee = await _context.CurrencyTransformFees.SingleOrDefaultAsync(x => x.FeeId.Equals(feeId));
+            if (fee != null) _context.CurrencyTransformFees.Remove(fee);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<int> CreateExchangeRateCurrency(RateDtos rateVM)
         {
             if (rateVM.FromCurrency.Equals(rateVM.ToCurrency))
@@ -189,10 +211,19 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<bool> UpdateExchangeRateToCurrency(UpdateRateDtos rateVM)
         {
-            var existRate = await _context.ExchangeRates.SingleOrDefaultAsync(x=>x.ExchangeRateId.Equals(rateVM.ExchangeRateId));
+            var existRate = await _context.ExchangeRates.SingleOrDefaultAsync(x => x.ExchangeRateId.Equals(rateVM.ExchangeRateId));
             if (existRate == null) return false;
             existRate.Rate = rateVM.Rate;
             _context.ExchangeRates.Update(existRate);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteExchangeRateCurrency(int rateId)
+        {
+            var existRate = await _context.ExchangeRates.SingleOrDefaultAsync(x => x.ExchangeRateId.Equals(rateId));
+            if (existRate == null) return false;
+            _context.ExchangeRates.Remove(existRate);
             await _context.SaveChangesAsync();
             return true;
         }
@@ -260,7 +291,7 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<bool> UpdateExchangeFeeToCurrency(int feeId, decimal feePrice)
         {
-            var fee = await _context.CurrencyExchangeFees.SingleOrDefaultAsync(x=>x.FeeId.Equals(feeId));
+            var fee = await _context.CurrencyExchangeFees.SingleOrDefaultAsync(x => x.FeeId.Equals(feeId));
             if (fee == null) return false;
             fee.PriceFee = feePrice;
             _context.CurrencyExchangeFees.Update(fee);

@@ -1,15 +1,17 @@
+using Application;
 using Currency_Exchange.Security;
 using Domain.Entities;
 using Infrastructure;
 using Infrastructure.DbContexts;
 using Microsoft.AspNetCore.Identity;
-
+using Quartz;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
 builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddApplicationServices();
 
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>

@@ -16,15 +16,16 @@ namespace Currency_Exchange.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IAccountServices _accountServices;
+        private readonly IOthersAccountServices _othersAccountServices;
         private readonly ICurrencyServices _currencyServices;
 
-        public BankAccountController(ILogger<HomeController> logger, IAccountServices accountServices, ICurrencyServices currencyServices)
+        public BankAccountController(ILogger<HomeController> logger, IAccountServices accountServices, IOthersAccountServices othersAccountServices, ICurrencyServices currencyServices)
         {
             _logger = logger;
             _accountServices = accountServices;
+            _othersAccountServices = othersAccountServices;
             _currencyServices = currencyServices;
         }
-
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -32,12 +33,6 @@ namespace Currency_Exchange.Controllers
             return View(bankAccounts);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> DeleteAccounts()
-        {
-            var bankAccounts = await _accountServices.GetListAccountsByNameAsync(User.GetUserId());
-            return View(bankAccounts);
-        }
 
         [HttpGet]
         public async Task<IActionResult> BankAccount(int accountId)
@@ -46,6 +41,7 @@ namespace Currency_Exchange.Controllers
             return View(bankAccount);
         }
 
+       
 
         [HttpGet]
         public IActionResult CreateBankAccount()
@@ -167,6 +163,12 @@ namespace Currency_Exchange.Controllers
             return RedirectToAction("Index");
         }
 
+        [HttpGet]
+        public async Task<IActionResult> DeleteAccounts()
+        {
+            var bankAccounts = await _accountServices.GetListAccountsByNameAsync(User.GetUserId());
+            return View(bankAccounts);
+        }
 
 
 

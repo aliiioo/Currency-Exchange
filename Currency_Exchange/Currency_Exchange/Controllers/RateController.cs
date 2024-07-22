@@ -65,6 +65,16 @@ namespace Currency_Exchange.Controllers
             return RedirectToAction("index", "CurrencyAccounts");
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Delete(int feeId)
+        {
+            var result = await _currencyServices.DeleteExchangeRateCurrency(feeId);
+            if (result)
+            {
+                return RedirectToAction("Index", "CurrencyAccounts");
+            }
+            return RedirectToAction("Error", "Home");
+        }
 
 
     }

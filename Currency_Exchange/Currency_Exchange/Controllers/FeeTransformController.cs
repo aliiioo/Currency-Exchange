@@ -1,8 +1,10 @@
 ﻿using Application.Contracts.Persistence;
 using Application.Dtos.CurrencyDtos;
 using AutoMapper.Configuration.Annotations;
+using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using NuGet.Protocol;
 
 namespace Currency_Exchange.Controllers
@@ -45,7 +47,7 @@ namespace Currency_Exchange.Controllers
             var fee = await _currencyServices.CreateTransformFeeToCurrency(Model);
             if (fee==0)
             {
-                return View(Model);
+                return RedirectToAction("Create",new { currentId =Model.CurrencyId, currencyCode=Model.FromCurrency});
             }
             return RedirectToAction("index", "CurrencyAccounts");
         }
@@ -71,7 +73,16 @@ namespace Currency_Exchange.Controllers
             return RedirectToAction("index", "CurrencyAccounts");
         }
 
-
+        [HttpGet]
+        public async Task<IActionResult> Delete(int feeId,int currentId)
+        {
+            var result = await _currencyServices.DeleteTransformFeeToCurrency(feeId,currentId);
+            if (result)
+            {
+                return RedirectToAction("Index", "CurrencyAccounts");
+            }
+            return RedirectToAction("Error","Home");
+        }
 
 
 

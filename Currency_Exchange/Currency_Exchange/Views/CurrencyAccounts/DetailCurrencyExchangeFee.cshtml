@@ -34,32 +34,37 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.FromCurrency)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ToCurrency)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StartRange)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EndRange)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PriceFee)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LastUpdated)
-            </td>
-            <td>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FromCurrency)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ToCurrency)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StartRange)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EndRange)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PriceFee)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LastUpdated)
+                </td>
+                <td>
                     <a asp-controller="FeeExchange" asp-action="Update" asp-route-exchangeFeeId="@item.FeeId">
-                    Update
-                </a>
-            </td>
-        </tr>
-}
+                        Update |
+                    </a>
+
+                    <a asp-controller="FeeExchange" asp-action="Delete" asp-route-feeId="@item.FeeId" asp-route-currentId="@ViewBag.currencyId">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
