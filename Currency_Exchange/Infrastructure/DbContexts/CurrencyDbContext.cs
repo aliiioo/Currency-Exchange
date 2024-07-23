@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Reflection.Metadata;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
-using Domain.Entities;
+﻿using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +15,6 @@ namespace Infrastructure.DbContexts
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<Currency?> Currencies { get; set; }
-        public DbSet<TwoFactorAuthentication> TwoFactorAuthentications { get; set; }
         public DbSet<SystemLog> SystemLogs { get; set; }
         public DbSet<ExchangeRate> ExchangeRates { get; set; }
         public DbSet<CurrencyExchangeFees> CurrencyExchangeFees{ get; set; }
@@ -89,6 +79,7 @@ namespace Infrastructure.DbContexts
 
 
             builder.Entity<Account>().HasQueryFilter(e => e.IsDeleted==false&&e.IsActive);
+            builder.Entity<DeletedAccount>().HasQueryFilter(e => e.Accepted==true);
 
             builder.Entity<Transaction>()
                 .HasOne(t => t.FromAccount)

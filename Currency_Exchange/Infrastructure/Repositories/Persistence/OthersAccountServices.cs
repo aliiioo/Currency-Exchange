@@ -1,18 +1,10 @@
 ﻿using Application.Contracts.Persistence;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Application.Dtos.OthersAccountDto;
-using Application.Dtos.AccountDtos;
-using Microsoft.EntityFrameworkCore;
-using AutoMapper;
-using Infrastructure.DbContexts;
 using Application.Statics;
+using AutoMapper;
 using Domain.Entities;
+using Infrastructure.DbContexts;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories.Persistence
 {

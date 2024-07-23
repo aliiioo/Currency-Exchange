@@ -3,9 +3,6 @@ using Application.Dtos.CurrencyDtos;
 using Currency_Exchange.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using NuGet.Packaging.Core;
-using NuGet.Protocol;
 
 namespace Currency_Exchange.Controllers
 {

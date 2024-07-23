@@ -68,18 +68,14 @@ namespace Currency_Exchange.Controllers
                 return View(rateDto);
             }
             var transformFee = await _currencyServices.UpdateExchangeRateToCurrency(rateDto);
-            return RedirectToAction("index", "CurrencyAccounts");
+            return transformFee == false? RedirectToAction("Error", "Home"): RedirectToAction("index", "CurrencyAccounts");
         }
 
         [HttpGet]
         public async Task<IActionResult> Delete(int feeId)
         {
             var result = await _currencyServices.DeleteExchangeRateCurrency(feeId);
-            if (result)
-            {
-                return RedirectToAction("Index", "CurrencyAccounts");
-            }
-            return RedirectToAction("Error", "Home");
+            return result ? RedirectToAction("Index", "CurrencyAccounts") : RedirectToAction("Error", "Home");
         }
 
 

@@ -1,8 +1,8 @@
-﻿using System.ComponentModel.Design;
-using Application.Contracts.Persistence;
+﻿using Application.Contracts.Persistence;
 using Application.Dtos.AccountDtos;
 using Application.Dtos.OthersAccountDto;
 using Application.Dtos.TransactionDtos;
+using Application.Statics;
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.DbContexts;
@@ -35,6 +35,7 @@ namespace Infrastructure.Repositories.Persistence
         public async Task<ConfirmTransactionDto> GetConfirmTransaction(int idTransaction, string userId)
         {
             var confirmTransaction = _mapper.Map<ConfirmTransactionDto>(await _context.Transactions.SingleOrDefaultAsync(x => x.UserId != null && x.TransactionId.Equals(idTransaction) && x.UserId.Equals(userId)));
+           // Get Name Of Accounts
             confirmTransaction.FromAccountId = await GetNameAccountForTransaction(int.Parse(confirmTransaction.FromAccountId));
             if (!string.IsNullOrEmpty(confirmTransaction.ToAccountId))
             {
@@ -64,7 +65,6 @@ namespace Infrastructure.Repositories.Persistence
             var isOtherAccount = await _othersAccountServices.IsAccountForOthers(username, transactionVM.OthersAccountId);
             if (!isOtherAccount) return 0;
             var otherAccount = await _othersAccountServices.GetOtherAccountByIdAsync(transactionVM.OthersAccountId, username);
-
             var transaction = _mapper.Map<Transaction>(transactionVM);
             transaction.Status = StatusEnum.Pending;
             transaction.ExchangeRate = await _currencyServices.GetPriceRateExchange(transactionVM.FromCurrency, otherAccount.Currency);
@@ -84,7 +84,6 @@ namespace Infrastructure.Repositories.Persistence
         {
             var isSelfAccount = await _accountServices.IsAccountForUser(username, transactionVM.SelfAccountId);
             if (!isSelfAccount) return 0;
-         
             var otherSelfAccount = await _accountServices.GetAccountByIdAsync(username, transactionVM.OthersAccountId);
             var transaction = _mapper.Map<Transaction>(transactionVM);
             transaction.Status = StatusEnum.Pending;
@@ -106,6 +105,11 @@ namespace Infrastructure.Repositories.Persistence
             if (transaction.Status.Equals(StatusEnum.Completed) || transaction.Status.Equals(StatusEnum.Cancelled)) return false;
             var expiredDateTime = transaction.CreatedAt.AddMinutes(10);
             if (expiredDateTime < DateTime.UtcNow)
+            {
+                return false;
+            }
+            var checkMaxAmount= await CheckMaxOfTransaction(username,transaction.Amount);
+            if (!checkMaxAmount)
             {
                 return false;
             }
@@ -168,6 +172,21 @@ namespace Infrastructure.Repositories.Persistence
             _context.Transactions.UpdateRange(recentTransactions);
             await _context.SaveChangesAsync();
             return recentTransactions;
+        }
+
+        
+
+        public async Task<bool> CheckMaxOfTransaction(string userId,decimal price)
+        {
+            var transactions =await _context.Transactions.Where(x =>
+                x.CompletedAt != null && x.UserId != null && x.Status == StatusEnum.Completed && x.CompletedAt.Value.Date.Equals(DateTime.UtcNow.Date) &&
+                x.UserId.Equals(userId)).ToListAsync();
+            var balance = transactions.Sum(x => x.Amount);
+            if (balance+price> MaximumTransaction.MaxTransaction)
+            {
+                return false;
+            }
+            return true;
         }
 
         public async Task<string> GetNameAccountForTransaction(int accountId)

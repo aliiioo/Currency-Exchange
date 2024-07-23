@@ -1,15 +1,11 @@
 ﻿using Application.Contracts.Persistence;
 using Application.Dtos.TransactionDtos;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Razor.Language.Extensions;
-using Microsoft.IdentityModel.Tokens;
-using System.Transactions;
 using Application.Statics;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using static System.Formats.Asn1.AsnWriter;
 using Currency_Exchange.Security;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Transactions;
 
 namespace Currency_Exchange.Controllers
 {
@@ -62,16 +58,17 @@ namespace Currency_Exchange.Controllers
             }
             if (!User.GetUserId().Equals(transactionDto.Username))
             {
-                _logger.LogError($"Unauthorized entry {User.Identity?.Name}");
-                return Unauthorized();
+                var error = $"Hacker => {User.Identity?.Name}";
+                _logger.LogError(error);
+                return RedirectToAction("Error", "Home",new {error});
             }
             if (transactionDto.SelfAccountId.Equals(int.Parse(transactionDto.OthersAccountIdAsString)))
             {
-                var Error = "Transform to Your Current Account Is Not Allow";
-                return RedirectToAction("Error", "Home", new { Error });
+                var error = "Transform to Your Current Account Is Not Allow";
+                return RedirectToAction("Error", "Home", new { error });
             }
-            transactionDto.OthersAccountId = int.Parse(transactionDto.OthersAccountIdAsString);
-            var isToSelfAccount = await _accountServices.IsAccountForUser(User.GetUserId(), transactionDto.OthersAccountId);
+            
+            var isToSelfAccount = await _accountServices.IsAccountForUser(User.GetUserId(), int.Parse(transactionDto.OthersAccountIdAsString));
             if (isToSelfAccount)
             {
                 var transactionId =

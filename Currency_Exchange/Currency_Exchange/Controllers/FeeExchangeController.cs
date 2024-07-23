@@ -1,11 +1,9 @@
-﻿using System.Reflection.PortableExecutable;
-using Application.Contracts.Persistence;
+﻿using Application.Contracts.Persistence;
 using Application.Dtos.CurrencyDtos;
 using Currency_Exchange.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using NuGet.Protocol;
 
 namespace Currency_Exchange.Controllers
 {
@@ -72,18 +70,14 @@ namespace Currency_Exchange.Controllers
                 return View();
             }
             var transformFee = await _currencyServices.UpdateExchangeFeeToCurrency(feeId, feePrice);
-            return RedirectToAction("index", "CurrencyAccounts");
+            return transformFee==false ? RedirectToAction("Error", "Home") : RedirectToAction("index", "CurrencyAccounts");
         }
 
         [HttpGet]
         public async Task<IActionResult> Delete(int feeId, int currentId)
         {
             var result = await _currencyServices.DeleteExchangeFeeToCurrency(feeId, currentId);
-            if (result)
-            {
-                return RedirectToAction("Index", "CurrencyAccounts");
-            }
-            return RedirectToAction("Error", "Home");
+            return result ? RedirectToAction("Index", "CurrencyAccounts") : RedirectToAction("Error", "Home");
         }
 
 

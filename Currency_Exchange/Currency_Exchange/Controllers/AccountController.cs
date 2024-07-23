@@ -45,11 +45,6 @@ namespace Currency_Exchange.Controllers
                             Request.Scheme);
                     if (emailMessage != null)
                         _messageSender.SendEmailAsync(model.Email, "Email confirmation", emailMessage);
-
-                    if (!await _roleManager.RoleExistsAsync("Customer"))
-                    {
-                        RedirectToAction("Error", "Home");
-                    }
                     await _userManager.AddToRoleAsync(user, "Customer");
                     await _userManager.AddClaimAsync(user, new Claim("FullName", model.FullName));
                     return RedirectToAction("Login", "Account");
@@ -95,7 +90,6 @@ namespace Currency_Exchange.Controllers
                 }
                 if (result.Succeeded)
                 {
-
                     return RedirectToAction("Index", "Home");
                 }
                 ModelState.AddModelError("", "Wrong Arrive");

@@ -76,16 +76,13 @@ namespace Infrastructure.Repositories.Persistence
             _context.Accounts.Update(account);
             await _context.SaveChangesAsync();
             return account.AccountId;
-
-
-
         }
 
         public async Task<bool> DeleteAccountAsync(int accountId, string userId)
         {
             var account = await _context.Accounts.FirstOrDefaultAsync(x => x.AccountId.Equals(accountId) && x.UserId.Equals(userId));
             if (account == null) return false;
-            if (account.Balance > 1) return false;
+            account.Balance = 0;
             account.IsDeleted = true;
             _context.Accounts.Update(account);
             await _context.SaveChangesAsync();
@@ -171,6 +168,57 @@ namespace Infrastructure.Repositories.Persistence
             return true;
         }
 
+        public async Task<bool> SaveAccountAddressForSendMoney(int accountId, string userId,string address="")
+        {
+            var account = await _context.Accounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId) && x.UserId.Equals(userId));
+            if (account == null) return false;
+            var accountDeleteInfo =await _context.DeletedAccounts.SingleOrDefaultAsync(x =>
+                    x.AccountId.Equals(accountId) && x.UserId.Equals(userId));
+            if (accountDeleteInfo != null)
+            {
+               _context.DeletedAccounts.Remove(accountDeleteInfo);
+            }
+            var addressInfo = new DeletedAccount()
+            {
+                UserId = userId,
+                Accepted = false,
+                AccountId = accountId,
+                CompleteTime = DateTime.UtcNow,
+                Address = address,
+                Balance = account.Balance,
+            };
+            await _context.DeletedAccounts.AddAsync(addressInfo);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<ConfirmAddressAccountForDeleteDto> GetConfirmAccountDeleteInfo(int accountId, string userId)
+        {
+            return _mapper.Map<ConfirmAddressAccountForDeleteDto>( await _context.DeletedAccounts
+                    .SingleOrDefaultAsync(x => x.UserId.Equals(userId) && x.AccountId.Equals(accountId)));
+
+        }
+
+        public async Task ConfirmAccountDeleteInfo(int accountId, string userId)
+        {
+            var deleteAccount =await _context.DeletedAccounts.SingleOrDefaultAsync(x =>
+                    x.UserId.Equals(userId) && x.AccountId.Equals(accountId));
+                
+            if (deleteAccount != null)
+            {
+                deleteAccount.Accepted = true;
+                _context.DeletedAccounts.Update(deleteAccount);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<List<ConfirmAddressAccountForDeleteDto>> GetAccountDeleteInfo(string userId)
+        {
+            return _mapper.Map<List<ConfirmAddressAccountForDeleteDto>>(await _context.DeletedAccounts
+                .Where(x => x.UserId.Equals(userId)).ToListAsync());
+        }
+
+       
         public async Task<bool> IsAccountForUser(string username, int accountId)
         {
             return await _context.Accounts.AnyAsync(x => x.UserId.Equals(username) && x.AccountId.Equals(accountId));

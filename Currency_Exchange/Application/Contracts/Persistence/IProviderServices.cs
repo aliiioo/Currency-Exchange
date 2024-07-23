@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Application.Dtos.TransactionDtos;
 using Domain.Entities;
-using Application.Dtos.TransactionDtos;
 
 namespace Application.Contracts.Persistence
 {
@@ -19,7 +14,7 @@ namespace Application.Contracts.Persistence
         public Task<int> TransformToSelfAccountCurrency(CreateTransactionDtos  transactionVM, string username);
         public Task<bool> ConfirmTransaction(int transactionId, string username, bool isConfirm);
         public Task<List<Transaction>> CanceledPendingTransactionsByTimePass(int min);
-
+        public Task<bool> CheckMaxOfTransaction(string userId,decimal price);
         public Task<string> GetNameAccountForTransaction(int accountId);
         public Task<string> GetOtherNameAccountForTransaction(int accountId);
 

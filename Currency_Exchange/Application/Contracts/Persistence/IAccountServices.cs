@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Formats.Asn1;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Application.Dtos.AccountDtos;
+﻿using Application.Dtos.AccountDtos;
 using Application.Dtos.TransactionDtos;
-using Domain.Entities;
 
 namespace Application.Contracts.Persistence
 {
@@ -23,10 +16,14 @@ namespace Application.Contracts.Persistence
         public Task<bool> DeleteAccountAsync(int accountId, string userId);
         public Task<bool> IncreaseAccountBalance(IncreaseBalanceDto balanceDto,string username);
         public Task<bool> IsCartNumberExist(string cartNumber);
-
         public Task<List<TransactionDto>> GetAccountTransactionsAsync(int accountId);
         public Task<List<TransactionDto>> GetUserTransactions(string userId);
         public Task<bool> Withdrawal(int accountId,string userId,decimal amount);
+        public Task<bool> SaveAccountAddressForSendMoney(int accountId, string userId,string address="");
+        public Task<ConfirmAddressAccountForDeleteDto> GetConfirmAccountDeleteInfo(int accountId,string userId);
+        public Task ConfirmAccountDeleteInfo(int accountId,string userId);
+        public Task<List<ConfirmAddressAccountForDeleteDto>> GetAccountDeleteInfo(string userId);
+       
 
 
 

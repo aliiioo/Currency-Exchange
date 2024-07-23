@@ -1,20 +1,10 @@
-﻿using Application.Contracts.Persistence;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Application.Contracts;
+﻿using Application.Contracts;
+using Application.Contracts.Persistence;
 using Application.Dtos.CurrencyDtos;
+using AutoMapper;
 using Domain.Entities;
 using Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
-using AutoMapper;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Infrastructure.Repositories.Persistence
 {
@@ -176,7 +166,6 @@ namespace Infrastructure.Repositories.Persistence
         public async Task<bool> DeleteExchangeFeeToCurrency(int feeId, int currencyId)
         {
             var feesList = await GetCurrencyExchangeFeeAsync(currencyId);
-            if (feesList == null) return false;
             if (!feesList.Last().FeeId.Equals(feeId)) return false;
             var fee = await _context.CurrencyExchangeFees.SingleOrDefaultAsync(x => x.FeeId.Equals(feeId));
             if (fee != null) _context.CurrencyExchangeFees.Remove(fee);
@@ -187,7 +176,6 @@ namespace Infrastructure.Repositories.Persistence
         public async Task<bool> DeleteTransformFeeToCurrency(int feeId, int currencyId)
         {
             var feesList = await GetCurrencyTransformFeeAsync(currencyId);
-            if (feesList == null) return false;
             if (!feesList.Last().FeeId.Equals(feeId)) return false;
             var fee = await _context.CurrencyTransformFees.SingleOrDefaultAsync(x => x.FeeId.Equals(feeId));
             if (fee != null) _context.CurrencyTransformFees.Remove(fee);
@@ -270,7 +258,7 @@ namespace Infrastructure.Repositories.Persistence
             {
                 return 1;
             }
-            var lastOldFee = GetListExchangeFeesAsync(Model.FromCurrency, Model.ToCurrency).Result.LastOrDefault();
+            var lastOldFee =GetListExchangeFeesAsync(Model.FromCurrency, Model.ToCurrency).Result.LastOrDefault();
             var fee = _mapper.Map<CurrencyExchangeFees>(Model);
             if (lastOldFee != null)
             {

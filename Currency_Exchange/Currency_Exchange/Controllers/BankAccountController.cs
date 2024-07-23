@@ -1,11 +1,7 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
-using Application.Contracts.Persistence;
+﻿using Application.Contracts.Persistence;
 using Application.Dtos.AccountDtos;
 using Application.Statics;
 using Currency_Exchange.Security;
-using Domain.Entities;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -30,7 +26,7 @@ namespace Currency_Exchange.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var bankAccounts =await _accountServices.GetListAccountsByNameAsync(User.GetUserId());
+            var bankAccounts = await _accountServices.GetListAccountsByNameAsync(User.GetUserId());
             return View(bankAccounts);
         }
 
@@ -38,11 +34,11 @@ namespace Currency_Exchange.Controllers
         [HttpGet]
         public async Task<IActionResult> BankAccount(int accountId)
         {
-            var bankAccount = await _accountServices.GetAccountByIdAsync(User.GetUserId(),accountId);
+            var bankAccount = await _accountServices.GetAccountByIdAsync(User.GetUserId(), accountId);
             return View(bankAccount);
         }
 
-       
+
 
         [HttpGet]
         public IActionResult CreateBankAccount()
@@ -69,8 +65,9 @@ namespace Currency_Exchange.Controllers
             }
             if (!User.GetUserId().Equals(createAccountVM.UserId))
             {
-                _logger.LogError($"Unauthorized entry {User.Identity.Name}");
-                return Unauthorized();
+                _logger.LogError($"Hacker {User.Identity.Name}");
+                var Error = "You are Hacker ";
+                return RedirectToAction("Error","Home",new{Error} );
             }
             await _accountServices.CreateAccount(createAccountVM);
             return RedirectToAction("Index", new { User.Identity.Name });
@@ -83,57 +80,87 @@ namespace Currency_Exchange.Controllers
             return View(account);
 
         }
-        [ServiceFilter(typeof(SanitizeInputFilter))]
+
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ServiceFilter(typeof(SanitizeInputFilter))]
         public async Task<IActionResult> UpdateBankAccount(UpdateAccountViewModel accountVM)
         {
             if (!ModelState.IsValid)
             {
                 return View(accountVM);
             }
-            if (User.GetUserId() != accountVM.UserId)
+            var account = await _accountServices.GetAccountByIdAsync(User.GetUserId(), accountVM.AccountId);
+            if (User.GetUserId() != accountVM.UserId || account.Balance != accountVM.Balance)
             {
-                _logger.LogError($"Unauthorized entry {User.Identity.Name}");
-                return Unauthorized();
+                _logger.LogError($"Hacker {User.Identity?.Name}");
+                var Error = "You are Hacker";
+                return RedirectToAction("Error", "Home", new { Error });
             }
-            await _accountServices.UpdateAccount(accountVM,accountVM.UserId);
-            return RedirectToAction("Index", new { User.Identity.Name });
+            await _accountServices.UpdateAccount(accountVM, accountVM.UserId);
+            return RedirectToAction("Index", new { User.Identity?.Name });
         }
 
         public async Task<IActionResult> DeleteAccount(int accountId)
         {
             var account = await _accountServices.GetAccountByIdAsync(User.GetUserId(), accountId);
-            if (account.Balance>1)
+            if (account.Balance > 1)
             {
-                
+                return RedirectToAction("SendBalanceToAddressForDelete",new {accountId});
             }
             else
             {
                 var result = await _accountServices.DeleteAccountAsync(accountId, User.GetUserId());
+                await _accountServices.SaveAccountAddressForSendMoney(accountId, User.GetUserId(), "");
                 if (result == false) return Unauthorized();
                 return RedirectToAction("Index");
             }
-
-            return null;
         }
 
         public IActionResult SendBalanceToAddressForDelete(int accountId)
         {
+            ViewBag.accountId = accountId;
             return View();
         }
 
-        public async Task<IActionResult> SendBalanceToAddressForDelete()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ServiceFilter(typeof(SanitizeInputFilter))]
+        public async Task<IActionResult> SendBalanceToAddressForDelete(AddressAccountForDeleteDto vmDto)
         {
-            return View();
+            if (!ModelState.IsValid)
+            {
+                return View(vmDto);
+            }
+            var result= await _accountServices.SaveAccountAddressForSendMoney(vmDto.AccountId, User.GetUserId(),vmDto.Address);
+            if (result == false) return Unauthorized();
+            return RedirectToAction("ConfirmDelete" ,new {vmDto.AccountId});
         }
-
-
-
-
 
         [HttpGet]
-        public IActionResult IncreaseBalance(int accountId,string accountCurrency)
+        public async Task<IActionResult> ConfirmDelete(int accountId)
+        {
+            var confirmAccountDelete = await _accountServices.GetConfirmAccountDeleteInfo(accountId, User.GetUserId());
+            return View(confirmAccountDelete);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ServiceFilter(typeof(SanitizeInputFilter))]
+        public async Task<IActionResult> ConfirmDelete(ConfirmAddressAccountForDeleteDto vmdto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(vmdto);
+            }
+            var result = await _accountServices.DeleteAccountAsync(vmdto.AccountId, User.GetUserId());
+            if (result == false) return RedirectToAction("Error","Home");
+            await _accountServices.ConfirmAccountDeleteInfo(vmdto.AccountId, User.GetUserId());
+            return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public IActionResult IncreaseBalance(int accountId, string accountCurrency)
         {
             var currency = _currencyServices.GetListCurrency().Result
                 .Select(x => new SelectListItem { Value = x.CurrencyCode.ToString(), Text = x.CurrencyCode.ToString() }).ToList();
@@ -152,15 +179,15 @@ namespace Currency_Exchange.Controllers
             {
                 return View(balanceDto);
             }
-            var result=await _accountServices.IncreaseAccountBalance(balanceDto,User.GetUserId());
-            if (result==false) return Unauthorized();
+            var result = await _accountServices.IncreaseAccountBalance(balanceDto, User.GetUserId());
+            if (result == false) return Unauthorized();
             return RedirectToAction("Index");
         }
 
 
         public async Task<IActionResult> AccountTransactions(int accountId)
         {
-            var transactions =await _accountServices.GetAccountTransactionsAsync(accountId);
+            var transactions = await _accountServices.GetAccountTransactionsAsync(accountId);
             return View(transactions);
         }
 
@@ -173,9 +200,10 @@ namespace Currency_Exchange.Controllers
         [HttpGet]
         public async Task<IActionResult> Withdrawal(int accountId)
         {
-            ViewBag.accountId=accountId;
+            ViewBag.accountId = accountId;
             return View();
         }
+
         [ServiceFilter(typeof(SanitizeInputFilter))]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -185,8 +213,8 @@ namespace Currency_Exchange.Controllers
             {
                 return View(withdrawalDto);
             }
-            var result= await _accountServices.Withdrawal(withdrawalDto.AccountId, User.GetUserId(), withdrawalDto.Amount);
-            if (result==false) return Unauthorized();
+            var result = await _accountServices.Withdrawal(withdrawalDto.AccountId, User.GetUserId(), withdrawalDto.Amount);
+            if (result == false) return Unauthorized();
             return RedirectToAction("Index");
         }
 
@@ -196,8 +224,6 @@ namespace Currency_Exchange.Controllers
             var bankAccounts = await _accountServices.GetListDeleteAccountsByNameAsync(User.GetUserId());
             return View(bankAccounts);
         }
-
-
 
     }
 }

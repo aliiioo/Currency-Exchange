@@ -1,12 +1,9 @@
 ﻿using Application.Contracts.Persistence;
-using Application.Dtos.AccountDtos;
 using Application.Dtos.OthersAccountDto;
 using Application.Statics;
 using Currency_Exchange.Security;
-using Infrastructure.Repositories.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Core.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Currency_Exchange.Controllers
@@ -61,11 +58,11 @@ namespace Currency_Exchange.Controllers
             }
             if (createAccountVM.UserId != User.GetUserId())
             {
-                _logger.LogError($"Unauthorized entry {User.Identity.Name}");
-                return Unauthorized();
+                _logger.LogError($"Unauthorized entry {User.Identity?.Name}");
+                return RedirectToAction("Error","Home");
             }
             await _othersAccountServices.CreateOthersAccountAsync(createAccountVM);
-            return RedirectToAction("Index", new { User.Identity.Name });
+            return RedirectToAction("Index", new { User.Identity?.Name });
         }
 
 
@@ -86,8 +83,8 @@ namespace Currency_Exchange.Controllers
             }
             if (accountVM.UserId != User.GetUserId())
             {
-                _logger.LogError($"Unauthorized entry {User.Identity.Name}");
-                return Unauthorized();
+                _logger.LogError($"Unauthorized entry {User.Identity?.Name}");
+                return RedirectToAction("Error", "Home");
             }
             await _othersAccountServices.UpdateOthersAccountAsync(accountVM,accountVM.UserId);
             return RedirectToAction("Index");
@@ -98,7 +95,7 @@ namespace Currency_Exchange.Controllers
         {
             var result= await _othersAccountServices.DeleteOthersAccountAsync(accountId,User.GetUserId());
             if (result == false) return Unauthorized();
-            return RedirectToAction("Index", new { User.Identity.Name });
+            return RedirectToAction("Index", new { User.Identity?.Name });
         }
 
         

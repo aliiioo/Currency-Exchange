@@ -1,14 +1,9 @@
 ﻿using Application.Dtos.AccountDtos;
-using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Domain.Entities;
-using Application.Dtos.OthersAccountDto;
 using Application.Dtos.CurrencyDtos;
+using Application.Dtos.OthersAccountDto;
 using Application.Dtos.TransactionDtos;
+using AutoMapper;
+using Domain.Entities;
 
 namespace Infrastructure.Mappings
 {
@@ -44,6 +39,8 @@ namespace Infrastructure.Mappings
             CreateMap<Transaction, ConfirmTransactionDto>().ReverseMap();
             CreateMap<OthersAccount, OtherAccountViewModel>().ReverseMap();
             CreateMap<AccountViewModel, UpdateAccountViewModel>().ReverseMap();
+            CreateMap<DeletedAccount, ConfirmAddressAccountForDeleteDto>().ReverseMap();
+            CreateMap<DeletedAccount, DeleteAccountAddressDto>().ReverseMap();
 
 
         }

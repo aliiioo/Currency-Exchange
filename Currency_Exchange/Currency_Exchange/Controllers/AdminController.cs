@@ -1,6 +1,5 @@
 ﻿using Application.Contracts.Persistence;
 using Application.Statics;
-using Infrastructure.Migrations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,8 +10,7 @@ namespace Currency_Exchange.Controllers
     {
         private readonly IProviderServices _providerServices;
         private readonly IAdminServices _adminServices;
-       
-
+        
         public AdminController(IProviderServices providerServices, IAdminServices adminServices)
         {
             _providerServices = providerServices;
@@ -53,22 +51,14 @@ namespace Currency_Exchange.Controllers
         public async Task<IActionResult> DeActivateAccount(int accountId)
         {
             var result = await _adminServices.DeActivateAccount(accountId);
-            if (result==true)
-            {
-                return RedirectToAction("Accounts");
-            }
-            return NotFound();
+            return result ? RedirectToAction("Accounts") : RedirectToAction("Error", "Home");
         }
 
         [HttpGet]
         public async Task<IActionResult> ActivateAccount(int accountId)
         {
             var result = await _adminServices.ActivateAccount(accountId);
-            if (result == true)
-            {
-                return RedirectToAction("Accounts");
-            }
-            return NotFound();
+            return result == true ? RedirectToAction("Accounts") : RedirectToAction("Error", "Home");
         }
 
         public async Task<IActionResult> SearchAccountById(int accountId = 0)
@@ -85,11 +75,16 @@ namespace Currency_Exchange.Controllers
                return RedirectToAction("Error", "Home");
             }
             var account = await _adminServices.GetAccountByCartNumberForAdmin(cartNumber);
-            if (account==null) return RedirectToAction("Error", "Home");
             ViewBag.accountId = account.AccountId;
             return View(account);
         }
 
+
+        public async Task<IActionResult> AllDeletedAccountWithAddress()
+        {
+            var accounts =await _adminServices.GetAccountDeleteInfoForAdmin();
+            return View(accounts);
+        }
 
 
     }

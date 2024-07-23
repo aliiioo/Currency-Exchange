@@ -1,6 +1,4 @@
-﻿using Application.API_Calls;
-using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace Currency_Exchange.Controllers
 {

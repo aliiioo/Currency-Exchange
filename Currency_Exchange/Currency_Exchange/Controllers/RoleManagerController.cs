@@ -1,12 +1,9 @@
-﻿using Domain.Entities;
+﻿using Application.Contracts.Persistence;
+using Application.Dtos.RegistrationDto;
+using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualBasic;
-using System.Data;
-using System.Diagnostics.CodeAnalysis;
-using Application.Contracts.Persistence;
-using Application.Dtos.RegistrationDto;
 
 namespace Currency_Exchange.Controllers
 {

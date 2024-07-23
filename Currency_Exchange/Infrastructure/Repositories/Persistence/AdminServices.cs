@@ -3,11 +3,6 @@ using Application.Dtos.AccountDtos;
 using AutoMapper;
 using Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories.Persistence
 {
@@ -59,6 +54,12 @@ namespace Infrastructure.Repositories.Persistence
             var account = await _context.Users.Where(x => x.Email.Equals(email)).SelectMany(x => x.Accounts)
                 .ToListAsync();
             return _mapper.Map<List<AccountViewModel>>(account);
+
+        }
+
+        public async Task<List<DeleteAccountAddressDto>> GetAccountDeleteInfoForAdmin()
+        {
+            return _mapper.Map<List<DeleteAccountAddressDto>>(await _context.DeletedAccounts.ToListAsync());
 
         }
 

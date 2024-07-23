@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Application.Dtos.AccountDtos
 {
     public class AddressAccountForDeleteDto
     {
-        public int TransactionId { get; set; }
+        public int AccountId { get; set; }
+        [MaxLength(1200)]
+        [Required]
         public string Address { get; set; }
         
 

@@ -1,0 +1,45 @@
+﻿@model IEnumerable<Application.Dtos.AccountDtos.ConfirmAddressAccountForDeleteDto>
+
+@{
+    ViewData["Title"] = "AllDeletedAccount";
+}
+
+<h1>AllDeletedAccount</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.AccountId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Address)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Balance)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsConfirm)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.AccountId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Address)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Balance)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsConfirm)
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
