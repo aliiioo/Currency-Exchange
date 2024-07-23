@@ -1,10 +1,14 @@
 ﻿using Application.Contracts.Persistence;
 using Application.Dtos.CurrencyDtos;
+using Currency_Exchange.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Data;
 
 namespace Currency_Exchange.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class RateController : Controller
     {
         private readonly ICurrencyServices _currencyServices;
@@ -27,6 +31,7 @@ namespace Currency_Exchange.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ServiceFilter(typeof(SanitizeInputFilter))]
         public async Task<IActionResult> Create(RateDtos rateDto)
         {
             if (!ModelState.IsValid)
@@ -55,6 +60,7 @@ namespace Currency_Exchange.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ServiceFilter(typeof(SanitizeInputFilter))]
         public async Task<IActionResult> Update(UpdateRateDtos rateDto)
         {
             if (!ModelState.IsValid)

@@ -24,6 +24,7 @@ namespace Domain.Entities
         public ICollection<OthersAccount> OthersAccounts { get; set; } = new List<OthersAccount>();
         public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
         public ICollection<TwoFactorAuthentication> TwoFactorAuthentications { get; set; } = new List<TwoFactorAuthentication>();
+        public ICollection<DeletedAccount> DeletedAccounts { get; set; } = new List<DeletedAccount>();
     }
 
 }

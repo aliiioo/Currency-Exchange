@@ -48,7 +48,7 @@ namespace Currency_Exchange.Controllers
 
                     if (!await _roleManager.RoleExistsAsync("Customer"))
                     {
-                        RedirectToAction("CreateRole", "RoleManager");
+                        RedirectToAction("Error", "Home");
                     }
                     await _userManager.AddToRoleAsync(user, "Customer");
                     await _userManager.AddClaimAsync(user, new Claim("FullName", model.FullName));

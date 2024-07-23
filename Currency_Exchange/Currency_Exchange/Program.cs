@@ -8,6 +8,7 @@ using Quartz;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
 builder.Services.AddInfrastructureServices(builder.Configuration);
@@ -18,16 +19,18 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     {
         options.Password.RequiredUniqueChars = 0;
         options.User.RequireUniqueEmail = true;
-        options.Password.RequireDigit=true;
-        options.Password.RequireLowercase=true;
-        options.Password.RequireUppercase=true;
-        options.Password.RequiredLength=8;
+        options.Password.RequireDigit = true;
+        options.Password.RequireLowercase = true;
+        options.Password.RequireUppercase = true;
+        options.Password.RequiredLength = 8;
         options.Lockout.MaxFailedAccessAttempts = 10;
         options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
 
     })
     .AddEntityFrameworkStores<CurrencyDbContext>()
     .AddDefaultTokenProviders();
+
+builder.Services.AddScoped<SanitizeInputFilter>();
 
 var app = builder.Build();
 
@@ -38,7 +41,7 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-//app.UseMiddleware<SQLInjectionsMiddleware>();
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 

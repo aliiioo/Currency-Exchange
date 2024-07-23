@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using static System.Formats.Asn1.AsnWriter;
+using Currency_Exchange.Security;
 
 namespace Currency_Exchange.Controllers
 {
@@ -51,6 +52,7 @@ namespace Currency_Exchange.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ServiceFilter(typeof(SanitizeInputFilter))]
         public async Task<IActionResult> TransactionAmount(CreateTransactionDtos transactionDto)
         {
             
@@ -60,8 +62,13 @@ namespace Currency_Exchange.Controllers
             }
             if (!User.GetUserId().Equals(transactionDto.Username))
             {
-                _logger.LogError($"Unauthorized entry {User.Identity.Name}");
+                _logger.LogError($"Unauthorized entry {User.Identity?.Name}");
                 return Unauthorized();
+            }
+            if (transactionDto.SelfAccountId.Equals(int.Parse(transactionDto.OthersAccountIdAsString)))
+            {
+                var Error = "Transform to Your Current Account Is Not Allow";
+                return RedirectToAction("Error", "Home", new { Error });
             }
             transactionDto.OthersAccountId = int.Parse(transactionDto.OthersAccountIdAsString);
             var isToSelfAccount = await _accountServices.IsAccountForUser(User.GetUserId(), transactionDto.OthersAccountId);
@@ -81,32 +88,39 @@ namespace Currency_Exchange.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ConfirmTransaction(int transactionId)
+        public async Task <IActionResult> ConfirmTransaction(int transactionId)
         {
-            ViewBag.transactionId = transactionId;
-            return View();
+            var transaction = await _providerServices.GetConfirmTransaction(transactionId,User.GetUserId());
+            return View(transaction);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ServiceFilter(typeof(SanitizeInputFilter))]
         public async Task<IActionResult> ConfirmTransaction(ConfirmTransactionDto confirmTransactionDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(confirmTransactionDto);
+            }
             using var safeScope= new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
             try
             {
                 var result = await _providerServices.ConfirmTransaction(confirmTransactionDto.TransactionId, User.GetUserId(), confirmTransactionDto.IsConfirm);
                 if (result == false)
                 {
-                    _logger.LogError($"Error in Transaction Unauthorized entry  {User.Identity.Name}");
-                    return Unauthorized();
+                    var Error = $" Transaction Wrong May it timeOut {User.Identity?.Name}";
+                    _logger.LogError(Error);
+                    return RedirectToAction("Error", "Home", new { Error });
                 }
                 safeScope.Complete();
                 return RedirectToAction("TransactionDetail", new { confirmTransactionDto.TransactionId});
             }
             catch (Exception e)
             {
-                _logger.LogError($" More Request for Transaction {User.Identity.Name}");
-                return RedirectToAction("Error", "Home");
+                var Error = $" More Request for Transaction {User.Identity?.Name} for {e}";
+                _logger.LogError(Error);
+                return RedirectToAction("Error", "Home",new {Error});
 
             }
         }
@@ -114,7 +128,7 @@ namespace Currency_Exchange.Controllers
         [HttpGet]
         public async Task<IActionResult> TransactionDetail(int transactionId)
         {
-            var transaction =await _providerServices.GetTransaction(transactionId);
+            var transaction =await _providerServices.GetConfirmTransaction(transactionId,userId:User.GetUserId());
             return View(transaction);
         }
 

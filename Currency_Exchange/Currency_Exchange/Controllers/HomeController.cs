@@ -1,5 +1,4 @@
 ﻿using Application.API_Calls;
-using Currency_Exchange.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -25,9 +24,10 @@ namespace Currency_Exchange.Controllers
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        public IActionResult Error(string? error)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            ViewBag.error=error;
+            return View();
         }
     }
 }

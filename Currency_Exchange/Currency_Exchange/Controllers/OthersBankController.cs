@@ -2,6 +2,7 @@
 using Application.Dtos.AccountDtos;
 using Application.Dtos.OthersAccountDto;
 using Application.Statics;
+using Currency_Exchange.Security;
 using Infrastructure.Repositories.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -51,6 +52,7 @@ namespace Currency_Exchange.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ServiceFilter(typeof(SanitizeInputFilter))]
         public async Task<IActionResult> CreateOthersBankAccount(CreateOtherAccountViewModel createAccountVM)
         {
             if (!ModelState.IsValid)

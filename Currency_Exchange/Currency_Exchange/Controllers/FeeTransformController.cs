@@ -1,14 +1,18 @@
 ﻿using Application.Contracts.Persistence;
 using Application.Dtos.CurrencyDtos;
 using AutoMapper.Configuration.Annotations;
+using Currency_Exchange.Security;
 using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using NuGet.Protocol;
+using System.Data;
 
 namespace Currency_Exchange.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class FeeTransformController : Controller
     {
 
@@ -32,6 +36,7 @@ namespace Currency_Exchange.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ServiceFilter(typeof(SanitizeInputFilter))]
         public async Task<IActionResult> Create(CreateFeeDtos Model)
         {
             if (!ModelState.IsValid)
@@ -63,6 +68,7 @@ namespace Currency_Exchange.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ServiceFilter(typeof(SanitizeInputFilter))]
         public async Task<IActionResult> Update(int feeId, decimal feePrice)
         {
             if (feeId == 0 || feePrice == 0)

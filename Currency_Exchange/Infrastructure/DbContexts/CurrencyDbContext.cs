@@ -30,6 +30,7 @@ namespace Infrastructure.DbContexts
         public DbSet<CurrencyExchangeFees> CurrencyExchangeFees{ get; set; }
         public DbSet<CurrencyTransformFees> CurrencyTransformFees{ get; set; }
         public DbSet<OthersAccount>  OthersAccounts{ get; set; }
+        public DbSet<DeletedAccount>  DeletedAccounts{ get; set; }
 
 
 

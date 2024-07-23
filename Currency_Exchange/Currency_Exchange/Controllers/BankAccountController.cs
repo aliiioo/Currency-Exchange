@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using Application.Contracts.Persistence;
 using Application.Dtos.AccountDtos;
 using Application.Statics;
+using Currency_Exchange.Security;
 using Domain.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -53,7 +54,7 @@ namespace Currency_Exchange.Controllers
             return View();
         }
 
-
+        [ServiceFilter(typeof(SanitizeInputFilter))]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateBankAccount(CreateAccountViewModel createAccountVM)
@@ -82,7 +83,7 @@ namespace Currency_Exchange.Controllers
             return View(account);
 
         }
-
+        [ServiceFilter(typeof(SanitizeInputFilter))]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateBankAccount(UpdateAccountViewModel accountVM)
@@ -102,10 +103,34 @@ namespace Currency_Exchange.Controllers
 
         public async Task<IActionResult> DeleteAccount(int accountId)
         {
-            var result= await _accountServices.DeleteAccountAsync(accountId,User.GetUserId());
-            if (result==false) return Unauthorized();
-            return RedirectToAction("Index");
+            var account = await _accountServices.GetAccountByIdAsync(User.GetUserId(), accountId);
+            if (account.Balance>1)
+            {
+                
+            }
+            else
+            {
+                var result = await _accountServices.DeleteAccountAsync(accountId, User.GetUserId());
+                if (result == false) return Unauthorized();
+                return RedirectToAction("Index");
+            }
+
+            return null;
         }
+
+        public IActionResult SendBalanceToAddressForDelete(int accountId)
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> SendBalanceToAddressForDelete()
+        {
+            return View();
+        }
+
+
+
+
 
         [HttpGet]
         public IActionResult IncreaseBalance(int accountId,string accountCurrency)
@@ -118,6 +143,7 @@ namespace Currency_Exchange.Controllers
             ViewBag.accountId = accountId;
             return View();
         }
+        [ServiceFilter(typeof(SanitizeInputFilter))]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> IncreaseBalance(IncreaseBalanceDto balanceDto)
@@ -150,6 +176,7 @@ namespace Currency_Exchange.Controllers
             ViewBag.accountId=accountId;
             return View();
         }
+        [ServiceFilter(typeof(SanitizeInputFilter))]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Withdrawal(WithdrawalDto withdrawalDto)

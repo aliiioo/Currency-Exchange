@@ -1,5 +1,7 @@
 ﻿using Application.Contracts.Persistence;
 using Application.Dtos.CurrencyDtos;
+using Currency_Exchange.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NuGet.Packaging.Core;
@@ -7,6 +9,7 @@ using NuGet.Protocol;
 
 namespace Currency_Exchange.Controllers
 {
+    [Authorize]
     public class CurrencyAccountsController : Controller
     {
         private readonly ICurrencyServices _currencyServices;
@@ -20,14 +23,15 @@ namespace Currency_Exchange.Controllers
             var listCurrency =await _currencyServices.GetListCurrency();
             return View(listCurrency);
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult CreateCurrency()
         {
             return View();
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPost]
+        [ServiceFilter(typeof(SanitizeInputFilter))]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateCurrency(CurrencyDto Model)
         {

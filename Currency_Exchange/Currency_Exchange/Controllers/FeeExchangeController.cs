@@ -1,12 +1,15 @@
 ﻿using System.Reflection.PortableExecutable;
 using Application.Contracts.Persistence;
 using Application.Dtos.CurrencyDtos;
+using Currency_Exchange.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using NuGet.Protocol;
 
 namespace Currency_Exchange.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class FeeExchangeController : Controller
     {
         private readonly ICurrencyServices _currencyServices;
@@ -29,6 +32,7 @@ namespace Currency_Exchange.Controllers
             return View();
         }
         [HttpPost]
+        [ServiceFilter(typeof(SanitizeInputFilter))]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateFeeDtos Model)
         {
@@ -58,7 +62,7 @@ namespace Currency_Exchange.Controllers
             return View(exchangeFee);
         }
 
-
+        [ServiceFilter(typeof(SanitizeInputFilter))]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Update(int feeId, decimal feePrice)

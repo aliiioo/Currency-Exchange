@@ -13,7 +13,62 @@
         <form asp-action="ConfirmTransaction">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <input asp-for="TransactionId" value="@ViewBag.transactionId" type="hidden" class="form-control" />
+                <input asp-for="TransactionId" readonly="" type="hidden" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="FromAccountId" class="control-label"></label>
+                <input asp-for="FromAccountId" readonly="readonly" class="form-control" />
+                <span asp-validation-for="FromAccountId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ToOtherAccountId" class="control-label"></label>
+                <input asp-for="ToOtherAccountId" readonly="readonly"  class="form-control" />
+                <span asp-validation-for="ToOtherAccountId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ToAccountId" class="control-label"></label>
+                <input asp-for="ToAccountId" readonly="readonly" class="form-control" />
+                <span asp-validation-for="ToAccountId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FromCurrency"  class="control-label"></label>
+                <input asp-for="FromCurrency" readonly="readonly" class="form-control" />
+                <span asp-validation-for="FromCurrency" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ToCurrency" class="control-label"></label>
+                <input asp-for="ToCurrency" readonly="readonly" class="form-control" />
+                <span asp-validation-for="ToCurrency" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Amount" class="control-label"></label>
+                <input asp-for="Amount" readonly="readonly" class="form-control" />
+                <span asp-validation-for="Amount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ConvertedAmount" class="control-label"></label>
+                <input asp-for="ConvertedAmount" readonly="readonly" class="form-control" />
+                <span asp-validation-for="ConvertedAmount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ExchangeRate" class="control-label"></label>
+                <input asp-for="ExchangeRate" readonly="readonly" class="form-control" />
+                <span asp-validation-for="ExchangeRate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Fee" class="control-label"></label>
+                <input asp-for="Fee" readonly="readonly" class="form-control" />
+                <span asp-validation-for="Fee" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Status" class="control-label"></label>
+                <input asp-for="Status" readonly="readonly" class="form-control" />
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedAt" class="control-label"></label>
+                <input asp-for="CreatedAt" readonly="readonly" class="form-control" />
+                <span asp-validation-for="CreatedAt" class="text-danger"></span>
             </div>
             <div class="form-group form-check">
                 <label class="form-check-label">
@@ -27,9 +82,6 @@
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
