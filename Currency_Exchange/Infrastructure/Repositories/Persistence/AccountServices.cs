@@ -50,13 +50,12 @@ namespace Infrastructure.Repositories.Persistence
             if (!await _currency.IsExistCurrencyByCodeAsync(accountVM.Currency)) return 0;
             var amount = await _currency.CurrencyConvertor(accountVM.Currency, "USD", accountVM.Balance);
             if (amount < MinimumAmount.MinBalance) return 0;
-
             var cartNumber = CartNumbers.GenerateUnique16DigitNumbers();
             while (await IsCartNumberExist(cartNumber) == false)
             {
                 cartNumber = CartNumbers.GenerateUnique16DigitNumbers();
             }
-
+            // processes
             var account = _mapper.Map<Account>(accountVM);
             account.CartNumber = cartNumber;
             await _context.Accounts.AddAsync(account);
