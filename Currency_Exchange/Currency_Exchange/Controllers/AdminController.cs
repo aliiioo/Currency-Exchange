@@ -1,5 +1,6 @@
 ﻿using Application.Contracts.Persistence;
 using Application.Statics;
+using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -72,10 +73,15 @@ namespace Currency_Exchange.Controllers
         {
             if (!ValidateCartNumber.IsValidCardNumber(cartNumber))
             {
-               return RedirectToAction("Error", "Home");
+                var error = "cart number is not valid";
+               return RedirectToAction("Error", "Home",new{error});
             }
             var account = await _adminServices.GetAccountByCartNumberForAdmin(cartNumber);
-            ViewBag.accountId = account.AccountId;
+            if (account!=null)
+            {
+                ViewBag.accountId = account.AccountId;
+            }
+           
             return View(account);
         }
 

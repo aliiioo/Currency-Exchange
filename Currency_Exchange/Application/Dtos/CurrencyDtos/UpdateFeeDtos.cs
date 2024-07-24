@@ -11,6 +11,7 @@ namespace Application.Dtos.CurrencyDtos
         [Required]
         public decimal StartRange { get; set; } = 0;
         public decimal EndRange { get; set; } = 0;
+        [Range(0,40)]
         public decimal PriceFee { get; set; }
 
 

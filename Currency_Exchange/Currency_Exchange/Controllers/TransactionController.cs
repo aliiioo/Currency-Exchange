@@ -56,7 +56,7 @@ namespace Currency_Exchange.Controllers
             {
                 return View(transactionDto);
             }
-            if (!User.GetUserId().Equals(transactionDto.Username))
+            if (!User.GetUserId().Equals(transactionDto.UserId))
             {
                 var error = $"Hacker => {User.Identity?.Name}";
                 _logger.LogError(error);
@@ -106,18 +106,18 @@ namespace Currency_Exchange.Controllers
                 var result = await _providerServices.ConfirmTransaction(confirmTransactionDto.TransactionId, User.GetUserId(), confirmTransactionDto.IsConfirm);
                 if (result == false)
                 {
-                    var Error = $" Transaction Wrong May it timeOut {User.Identity?.Name}";
-                    _logger.LogError(Error);
-                    return RedirectToAction("Error", "Home", new { Error });
+                    var error = $" Transaction Wrong May it timeOut {User.Identity?.Name}";
+                    _logger.LogError(error);
+                    return RedirectToAction("Error", "Home", new { error });
                 }
                 safeScope.Complete();
                 return RedirectToAction("TransactionDetail", new { confirmTransactionDto.TransactionId});
             }
             catch (Exception e)
             {
-                var Error = $" More Request for Transaction {User.Identity?.Name} for {e}";
-                _logger.LogError(Error);
-                return RedirectToAction("Error", "Home",new {Error});
+                var error = $" More Request for Transaction {User.Identity?.Name} for {e}";
+                _logger.LogError(error);
+                return RedirectToAction("Error", "Home",new { Error = error});
 
             }
         }

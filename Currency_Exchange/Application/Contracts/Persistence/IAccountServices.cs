@@ -21,7 +21,7 @@ namespace Application.Contracts.Persistence
         public Task<bool> Withdrawal(int accountId,string userId,decimal amount);
         public Task<bool> SaveAccountAddressForSendMoney(int accountId, string userId,string address="");
         public Task<ConfirmAddressAccountForDeleteDto> GetConfirmAccountDeleteInfo(int accountId,string userId);
-        public Task ConfirmAccountDeleteInfo(int accountId,string userId);
+        public Task<bool> ConfirmAccountDeleteInfo(int accountId,string userId);
         public Task<List<ConfirmAddressAccountForDeleteDto>> GetAccountDeleteInfo(string userId);
        
 

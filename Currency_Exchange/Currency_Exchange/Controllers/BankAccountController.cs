@@ -30,16 +30,13 @@ namespace Currency_Exchange.Controllers
             return View(bankAccounts);
         }
 
-
         [HttpGet]
         public async Task<IActionResult> BankAccount(int accountId)
         {
             var bankAccount = await _accountServices.GetAccountByIdAsync(User.GetUserId(), accountId);
             return View(bankAccount);
         }
-
-
-
+        
         [HttpGet]
         public IActionResult CreateBankAccount()
         {
@@ -65,12 +62,12 @@ namespace Currency_Exchange.Controllers
             }
             if (!User.GetUserId().Equals(createAccountVM.UserId))
             {
-                _logger.LogError($"Hacker {User.Identity.Name}");
+                _logger.LogError($"Hacker {User.Identity?.Name}");
                 var Error = "You are Hacker ";
                 return RedirectToAction("Error","Home",new{Error} );
             }
             await _accountServices.CreateAccount(createAccountVM);
-            return RedirectToAction("Index", new { User.Identity.Name });
+            return RedirectToAction("Index", new { User.Identity?.Name });
         }
 
         [HttpGet]

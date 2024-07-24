@@ -58,9 +58,8 @@ namespace Infrastructure.Repositories.Persistence
             }
             account.CartNumber = cartNumber;
             await _context.Accounts.AddAsync(account);
-            await _context.SaveChangesAsync();
-            return account.AccountId;
-
+            var queryResult= await _context.SaveChangesAsync();
+            return queryResult>0 ? account.AccountId : 0;
         }
 
         public async Task<int> UpdateAccount(UpdateAccountViewModel accountVM, string userid)
@@ -74,8 +73,8 @@ namespace Infrastructure.Repositories.Persistence
             account.Balance = accountVM.Balance;
             account.AccountName = accountVM.AccountName;
             _context.Accounts.Update(account);
-            await _context.SaveChangesAsync();
-            return account.AccountId;
+            var queryResult = await _context.SaveChangesAsync();
+            return queryResult > 0 ? account.AccountId : 0;
         }
 
         public async Task<bool> DeleteAccountAsync(int accountId, string userId)
@@ -85,8 +84,7 @@ namespace Infrastructure.Repositories.Persistence
             account.Balance = 0;
             account.IsDeleted = true;
             _context.Accounts.Update(account);
-            await _context.SaveChangesAsync();
-            return true;
+            return await _context.SaveChangesAsync() > 0;
         }
 
         public async Task<bool> IncreaseAccountBalance(IncreaseBalanceDto balanceDto, string username)
@@ -118,9 +116,7 @@ namespace Infrastructure.Repositories.Persistence
             };
             await _context.Transactions.AddAsync(transaction);
             _context.Accounts.Update(account);
-            await _context.SaveChangesAsync();
-            return true;
-
+            return await _context.SaveChangesAsync() > 0;
         }
 
         public async Task<bool> IsCartNumberExist(string cartNumber)
@@ -164,8 +160,8 @@ namespace Infrastructure.Repositories.Persistence
             };
             await _context.Transactions.AddAsync(transaction);
             _context.Accounts.Update(account);
-            await _context.SaveChangesAsync();
-            return true;
+            return await _context.SaveChangesAsync() > 0;
+             
         }
 
         public async Task<bool> SaveAccountAddressForSendMoney(int accountId, string userId,string address="")
@@ -177,6 +173,7 @@ namespace Infrastructure.Repositories.Persistence
             if (accountDeleteInfo != null)
             {
                _context.DeletedAccounts.Remove(accountDeleteInfo);
+               await _context.SaveChangesAsync();
             }
             var addressInfo = new DeletedAccount()
             {
@@ -188,28 +185,24 @@ namespace Infrastructure.Repositories.Persistence
                 Balance = account.Balance,
             };
             await _context.DeletedAccounts.AddAsync(addressInfo);
-            await _context.SaveChangesAsync();
-            return true;
+            return await _context.SaveChangesAsync() > 0;
+          
         }
 
         public async Task<ConfirmAddressAccountForDeleteDto> GetConfirmAccountDeleteInfo(int accountId, string userId)
         {
-            return _mapper.Map<ConfirmAddressAccountForDeleteDto>( await _context.DeletedAccounts
-                    .SingleOrDefaultAsync(x => x.UserId.Equals(userId) && x.AccountId.Equals(accountId)));
-
+            return _mapper.Map<ConfirmAddressAccountForDeleteDto>( await _context.DeletedAccounts.IgnoreQueryFilters()
+                    .FirstOrDefaultAsync(x => x.UserId.Equals(userId) && x.AccountId.Equals(accountId)));
         }
 
-        public async Task ConfirmAccountDeleteInfo(int accountId, string userId)
+        public async Task<bool> ConfirmAccountDeleteInfo(int accountId, string userId)
         {
             var deleteAccount =await _context.DeletedAccounts.SingleOrDefaultAsync(x =>
                     x.UserId.Equals(userId) && x.AccountId.Equals(accountId));
-                
-            if (deleteAccount != null)
-            {
-                deleteAccount.Accepted = true;
-                _context.DeletedAccounts.Update(deleteAccount);
-                await _context.SaveChangesAsync();
-            }
+            if (deleteAccount == null) return false;
+            deleteAccount.Accepted = true;
+            _context.DeletedAccounts.Update(deleteAccount);
+            return await _context.SaveChangesAsync() > 0;
         }
 
         public async Task<List<ConfirmAddressAccountForDeleteDto>> GetAccountDeleteInfo(string userId)

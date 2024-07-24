@@ -53,8 +53,8 @@ namespace Infrastructure.Repositories.Persistence
 
             var newOtherAccount = _mapper.Map<OthersAccount>(accountVM);
             await _context.OthersAccounts.AddAsync(newOtherAccount);
-            await _context.SaveChangesAsync();
-            return newOtherAccount.AccountId;
+            var queryResult = await _context.SaveChangesAsync();
+            return queryResult > 0 ? newOtherAccount.AccountId : 0;
         }
 
         public async Task<bool> DeleteOthersAccountAsync(int accountId, string userId)
@@ -62,9 +62,7 @@ namespace Infrastructure.Repositories.Persistence
             var account = await _context.OthersAccounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId) && x.UserId.Equals(userId));
             if (account == null) return false;
             _context.OthersAccounts.Remove(account);
-            await _context.SaveChangesAsync();
-            return true;
-
+            return await _context.SaveChangesAsync() > 0;
         }
 
         public async Task<int> UpdateOthersAccountAsync(UpdateOtherAccountViewModel otherAccountViewModel, string userId)
@@ -79,8 +77,8 @@ namespace Infrastructure.Repositories.Persistence
             account.Balance = otherAccountViewModel.Balance;
             account.CartNumber = otherAccountViewModel.CartNumber;
             _context.OthersAccounts.Update(account);
-            await _context.SaveChangesAsync();
-            return account.AccountId;
+            var queryResult = await _context.SaveChangesAsync();
+            return queryResult > 0 ? account.AccountId : 0;
         }
 
         public async Task<bool> IsAccountForOthers(string username, int accountId)

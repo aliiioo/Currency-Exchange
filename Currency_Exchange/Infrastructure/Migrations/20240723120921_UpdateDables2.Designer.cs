@@ -4,6 +4,7 @@ using Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(CurrencyDbContext))]
-    partial class CurrencyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240723120921_UpdateDables2")]
+    partial class UpdateDables2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,16 +34,14 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("AccountName")
                         .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Balance")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("CartNumber")
                         .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("nvarchar(16)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -144,15 +144,15 @@ namespace Infrastructure.Migrations
                         {
                             Id = "1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "879a8009-ec58-49ef-80b5-598933568182",
-                            CreatedAt = new DateTime(2024, 7, 23, 17, 23, 7, 210, DateTimeKind.Local).AddTicks(3085),
+                            ConcurrencyStamp = "98d1d03f-b032-4c4e-98b1-358179517a44",
+                            CreatedAt = new DateTime(2024, 7, 23, 15, 39, 19, 412, DateTimeKind.Local).AddTicks(7383),
                             Email = "admin@example.com",
                             EmailConfirmed = true,
                             FullName = "Admin User",
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN@EXAMPLE.COM",
-                            PasswordHash = "AQAAAAEAACcQAAAAEEOhZ/x7lUrXB7JAF/dNjLZXGUKjsii0cg/KfXS7ZeHuPGE90zyurEH88SIoN45Sxg==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEI1Gw8XbXpyGDPzH3GAhBJjqQR3GADTesKIA34rfph7vV4wWwt85afgWrUSh4yYRjg==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "",
                             TwoFactorEnabled = false,
@@ -346,8 +346,7 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("CartNumber")
                         .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("nvarchar(16)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -486,14 +485,14 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = "1",
-                            ConcurrencyStamp = "2263e295-a780-432b-8221-bb3164b42412",
+                            ConcurrencyStamp = "7f119109-ae69-4678-a395-b220c3e4bcac",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "2",
-                            ConcurrencyStamp = "8cb03b92-0a1c-4d43-913c-287600f73513",
+                            ConcurrencyStamp = "8e64f053-4a6b-4b7a-bfad-77457047b662",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         });

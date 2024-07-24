@@ -69,8 +69,7 @@ namespace Infrastructure.Repositories.Persistence
             if (account == null) return false;
             account.IsActive = true;
             _context.Accounts.Update(account);
-            await _context.SaveChangesAsync();
-            return true;
+            return await _context.SaveChangesAsync() > 0;
 
         }
 
@@ -80,8 +79,8 @@ namespace Infrastructure.Repositories.Persistence
             if (account == null) return false;
             account.IsActive = false;
             _context.Accounts.Update(account);
-            await _context.SaveChangesAsync();
-            return true;
+            return await _context.SaveChangesAsync() > 0;
+           
 
         }
     }

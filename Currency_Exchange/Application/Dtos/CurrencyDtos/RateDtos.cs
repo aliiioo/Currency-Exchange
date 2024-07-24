@@ -10,6 +10,7 @@ namespace Application.Dtos.CurrencyDtos
         [Required]
         public string ToCurrency { get; set; }
         [Required]
+        [Range(0,40)]
         public decimal Rate { get; set; } = 0;
     }
 }

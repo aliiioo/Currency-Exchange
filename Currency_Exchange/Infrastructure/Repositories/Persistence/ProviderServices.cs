@@ -7,6 +7,7 @@ using AutoMapper;
 using Domain.Entities;
 using Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Principal;
 
 namespace Infrastructure.Repositories.Persistence
 {
@@ -64,18 +65,17 @@ namespace Infrastructure.Repositories.Persistence
             if (!isSelfAccount) return 0;
             var isOtherAccount = await _othersAccountServices.IsAccountForOthers(username, transactionVM.OthersAccountId);
             if (!isOtherAccount) return 0;
-            var otherAccount = await _othersAccountServices.GetOtherAccountByIdAsync(transactionVM.OthersAccountId, username);
+            var otherAccount = await _othersAccountServices.GetOtherAccountByIdAsync(int.Parse(transactionVM.OthersAccountIdAsString), username);
             var transaction = _mapper.Map<Transaction>(transactionVM);
             transaction.Status = StatusEnum.Pending;
             transaction.ExchangeRate = await _currencyServices.GetPriceRateExchange(transactionVM.FromCurrency, otherAccount.Currency);
             transaction.Fee = await _currencyServices.GetTransformFeeCurrencyAsync(transactionVM.FromCurrency, otherAccount.Currency, transactionVM.Amount);
             transaction.Fee += await _currencyServices.GetExchangeFeeCurrencyAsync(transactionVM.FromCurrency, otherAccount.Currency, transactionVM.Amount);
             transaction.ToCurrency = otherAccount.Currency;
-            transaction.ToOtherAccountId = transactionVM.OthersAccountId;
-
+            transaction.ToOtherAccountId = int.Parse(transactionVM.OthersAccountIdAsString);
             await _context.Transactions.AddAsync(transaction);
-            await _context.SaveChangesAsync();
-            return transaction.TransactionId;
+            var queryResult = await _context.SaveChangesAsync();
+            return queryResult > 0 ? transaction.TransactionId : 0;
         }
 
        
@@ -84,16 +84,15 @@ namespace Infrastructure.Repositories.Persistence
         {
             var isSelfAccount = await _accountServices.IsAccountForUser(username, transactionVM.SelfAccountId);
             if (!isSelfAccount) return 0;
-            var otherSelfAccount = await _accountServices.GetAccountByIdAsync(username, transactionVM.OthersAccountId);
+            var otherSelfAccount = await _accountServices.GetAccountByIdAsync(username, int.Parse(transactionVM.OthersAccountIdAsString));
             var transaction = _mapper.Map<Transaction>(transactionVM);
             transaction.Status = StatusEnum.Pending;
-            transaction.ToAccountId = transactionVM.OthersAccountId;
+            transaction.ToAccountId = int.Parse(transactionVM.OthersAccountIdAsString);
             transaction.ToCurrency = otherSelfAccount.Currency;
             transaction.ExchangeRate = await _currencyServices.GetPriceRateExchange(transactionVM.FromCurrency, otherSelfAccount.Currency);
             await _context.Transactions.AddAsync(transaction);
-            await _context.SaveChangesAsync();
-            return transaction.TransactionId;
-
+            var queryResult = await _context.SaveChangesAsync();
+            return queryResult > 0 ? transaction.TransactionId : 0;
 
         }
 
@@ -121,7 +120,7 @@ namespace Infrastructure.Repositories.Persistence
             {
                 // Our Self Account
                 var otherSelfAccount = await _accountServices.GetAccountByIdAsync(username, transaction.ToAccountId.Value);
-                account.Balance -= transaction.ExchangeRate + transaction.Amount;
+                account.Balance -= (transaction.ExchangeRate*transaction.Amount)/100 + transaction.Amount;
                 if (!otherSelfAccount.Currency.Equals(transaction.FromCurrency))
                 {
                     otherSelfAccount.Balance += await _currencyServices.CurrencyConvertor(transaction.FromCurrency, otherSelfAccount.Currency, transaction.Amount);
@@ -137,7 +136,7 @@ namespace Infrastructure.Repositories.Persistence
             {
                 // Other Account
                 var otherAccount = await _othersAccountServices.GetOtherAccountByIdAsync(transaction.ToOtherAccountId.Value, username);
-                var totalPriceToPay = transaction.ExchangeRate + transaction.Fee + transaction.Amount;
+                var totalPriceToPay = (transaction.ExchangeRate*transaction.Amount)/100+ transaction.Fee + transaction.Amount;
                 account.Balance -= totalPriceToPay;
                 if (!otherAccount.Currency.Equals(transaction.FromCurrency))
                 {
@@ -150,13 +149,11 @@ namespace Infrastructure.Repositories.Persistence
                 }
                 var otherAccountUpdate = await _othersAccountServices.UpdateOthersAccountAsync(_mapper.Map<UpdateOtherAccountViewModel>(otherAccount), transaction.UserId);
                 if (otherAccountUpdate == 0) return false;
-
             }
             var accountUpdate = await _accountServices.UpdateAccount(_mapper.Map<UpdateAccountViewModel>(account), transaction.UserId);
             if (accountUpdate == 0) return false;
             _context.Transactions.Update(transaction);
-            await _context.SaveChangesAsync();
-            return true;
+            return await _context.SaveChangesAsync() > 0;
         }
 
         public async Task<List<Transaction>> CanceledPendingTransactionsByTimePass(int min)
@@ -170,11 +167,9 @@ namespace Infrastructure.Repositories.Persistence
                 item.Status = StatusEnum.Cancelled;
             }
             _context.Transactions.UpdateRange(recentTransactions);
-            await _context.SaveChangesAsync();
-            return recentTransactions;
+            var queryResult = await _context.SaveChangesAsync();
+            return queryResult > 0 ? recentTransactions : new List<Transaction>();
         }
-
-        
 
         public async Task<bool> CheckMaxOfTransaction(string userId,decimal price)
         {

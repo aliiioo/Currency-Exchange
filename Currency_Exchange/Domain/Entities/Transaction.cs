@@ -16,8 +16,11 @@ namespace Domain.Entities
         [Required]
         public string ToCurrency { get; set; }
         [Required]
+        [Range(0,double.MaxValue)]
         public decimal Amount { get; set; } = 0;
+        [Range(0,40)]
         public decimal ExchangeRate { get; set; } = 0;
+        [Range(0, 40)]
         public decimal Fee { get; set; } = 0;
         [Required]
         public StatusEnum Status { get; set; } // 'Pending', 'Completed', 'Cancelled'

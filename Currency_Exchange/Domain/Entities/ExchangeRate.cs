@@ -13,6 +13,7 @@ namespace Domain.Entities
         [Required]
         public string ToCurrency { get; set; }
         [Required]
+        [Range(0,40)]
         public decimal Rate { get; set; } = 0;
         public DateTime LastUpdated { get; set; } = DateTime.Now;
 

@@ -34,7 +34,7 @@ namespace Currency_Exchange.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateFeeDtos Model)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid||string.IsNullOrEmpty(Model.ToCurrency))
             {
                 var currency = _currencyServices.GetListCurrency().Result
                     .Select(x => new SelectListItem { Value = x.CurrencyCode.ToString(), Text = x.CurrencyCode.ToString() }).ToList();
@@ -47,6 +47,12 @@ namespace Currency_Exchange.Controllers
             var fee = await _currencyServices.CreateExchangeFeeToCurrency(Model);
             if (fee == 0)
             {
+                var currency = _currencyServices.GetListCurrency().Result
+                    .Select(x => new SelectListItem { Value = x.CurrencyCode.ToString(), Text = x.CurrencyCode.ToString() }).ToList();
+                currency.Insert(0, new SelectListItem { Value = "", Text = "انتحاب کنید" });
+                ViewBag.currency = currency;
+                ViewBag.currentId = Model.CurrencyId;
+                ViewBag.currencyCode = Model.FromCurrency;
                 return View(Model);
             }
             return RedirectToAction("index", "CurrencyAccounts");

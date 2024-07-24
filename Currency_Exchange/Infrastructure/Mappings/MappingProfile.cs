@@ -26,7 +26,7 @@ namespace Infrastructure.Mappings
             CreateMap<Transaction, TransactionDto>().ReverseMap();
             CreateMap<Transaction, CreateTransactionDtos>()
                 .ForMember(x => x.SelfAccountId, z => z.MapFrom(s => s.FromAccountId))
-                .ForMember(x => x.Username, z => z.MapFrom(s => s.UserId))
+                .ForMember(x => x.UserId, z => z.MapFrom(s => s.UserId))
                 .ReverseMap();
             CreateMap<Currency, CurrencyDetailDto>().ReverseMap();
             CreateMap<OthersAccount, CreateOtherAccountViewModel>().ReverseMap();

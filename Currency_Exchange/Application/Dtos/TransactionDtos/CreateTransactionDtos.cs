@@ -2,7 +2,7 @@
 {
     public class CreateTransactionDtos
     {
-        public string Username { get; set; }
+        public string UserId { get; set; }
         public int SelfAccountId { get; set; }
         public int OthersAccountId { get; set; }
         public string OthersAccountIdAsString { get; set; }

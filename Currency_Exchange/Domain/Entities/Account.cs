@@ -9,8 +9,11 @@ namespace Domain.Entities
         public int AccountId { get; set; }
         public string UserId { get; set; }
         public string Currency { get; set; } // 'USD', 'EUR', 'JPY', etc.
+        [Range(0,double.MaxValue)]
         public decimal Balance { get; set; } = 0;
+        [MaxLength(300)]
         public string AccountName { get; set; } = string.Empty;
+        [StringLength(16)]
         public string CartNumber { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public bool IsDeleted { get; set; }=false;

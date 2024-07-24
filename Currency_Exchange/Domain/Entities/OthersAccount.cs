@@ -11,8 +11,9 @@ namespace Domain.Entities
         public string Currency { get; set; } = string.Empty; // 'USD', 'EUR', 'JPY', etc.
 
         public string AccountName { get; set; } = string.Empty;
-
+        [StringLength(16)]
         public string CartNumber { get; set; } = string.Empty;
+        [Range(0,double.MaxValue)]
         public decimal Balance { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 

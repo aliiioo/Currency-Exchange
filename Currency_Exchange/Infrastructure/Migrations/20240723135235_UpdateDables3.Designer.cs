@@ -4,6 +4,7 @@ using Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(CurrencyDbContext))]
-    partial class CurrencyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240723135235_UpdateDables3")]
+    partial class UpdateDables3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -144,15 +146,15 @@ namespace Infrastructure.Migrations
                         {
                             Id = "1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "879a8009-ec58-49ef-80b5-598933568182",
-                            CreatedAt = new DateTime(2024, 7, 23, 17, 23, 7, 210, DateTimeKind.Local).AddTicks(3085),
+                            ConcurrencyStamp = "ab580355-4109-4e52-9508-936774163247",
+                            CreatedAt = new DateTime(2024, 7, 23, 17, 22, 33, 899, DateTimeKind.Local).AddTicks(2821),
                             Email = "admin@example.com",
                             EmailConfirmed = true,
                             FullName = "Admin User",
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN@EXAMPLE.COM",
-                            PasswordHash = "AQAAAAEAACcQAAAAEEOhZ/x7lUrXB7JAF/dNjLZXGUKjsii0cg/KfXS7ZeHuPGE90zyurEH88SIoN45Sxg==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEBKmBwGN90Cm9TXE4aDnpFkVe0rh7rmLO5xVgxAFuvqr3OTAEJ13xtGB2Qw8yGIU3w==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "",
                             TwoFactorEnabled = false,
@@ -486,14 +488,14 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = "1",
-                            ConcurrencyStamp = "2263e295-a780-432b-8221-bb3164b42412",
+                            ConcurrencyStamp = "e74b70ba-23d0-4d61-b7c2-aa231d25edf6",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "2",
-                            ConcurrencyStamp = "8cb03b92-0a1c-4d43-913c-287600f73513",
+                            ConcurrencyStamp = "87c96ba5-11e2-4165-b86e-495009490229",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         });

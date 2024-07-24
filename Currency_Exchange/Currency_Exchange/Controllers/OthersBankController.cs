@@ -75,6 +75,7 @@ namespace Currency_Exchange.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ServiceFilter(typeof(SanitizeInputFilter))]
         public async Task<IActionResult> UpdateBankAccount(UpdateOtherAccountViewModel accountVM)
         {
             if (!ModelState.IsValid)
