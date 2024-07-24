@@ -46,16 +46,18 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<int> CreateAccount(CreateAccountViewModel accountVM)
         {
+            // Validate
             if (!await _currency.IsExistCurrencyByCodeAsync(accountVM.Currency)) return 0;
             var amount = await _currency.CurrencyConvertor(accountVM.Currency, "USD", accountVM.Balance);
             if (amount < MinimumAmount.MinBalance) return 0;
 
-            var account = _mapper.Map<Account>(accountVM);
             var cartNumber = CartNumbers.GenerateUnique16DigitNumbers();
             while (await IsCartNumberExist(cartNumber) == false)
             {
                 cartNumber = CartNumbers.GenerateUnique16DigitNumbers();
             }
+
+            var account = _mapper.Map<Account>(accountVM);
             account.CartNumber = cartNumber;
             await _context.Accounts.AddAsync(account);
             var queryResult= await _context.SaveChangesAsync();
@@ -64,12 +66,13 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<int> UpdateAccount(UpdateAccountViewModel accountVM, string userid)
         {
+            //validate
             if (!await _currency.IsExistCurrencyByCodeAsync(accountVM.Currency)) return 0;
-            var account = await _context.Accounts.
-                SingleOrDefaultAsync(x => x.AccountId.Equals(accountVM.AccountId) && x.UserId.Equals(userid) && x.Currency.Equals(accountVM.Currency));
+            var account = await _context.Accounts. SingleOrDefaultAsync(x => x.AccountId.Equals(accountVM.AccountId) && x.UserId.Equals(userid) && x.Currency.Equals(accountVM.Currency));
             if (account == null) return 0;
             var amount = await _currency.CurrencyConvertor(accountVM.Currency, "USD", accountVM.Balance);
             if (amount < MinimumAmount.MinBalance) return 0;
+            // processes
             account.Balance = accountVM.Balance;
             account.AccountName = accountVM.AccountName;
             _context.Accounts.Update(account);
@@ -79,8 +82,10 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<bool> DeleteAccountAsync(int accountId, string userId)
         {
+            //validate
             var account = await _context.Accounts.FirstOrDefaultAsync(x => x.AccountId.Equals(accountId) && x.UserId.Equals(userId));
             if (account == null) return false;
+            // processes
             account.Balance = 0;
             account.IsDeleted = true;
             _context.Accounts.Update(account);
@@ -89,12 +94,14 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<bool> IncreaseAccountBalance(IncreaseBalanceDto balanceDto, string username)
         {
+            //validate
             if (balanceDto.Amount < 0) return false;
             if (!await _currency.IsExistCurrencyByCodeAsync(balanceDto.FromCurrency)) return false;
             if (!await _currency.IsExistCurrencyByCodeAsync(balanceDto.ToCurrency)) return false;
             var account = await _context.Accounts.FirstOrDefaultAsync(x => x.AccountId.Equals(balanceDto.AccountId) && x.UserId.Equals(username));
             if (account == null) return false;
             if (!balanceDto.ToCurrency.Equals(account.Currency)) return false;
+            // processes
             if (balanceDto.FromCurrency != balanceDto.ToCurrency)
             {
                 account.Balance += await _currency.CurrencyConvertor(balanceDto.FromCurrency, balanceDto.ToCurrency, balanceDto.Amount);
@@ -112,6 +119,7 @@ namespace Infrastructure.Repositories.Persistence
                 FromAccountId = account.AccountId,
                 ToAccountId = account.AccountId,
                 Status = StatusEnum.Completed,
+                Outer = false,
                 UserId = username
             };
             await _context.Transactions.AddAsync(transaction);
@@ -141,11 +149,13 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<bool> Withdrawal(int accountId, string userId, decimal amount)
         {
+            //Validate
             if (amount < 0) return false;
             var account = await _context.Accounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId) && x.UserId.Equals(userId));
             if (account == null) return false;
             var dollar = await _currency.CurrencyConvertor(account.Currency, "USD", account.Balance - amount);
             if (dollar < MinimumAmount.MinBalance) return false;
+            // processes
             account.Balance -= amount;
             var transaction = new Transaction()
             {
@@ -156,7 +166,8 @@ namespace Infrastructure.Repositories.Persistence
                 FromAccountId = accountId,
                 ToAccountId = accountId,
                 Status = StatusEnum.Completed,
-                UserId = userId
+                UserId = userId,
+                Outer = true
             };
             await _context.Transactions.AddAsync(transaction);
             _context.Accounts.Update(account);
@@ -166,6 +177,7 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<bool> SaveAccountAddressForSendMoney(int accountId, string userId,string address="")
         {
+            //validate
             var account = await _context.Accounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId) && x.UserId.Equals(userId));
             if (account == null) return false;
             var accountDeleteInfo =await _context.DeletedAccounts.SingleOrDefaultAsync(x =>
@@ -175,6 +187,7 @@ namespace Infrastructure.Repositories.Persistence
                _context.DeletedAccounts.Remove(accountDeleteInfo);
                await _context.SaveChangesAsync();
             }
+            // processes
             var addressInfo = new DeletedAccount()
             {
                 UserId = userId,
@@ -197,9 +210,11 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<bool> ConfirmAccountDeleteInfo(int accountId, string userId)
         {
+            // validate
             var deleteAccount =await _context.DeletedAccounts.SingleOrDefaultAsync(x =>
                     x.UserId.Equals(userId) && x.AccountId.Equals(accountId));
             if (deleteAccount == null) return false;
+            // processes
             deleteAccount.Accepted = true;
             _context.DeletedAccounts.Update(deleteAccount);
             return await _context.SaveChangesAsync() > 0;

@@ -42,15 +42,14 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<int> CreateOthersAccountAsync(CreateOtherAccountViewModel accountVM)
         {
-            #region Validateing
+            //validate
             if (!ValidateCartNumber.IsValidCardNumber(accountVM.CartNumber)) return 0;
             var existCurrency = await _currency.IsExistCurrencyByCodeAsync(accountVM.Currency);
             if (!existCurrency) return 0;
             var cartNumber = await _context.OthersAccounts.SingleOrDefaultAsync(x =>
                 x.UserId.Equals(accountVM.UserId) && x.CartNumber.Equals(accountVM.CartNumber));
             if (cartNumber != null) return 0;
-            #endregion
-
+            // processes
             var newOtherAccount = _mapper.Map<OthersAccount>(accountVM);
             await _context.OthersAccounts.AddAsync(newOtherAccount);
             var queryResult = await _context.SaveChangesAsync();
@@ -59,20 +58,21 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<bool> DeleteOthersAccountAsync(int accountId, string userId)
         {
+            // validate
             var account = await _context.OthersAccounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId) && x.UserId.Equals(userId));
             if (account == null) return false;
+            // processes
             _context.OthersAccounts.Remove(account);
             return await _context.SaveChangesAsync() > 0;
         }
 
         public async Task<int> UpdateOthersAccountAsync(UpdateOtherAccountViewModel otherAccountViewModel, string userId)
         {
-            #region Validateing
+            //validate
             if (!ValidateCartNumber.IsValidCardNumber(otherAccountViewModel.CartNumber)) return 0;
             var account = await _context.OthersAccounts.SingleOrDefaultAsync(x => x.AccountId.Equals(otherAccountViewModel.AccountId) && x.UserId.Equals(userId));
             if (account == null) return 0;
-            #endregion
-
+            // processes
             account.AccountName = otherAccountViewModel.AccountName;
             account.Balance = otherAccountViewModel.Balance;
             account.CartNumber = otherAccountViewModel.CartNumber;

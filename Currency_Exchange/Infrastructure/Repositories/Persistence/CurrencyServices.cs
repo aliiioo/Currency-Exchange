@@ -94,8 +94,10 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<decimal> GetExchangeFeeCurrencyAsync(string fromCurrency, string toCurrency, decimal price)
         {
+            //validate
             if (fromCurrency.Equals(toCurrency)) return 0;
-                var priceFee = await _context.CurrencyExchangeFees.SingleOrDefaultAsync(x =>
+            // processes
+            var priceFee = await _context.CurrencyExchangeFees.SingleOrDefaultAsync(x =>
                 x.FromCurrency.Equals(fromCurrency) && x.ToCurrency.Equals(toCurrency) && x.StartRange < price && x.EndRange > price);
             return priceFee?.PriceFee*price/100 ?? 0;
         }
@@ -135,8 +137,9 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<decimal> GetPriceRateExchange(string fromCurrency, string toCurrency)
         {
+            //validate
             if (fromCurrency.Equals(toCurrency)) return 1;
-
+            // processes
             var rate = await _context.ExchangeRates
             .FirstOrDefaultAsync(x => x.FromCurrency.Equals(fromCurrency) && x.ToCurrency.Equals(toCurrency));
             if (rate==null)
@@ -155,8 +158,10 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<int> CreateCurrency(CurrencyDto currencyVM)
         {
+            //validate
             var isExistCurrency = await IsExistCurrencyByCodeAsync(currencyVM.CurrencyCode);
             if (isExistCurrency) return 0;
+            // processes
             currencyVM.CurrencyCode=currencyVM.CurrencyCode.ToUpper();
             var currency = _mapper.Map<Currency>(currencyVM);
             await _context.Currencies.AddAsync(currency);
@@ -167,8 +172,10 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<bool> DeleteExchangeFeeToCurrency(int feeId, int currencyId)
         {
+            //validate
             var feesList = await GetCurrencyExchangeFeeAsync(currencyId);
             if (!feesList.Last().FeeId.Equals(feeId)) return false;
+            // processes
             var fee = await _context.CurrencyExchangeFees.SingleOrDefaultAsync(x => x.FeeId.Equals(feeId));
             if (fee != null) _context.CurrencyExchangeFees.Remove(fee);
             return await _context.SaveChangesAsync() > 0;
@@ -176,8 +183,10 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<bool> DeleteTransformFeeToCurrency(int feeId, int currencyId)
         {
+            //validate
             var feesList = await GetCurrencyTransformFeeAsync(currencyId);
             if (!feesList.Last().FeeId.Equals(feeId)) return false;
+            // processes
             var fee = await _context.CurrencyTransformFees.SingleOrDefaultAsync(x => x.FeeId.Equals(feeId));
             if (fee != null) _context.CurrencyTransformFees.Remove(fee);
             return await _context.SaveChangesAsync() > 0;
@@ -185,19 +194,12 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<int> CreateExchangeRateCurrency(RateDtos rateVM)
         {
-            if (rateVM.Rate is < 0 or > 40)
-            {
-                return 0;
-            }
-            if (rateVM.FromCurrency.Equals(rateVM.ToCurrency))
-            {
-                return 1;
-            }
-
-            var existRate = await _context.ExchangeRates
-                .FirstOrDefaultAsync(x =>
-                    x.FromCurrency.Equals(rateVM.FromCurrency) && x.ToCurrency.Equals(rateVM.ToCurrency));
+            //validate
+            if (rateVM.Rate is < 0 or > 40) return 0;
+            if (rateVM.FromCurrency.Equals(rateVM.ToCurrency)) return 1;
+            var existRate = await _context.ExchangeRates.FirstOrDefaultAsync(x => x.FromCurrency.Equals(rateVM.FromCurrency) && x.ToCurrency.Equals(rateVM.ToCurrency));
             if (existRate != null) return 0;
+            // processes
             var rate = _mapper.Map<ExchangeRate>(rateVM);
             await _context.ExchangeRates.AddAsync(rate);
             var queryResult = await _context.SaveChangesAsync();
@@ -206,12 +208,11 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<bool> UpdateExchangeRateToCurrency(UpdateRateDtos rateVM)
         {
-            if (rateVM.Rate is < 0 or > 40)
-            {
-                return false;
-            }
+            //validate
+            if (rateVM.Rate is < 0 or > 40) return false;
             var existRate = await _context.ExchangeRates.SingleOrDefaultAsync(x => x.ExchangeRateId.Equals(rateVM.ExchangeRateId));
             if (existRate == null) return false;
+            // processes
             existRate.Rate = rateVM.Rate;
             _context.ExchangeRates.Update(existRate);
             return await _context.SaveChangesAsync() > 0;
@@ -219,8 +220,10 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<bool> DeleteExchangeRateCurrency(int rateId)
         {
+            //validate
             var existRate = await _context.ExchangeRates.SingleOrDefaultAsync(x => x.ExchangeRateId.Equals(rateId));
             if (existRate == null) return false;
+            // processes
             _context.ExchangeRates.Remove(existRate);
             return await _context.SaveChangesAsync() > 0;
         }
@@ -228,14 +231,9 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<int> CreateTransformFeeToCurrency(CreateFeeDtos Model)
         {
-            if (Model.PriceFee is < 0 or > 40)
-            {
-                return 0;
-            }
-            if (Model.FromCurrency.Equals(Model.ToCurrency))
-            {
-                return 0;
-            }
+            //validate
+            if (Model.PriceFee is < 0 or > 40) return 0;
+            if (Model.FromCurrency.Equals(Model.ToCurrency)) return 0;
             var lastOldFee = GetListTransformFeesAsync(Model.FromCurrency, Model.ToCurrency).Result.LastOrDefault();
             var fee = _mapper.Map<CurrencyTransformFees>(Model);
             if (lastOldFee != null)
@@ -250,6 +248,7 @@ namespace Infrastructure.Repositories.Persistence
             {
                 fee.StartRange = 0;
             }
+             // processes
             await _context.CurrencyTransformFees.AddAsync(fee);
             var queryResult = await _context.SaveChangesAsync();
             return queryResult > 0 ? fee.FeeId : 0;
@@ -257,12 +256,11 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<bool> UpdateTransformFeeToCurrency(int feeId, decimal feePrice)
         {
-            if (feePrice is < 0 or > 40)
-            {
-                return false;
-            }
+            //validate
+            if (feePrice is < 0 or > 40) return false;
             var fee = await _context.CurrencyTransformFees.SingleOrDefaultAsync(x => x.FeeId.Equals(feeId));
             if (fee == null) return false;
+            // processes
             fee.PriceFee = feePrice;
             _context.CurrencyTransformFees.Update(fee);
             return await _context.SaveChangesAsync() > 0;
@@ -270,14 +268,9 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<int> CreateExchangeFeeToCurrency(CreateFeeDtos Model)
         {
-            if (Model.PriceFee is < 0 or > 40)
-            {
-                return 0;
-            }
-            if (Model.ToCurrency.Equals(Model.FromCurrency))
-            {
-                return 1;
-            }
+            //validate
+            if (Model.PriceFee is < 0 or > 40) return 0;
+            if (Model.ToCurrency.Equals(Model.FromCurrency)) return 1;
             var lastOldFee =GetListExchangeFeesAsync(Model.FromCurrency, Model.ToCurrency).Result.LastOrDefault();
             var fee = _mapper.Map<CurrencyExchangeFees>(Model);
             if (lastOldFee != null)
@@ -292,6 +285,7 @@ namespace Infrastructure.Repositories.Persistence
             {
                 fee.StartRange = 0;
             }
+            // processes
             await _context.CurrencyExchangeFees.AddAsync(fee);
             var queryResult = await _context.SaveChangesAsync();
             return queryResult > 0 ? fee.FeeId : 0;
@@ -299,9 +293,11 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<bool> UpdateExchangeFeeToCurrency(int feeId, decimal feePrice)
         {
+            //validate
             if (feePrice is < 0 or > 40) return false;
             var fee = await _context.CurrencyExchangeFees.SingleOrDefaultAsync(x => x.FeeId.Equals(feeId));
             if (fee == null) return false;
+            // processes
             fee.PriceFee = feePrice;
             _context.CurrencyExchangeFees.Update(fee);
             return await _context.SaveChangesAsync() > 0;

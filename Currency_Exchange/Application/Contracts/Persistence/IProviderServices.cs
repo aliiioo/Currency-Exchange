@@ -14,7 +14,7 @@ namespace Application.Contracts.Persistence
         public Task<int> TransformToSelfAccountCurrency(CreateTransactionDtos  transactionVM, string username);
         public Task<bool> ConfirmTransaction(int transactionId, string username, bool isConfirm);
         public Task<List<Transaction>> CanceledPendingTransactionsByTimePass(int min);
-        public Task<bool> CheckMaxOfTransaction(string userId,decimal price);
+        public Task<bool> CheckMaxOfTransaction(string userId,int accountId,decimal price);
         public Task<string> GetNameAccountForTransaction(int accountId);
         public Task<string> GetOtherNameAccountForTransaction(int accountId);
 

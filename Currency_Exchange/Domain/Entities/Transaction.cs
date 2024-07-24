@@ -26,6 +26,7 @@ namespace Domain.Entities
         public StatusEnum Status { get; set; } // 'Pending', 'Completed', 'Cancelled'
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime? CompletedAt { get; set; }
+        public bool Outer { get; set; }=true;
 
         // Navigation properties
         [ForeignKey("FromAccountId")]

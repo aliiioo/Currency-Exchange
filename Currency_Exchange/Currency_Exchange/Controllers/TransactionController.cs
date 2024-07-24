@@ -100,17 +100,17 @@ namespace Currency_Exchange.Controllers
             {
                 return View(confirmTransactionDto);
             }
-            using var safeScope= new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
             try
             {
                 var result = await _providerServices.ConfirmTransaction(confirmTransactionDto.TransactionId, User.GetUserId(), confirmTransactionDto.IsConfirm);
                 if (result == false)
                 {
-                    var error = $" Transaction Wrong May it timeOut {User.Identity?.Name}";
+                    var error = $" Transaction Wrong May it timeOut Or Limit Money {User.Identity?.Name}";
                     _logger.LogError(error);
                     return RedirectToAction("Error", "Home", new { error });
+                    
                 }
-                safeScope.Complete();
+               
                 return RedirectToAction("TransactionDetail", new { confirmTransactionDto.TransactionId});
             }
             catch (Exception e)

@@ -8,6 +8,8 @@ using Domain.Entities;
 using Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Principal;
+using System.Transactions;
+using Transaction = Domain.Entities.Transaction;
 
 namespace Infrastructure.Repositories.Persistence
 {
@@ -36,7 +38,7 @@ namespace Infrastructure.Repositories.Persistence
         public async Task<ConfirmTransactionDto> GetConfirmTransaction(int idTransaction, string userId)
         {
             var confirmTransaction = _mapper.Map<ConfirmTransactionDto>(await _context.Transactions.SingleOrDefaultAsync(x => x.UserId != null && x.TransactionId.Equals(idTransaction) && x.UserId.Equals(userId)));
-           // Get Name Of Accounts
+            // Get Name Of Accounts
             confirmTransaction.FromAccountId = await GetNameAccountForTransaction(int.Parse(confirmTransaction.FromAccountId));
             if (!string.IsNullOrEmpty(confirmTransaction.ToAccountId))
             {
@@ -61,10 +63,12 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<int> TransformCurrency(CreateTransactionDtos transactionVM, string username)
         {
+            //validate
             var isSelfAccount = await _accountServices.IsAccountForUser(username, transactionVM.SelfAccountId);
             if (!isSelfAccount) return 0;
-            var isOtherAccount = await _othersAccountServices.IsAccountForOthers(username, transactionVM.OthersAccountId);
+            var isOtherAccount = await _othersAccountServices.IsAccountForOthers(username, int.Parse(transactionVM.OthersAccountIdAsString));
             if (!isOtherAccount) return 0;
+            // processes
             var otherAccount = await _othersAccountServices.GetOtherAccountByIdAsync(int.Parse(transactionVM.OthersAccountIdAsString), username);
             var transaction = _mapper.Map<Transaction>(transactionVM);
             transaction.Status = StatusEnum.Pending;
@@ -78,12 +82,14 @@ namespace Infrastructure.Repositories.Persistence
             return queryResult > 0 ? transaction.TransactionId : 0;
         }
 
-       
+
 
         public async Task<int> TransformToSelfAccountCurrency(CreateTransactionDtos transactionVM, string username)
         {
+            //validate
             var isSelfAccount = await _accountServices.IsAccountForUser(username, transactionVM.SelfAccountId);
             if (!isSelfAccount) return 0;
+            // processes
             var otherSelfAccount = await _accountServices.GetAccountByIdAsync(username, int.Parse(transactionVM.OthersAccountIdAsString));
             var transaction = _mapper.Map<Transaction>(transactionVM);
             transaction.Status = StatusEnum.Pending;
@@ -98,29 +104,34 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<bool> ConfirmTransaction(int transactionId, string username, bool isConfirm)
         {
-            var transaction = await _context.Transactions.SingleOrDefaultAsync(x =>
-                x.UserId != null && x.TransactionId.Equals(transactionId) && x.UserId.Equals(username));
+            using var safeScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+            // Validations
+            var transaction = await _context.Transactions.SingleOrDefaultAsync(x => x.UserId != null && x.TransactionId.Equals(transactionId) && x.UserId.Equals(username));
             if (transaction == null) return false;
             if (transaction.Status.Equals(StatusEnum.Completed) || transaction.Status.Equals(StatusEnum.Cancelled)) return false;
+
             var expiredDateTime = transaction.CreatedAt.AddMinutes(10);
             if (expiredDateTime < DateTime.UtcNow)
             {
+                transaction.Status = StatusEnum.Cancelled;
+                await _context.SaveChangesAsync();
                 return false;
             }
-            var checkMaxAmount= await CheckMaxOfTransaction(username,transaction.Amount);
+            var checkMaxAmount = await CheckMaxOfTransaction(username, transaction.FromAccountId, transaction.Amount);
             if (!checkMaxAmount)
             {
+                transaction.Status = StatusEnum.Cancelled;
+                await _context.SaveChangesAsync();
                 return false;
             }
-            transaction.Status = isConfirm ? StatusEnum.Completed : StatusEnum.Cancelled;
-            transaction.CompletedAt = DateTime.UtcNow;
-
+            // processes
+            // account balance
             var account = await _accountServices.GetAccountByIdAsync(transaction.UserId, transaction.FromAccountId);
-            if (transaction.ToAccountId!=null)
+            if (transaction.ToAccountId != null)
             {
                 // Our Self Account
                 var otherSelfAccount = await _accountServices.GetAccountByIdAsync(username, transaction.ToAccountId.Value);
-                account.Balance -= (transaction.ExchangeRate*transaction.Amount)/100 + transaction.Amount;
+                account.Balance -= (transaction.ExchangeRate * transaction.Amount) / 100 + transaction.Amount;
                 if (!otherSelfAccount.Currency.Equals(transaction.FromCurrency))
                 {
                     otherSelfAccount.Balance += await _currencyServices.CurrencyConvertor(transaction.FromCurrency, otherSelfAccount.Currency, transaction.Amount);
@@ -136,7 +147,7 @@ namespace Infrastructure.Repositories.Persistence
             {
                 // Other Account
                 var otherAccount = await _othersAccountServices.GetOtherAccountByIdAsync(transaction.ToOtherAccountId.Value, username);
-                var totalPriceToPay = (transaction.ExchangeRate*transaction.Amount)/100+ transaction.Fee + transaction.Amount;
+                var totalPriceToPay = (transaction.ExchangeRate * transaction.Amount) / 100 + transaction.Fee + transaction.Amount;
                 account.Balance -= totalPriceToPay;
                 if (!otherAccount.Currency.Equals(transaction.FromCurrency))
                 {
@@ -152,8 +163,15 @@ namespace Infrastructure.Repositories.Persistence
             }
             var accountUpdate = await _accountServices.UpdateAccount(_mapper.Map<UpdateAccountViewModel>(account), transaction.UserId);
             if (accountUpdate == 0) return false;
+           
+            transaction.Status = isConfirm ? StatusEnum.Completed : StatusEnum.Cancelled;
+            transaction.CompletedAt = DateTime.UtcNow;
             _context.Transactions.Update(transaction);
-            return await _context.SaveChangesAsync() > 0;
+            var result = await _context.SaveChangesAsync() > 0;
+            if (result == false) return false;
+            safeScope.Complete();
+            return true;
+
         }
 
         public async Task<List<Transaction>> CanceledPendingTransactionsByTimePass(int min)
@@ -171,13 +189,16 @@ namespace Infrastructure.Repositories.Persistence
             return queryResult > 0 ? recentTransactions : new List<Transaction>();
         }
 
-        public async Task<bool> CheckMaxOfTransaction(string userId,decimal price)
+        public async Task<bool> CheckMaxOfTransaction(string userId, int accountId, decimal price)
         {
-            var transactions =await _context.Transactions.Where(x =>
-                x.CompletedAt != null && x.UserId != null && x.Status == StatusEnum.Completed && x.CompletedAt.Value.Date.Equals(DateTime.UtcNow.Date) &&
-                x.UserId.Equals(userId)).ToListAsync();
+            var transactions = await _context.Transactions.Where(x =>
+                x.CompletedAt != null && x.UserId != null && x.Status == StatusEnum.Completed
+                && x.CompletedAt.Value.Date.Equals(DateTime.UtcNow.Date)
+                && x.UserId.Equals(userId)
+                && x.FromAccountId.Equals(accountId)
+                && x.Outer).ToListAsync();
             var balance = transactions.Sum(x => x.Amount);
-            if (balance+price> MaximumTransaction.MaxTransaction)
+            if (balance + price > MaximumTransaction.MaxTransaction)
             {
                 return false;
             }
