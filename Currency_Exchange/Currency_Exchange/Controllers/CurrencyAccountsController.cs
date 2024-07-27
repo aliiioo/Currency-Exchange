@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Currency_Exchange.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class CurrencyAccountsController : Controller
     {
         private readonly ICurrencyServices _currencyServices;

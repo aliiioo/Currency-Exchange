@@ -76,7 +76,8 @@ namespace Currency_Exchange.Controllers
                 return View();
             }
             var transformFee = await _currencyServices.UpdateExchangeFeeToCurrency(feeId, feePrice);
-            return transformFee==false ? RedirectToAction("Error", "Home") : RedirectToAction("index", "CurrencyAccounts");
+            const string error = "Price Must be in range next and previous";
+            return transformFee==false ? RedirectToAction("Error", "Home",new{error}) : RedirectToAction("index", "CurrencyAccounts");
         }
 
         [HttpGet]

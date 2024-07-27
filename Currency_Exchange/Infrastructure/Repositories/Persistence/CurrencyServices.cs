@@ -1,4 +1,5 @@
-﻿using Application.Contracts;
+﻿using System.Security.Cryptography.X509Certificates;
+using Application.Contracts;
 using Application.Contracts.Persistence;
 using Application.Dtos.CurrencyDtos;
 using AutoMapper;
@@ -6,6 +7,9 @@ using Domain.Entities;
 using Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Principal;
+using System.Collections.Generic;
+using System.Drawing.Printing;
+using System.Security.AccessControl;
 
 namespace Infrastructure.Repositories.Persistence
 {
@@ -53,7 +57,7 @@ namespace Infrastructure.Repositories.Persistence
             return _mapper.Map<UpdateRateDtos>(rate);
         }
 
-        
+
 
         public async Task<bool> IsExchangePriceAccept(int currencyId, decimal price)
         {
@@ -67,16 +71,15 @@ namespace Infrastructure.Repositories.Persistence
             return true;
         }
 
-        public async Task<bool> IsTransformPriceAccept(int currencyId, decimal price)
+        public async Task<bool> IsTransformPriceAccept(CreateFeeDtos createFeeDto)
         {
-            var lastPriceAccept = await _context.CurrencyTransformFees.Where(x => x.CurrencyId.Equals(currencyId))
+            var lastPriceAccept = await _context.CurrencyTransformFees
+                .Where(x => x.CurrencyId.Equals(createFeeDto.CurrencyId)
+                            && x.FromCurrency.Equals(createFeeDto.FromCurrency) && x.ToCurrency.Equals(createFeeDto.ToCurrency))
                 .OrderBy(x => x.ToCurrency).ThenBy(x => x.EndRange).LastOrDefaultAsync();
             if (lastPriceAccept == null) return true;
-            if (lastPriceAccept.PriceFee>price)
-            {
-                return false;
-            }
-            return true;
+            if (lastPriceAccept.PriceFee <= createFeeDto.PriceFee) return true;
+            return false;
         }
 
         public async Task<List<CurrencyDtoShow>> GetListCurrency()
@@ -198,23 +201,38 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<bool> DeleteExchangeFeeToCurrency(int feeId, int currencyId)
         {
+            var fee = await _context.CurrencyExchangeFees.SingleOrDefaultAsync(x => x.FeeId.Equals(feeId));
+            if (fee == null) return false;
             //validate
             var feesList = await GetCurrencyExchangeFeeAsync(currencyId);
-            if (!feesList.Last().FeeId.Equals(feeId)) return false;
-            // processes
-            var fee = await _context.CurrencyExchangeFees.SingleOrDefaultAsync(x => x.FeeId.Equals(feeId));
-            if (fee != null) _context.CurrencyExchangeFees.Remove(fee);
+            var currentIndex = feesList.IndexOf(fee);
+            var nextItem = currentIndex < feesList.Count - 1 ? feesList[currentIndex + 1] : null;
+            if (nextItem!=null)
+            {
+                // first or middle item  
+                nextItem.StartRange = fee.StartRange;
+                _context.CurrencyExchangeFees.Update(nextItem);
+            }
+            _context.CurrencyExchangeFees.Remove(fee);
             return await _context.SaveChangesAsync() > 0;
         }
 
         public async Task<bool> DeleteTransformFeeToCurrency(int feeId, int currencyId)
         {
+            var fee = await _context.CurrencyTransformFees.SingleOrDefaultAsync(x => x.FeeId.Equals(feeId));
+            if (fee == null) return false;
             //validate
             var feesList = await GetCurrencyTransformFeeAsync(currencyId);
-            if (!feesList.Last().FeeId.Equals(feeId)) return false;
+            var currentIndex = feesList.IndexOf(fee);
+            var nextItem = currentIndex < feesList.Count - 1 ? feesList[currentIndex + 1] : null;
+            if (nextItem != null)
+            {
+                // first or middle item  
+                nextItem.StartRange = fee.StartRange;
+                _context.CurrencyTransformFees.Update(nextItem);
+            }
             // processes
-            var fee = await _context.CurrencyTransformFees.SingleOrDefaultAsync(x => x.FeeId.Equals(feeId));
-            if (fee != null) _context.CurrencyTransformFees.Remove(fee);
+            _context.CurrencyTransformFees.Remove(fee);
             return await _context.SaveChangesAsync() > 0;
         }
 
@@ -254,19 +272,17 @@ namespace Infrastructure.Repositories.Persistence
             return await _context.SaveChangesAsync() > 0;
         }
 
-
         public async Task<int> CreateTransformFeeToCurrency(CreateFeeDtos Model)
         {
             //validate
             if (Model.PriceFee is < 0 or > 40) return 0;
-            if (Model.FromCurrency.Equals(Model.ToCurrency)) return 0;
-            var isPriceExecpt = await IsTransformPriceAccept(Model.CurrencyId, Model.PriceFee);
-            if (isPriceExecpt == false) return 0;
+            var isPriceExcept = await IsTransformPriceAccept(Model);
+            if (isPriceExcept == false) return 0;
             var lastOldFee = GetListTransformFeesAsync(Model.FromCurrency, Model.ToCurrency).Result.LastOrDefault();
             var fee = _mapper.Map<CurrencyTransformFees>(Model);
             if (lastOldFee != null)
             {
-                if (lastOldFee.EndRange > fee.EndRange)
+                if (lastOldFee.EndRange+1 > fee.EndRange)
                 {
                     return 0;
                 }
@@ -289,7 +305,25 @@ namespace Infrastructure.Repositories.Persistence
             var fee = await _context.CurrencyTransformFees.SingleOrDefaultAsync(x => x.FeeId.Equals(feeId));
             if (fee == null) return false;
             var feesList = await GetCurrencyTransformFeeAsync(fee.CurrencyId);
-            if (!feesList.Last().FeeId.Equals(feeId)) return false;
+            feesList=feesList.Where(x => x.FromCurrency.Equals(fee.FromCurrency) && x.ToCurrency.Equals(fee.ToCurrency)).ToList();
+            var currentIndex = feesList.IndexOf(fee);
+            var nextItem = currentIndex < feesList.Count - 1 ? feesList[currentIndex + 1] : null;
+            var previousItem = currentIndex > 0 ? feesList[currentIndex - 1] : null;
+            if (nextItem != null)
+            {
+                // first or middle item  
+                if (nextItem.PriceFee<feePrice)
+                {
+                    return false;
+                }
+            }
+            if (previousItem!=null)
+            {
+                if (previousItem.PriceFee>feePrice)
+                {
+                    return false;
+                }
+            }
             // processes
             fee.PriceFee = feePrice;
             _context.CurrencyTransformFees.Update(fee);
@@ -308,7 +342,7 @@ namespace Infrastructure.Repositories.Persistence
             var fee = _mapper.Map<CurrencyExchangeFees>(Model);
             if (lastOldFee != null)
             {
-                if (lastOldFee.EndRange > fee.EndRange)
+                if (lastOldFee.EndRange+1 > fee.EndRange)
                 {
                     return 0;
                 }
@@ -331,8 +365,25 @@ namespace Infrastructure.Repositories.Persistence
             var fee = await _context.CurrencyExchangeFees.SingleOrDefaultAsync(x => x.FeeId.Equals(feeId));
             if (fee == null) return false;
             var feesList = await GetCurrencyExchangeFeeAsync(fee.CurrencyId);
-            if (!feesList.Last().FeeId.Equals(feeId)) return false;
-
+            feesList = feesList.Where(x => x.FromCurrency.Equals(fee.FromCurrency) && x.ToCurrency.Equals(fee.ToCurrency)).ToList();
+            var currentIndex = feesList.IndexOf(fee);
+            var nextItem = currentIndex < feesList.Count - 1 ? feesList[currentIndex + 1] : null;
+            var previousItem = currentIndex > 0 ? feesList[currentIndex - 1] : null;
+            if (nextItem != null)
+            {
+                // first or middle item  
+                if (nextItem.PriceFee < feePrice)
+                {
+                    return false;
+                }
+            }
+            if (previousItem != null)
+            {
+                if (previousItem.PriceFee > feePrice)
+                {
+                    return false;
+                }
+            }
             // processes
             fee.PriceFee = feePrice;
             _context.CurrencyExchangeFees.Update(fee);

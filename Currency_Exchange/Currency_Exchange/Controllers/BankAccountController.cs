@@ -63,11 +63,14 @@ namespace Currency_Exchange.Controllers
             if (!User.GetUserId().Equals(createAccountVM.UserId))
             {
                 _logger.LogError($"Hacker {User.Identity?.Name}");
-                var Error = "You are Hacker ";
+                var Error = "You are UnNormal ";
                 return RedirectToAction("Error","Home",new{Error} );
             }
-            await _accountServices.CreateAccount(createAccountVM);
-            return RedirectToAction("Index", new { User.Identity?.Name });
+            var bankId=await _accountServices.CreateAccount(createAccountVM);
+            if (bankId != 0) return RedirectToAction("Index", new { User.Identity?.Name });
+
+            const string error = "Money is lower than 50$";
+            return RedirectToAction("Error", "Home",new {error});
         }
 
         [HttpGet]
@@ -184,7 +187,7 @@ namespace Currency_Exchange.Controllers
 
         public async Task<IActionResult> AccountTransactions(int accountId)
         {
-            var transactions = await _accountServices.GetAccountTransactionsAsync(accountId);
+            var transactions = await _accountServices.GetUserAccountTransactionsAsync(accountId);
             return View(transactions);
         }
 
@@ -211,8 +214,13 @@ namespace Currency_Exchange.Controllers
                 return View(withdrawalDto);
             }
             var result = await _accountServices.Withdrawal(withdrawalDto.AccountId, User.GetUserId(), withdrawalDto.Amount);
-            if (result == false) return Unauthorized();
+            if (result == false)
+            {
+                const string error = "Account must have more than 50$ for Transaction or Withdrawal";
+                return RedirectToAction("Error", "Home", new { error });
+            }
             return RedirectToAction("Index");
+            
         }
 
         [HttpGet]

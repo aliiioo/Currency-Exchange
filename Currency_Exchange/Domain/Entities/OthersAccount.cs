@@ -10,11 +10,11 @@ namespace Domain.Entities
         public string UserId { get; set; }
         public string Currency { get; set; } = string.Empty; // 'USD', 'EUR', 'JPY', etc.
 
+        public int RealAccountId { get; set; }
         public string AccountName { get; set; } = string.Empty;
         [StringLength(16)]
         public string CartNumber { get; set; } = string.Empty;
         [Range(0,double.MaxValue)]
-        public decimal Balance { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         // Navigation properties

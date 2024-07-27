@@ -4,6 +4,7 @@ using Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(CurrencyDbContext))]
-    partial class CurrencyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240727083543_UpdateTransactions")]
+    partial class UpdateTransactions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -147,15 +149,15 @@ namespace Infrastructure.Migrations
                         {
                             Id = "1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "1c9c64b2-43ef-443d-a5ab-fffe65ec5512",
-                            CreatedAt = new DateTime(2024, 7, 27, 12, 19, 29, 568, DateTimeKind.Local).AddTicks(585),
+                            ConcurrencyStamp = "8b8a57f2-ff52-4860-bb86-58df062bf701",
+                            CreatedAt = new DateTime(2024, 7, 27, 12, 5, 40, 753, DateTimeKind.Local).AddTicks(2274),
                             Email = "admin@example.com",
                             EmailConfirmed = true,
                             FullName = "Admin User",
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN@EXAMPLE.COM",
-                            PasswordHash = "AQAAAAEAACcQAAAAECchsCkgpEZFCcWUcVIe5lb18hiBU7jF/s4diN3Awk1YvS90rbEZpw+CPPeQNRIR4w==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEJk6Yfiv1FuYcypkES58EbZtTGoouC8z/GUy9uVYOVJ+la3URZ1MStZVMfIvY9DKDQ==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "",
                             TwoFactorEnabled = false,
@@ -433,24 +435,21 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("OthersAccountAccountId")
-                        .HasColumnType("int");
-
                     b.Property<bool>("Outer")
                         .HasColumnType("bit");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int>("ToAccountId")
+                    b.Property<int?>("ToAccountId")
                         .HasColumnType("int");
 
                     b.Property<string>("ToCurrency")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("UserBalance")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int?>("ToOtherAccountId")
+                        .HasColumnType("int");
 
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
@@ -459,9 +458,9 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("FromAccountId");
 
-                    b.HasIndex("OthersAccountAccountId");
-
                     b.HasIndex("ToAccountId");
+
+                    b.HasIndex("ToOtherAccountId");
 
                     b.HasIndex("UserId");
 
@@ -498,14 +497,14 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = "1",
-                            ConcurrencyStamp = "1f19887e-a7f0-47de-89d2-57823bba9199",
+                            ConcurrencyStamp = "cf9244c6-44ac-499d-9ca6-82944d233583",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "2",
-                            ConcurrencyStamp = "a5210dac-6d56-4e7f-81fe-e44e85871d7b",
+                            ConcurrencyStamp = "c062ffd2-69f9-43c6-8a57-377af62cdee0",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         });
@@ -709,15 +708,14 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.OthersAccount", null)
-                        .WithMany("Transactions")
-                        .HasForeignKey("OthersAccountAccountId");
-
                     b.HasOne("Domain.Entities.Account", "ToAccount")
                         .WithMany()
                         .HasForeignKey("ToAccountId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Domain.Entities.OthersAccount", "ToOthersAccount")
+                        .WithMany("Transactions")
+                        .HasForeignKey("ToOtherAccountId");
 
                     b.HasOne("Domain.Entities.ApplicationUser", "User")
                         .WithMany("Transactions")
@@ -726,6 +724,8 @@ namespace Infrastructure.Migrations
                     b.Navigation("FromAccount");
 
                     b.Navigation("ToAccount");
+
+                    b.Navigation("ToOthersAccount");
 
                     b.Navigation("User");
                 });

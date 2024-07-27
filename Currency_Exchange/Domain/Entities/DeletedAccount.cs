@@ -14,6 +14,7 @@ namespace Domain.Entities
         public DateTime CompleteTime { get; set; }
         public bool Accepted { get; set; }=false;
 
+
         [ForeignKey("UserId")]
         public ApplicationUser User{ get; set; }
 

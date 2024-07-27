@@ -13,12 +13,14 @@ namespace Infrastructure.Repositories.Persistence
         private readonly CurrencyDbContext _context;
         private readonly IMapper _mapper;
         private readonly ICurrencyServices _currency;
+        private readonly IAccountServices _accountServices;
 
-        public OthersAccountServices(CurrencyDbContext context, IMapper mapper, ICurrencyServices currency)
+        public OthersAccountServices(CurrencyDbContext context, IMapper mapper, ICurrencyServices currency, IAccountServices accountServices)
         {
             _context = context;
             _mapper = mapper;
             _currency = currency;
+            _accountServices = accountServices;
         }
         public async Task<List<OtherAccountViewModel>> GetListOthersAccountsByNameAsync(string username)
         {
@@ -46,11 +48,11 @@ namespace Infrastructure.Repositories.Persistence
             if (!ValidateCartNumber.IsValidCardNumber(accountVM.CartNumber)) return 0;
             var existCurrency = await _currency.IsExistCurrencyByCodeAsync(accountVM.Currency);
             if (!existCurrency) return 0;
-            var cartNumber = await _context.OthersAccounts.SingleOrDefaultAsync(x =>
-                x.UserId.Equals(accountVM.UserId) && x.CartNumber.Equals(accountVM.CartNumber));
-            if (cartNumber != null) return 0;
+            var account =await _context.Accounts.SingleOrDefaultAsync(x => x.CartNumber.Equals(accountVM.CartNumber) && x.Currency.Equals(accountVM.Currency));
+            if (account == null) return 0;
             // processes
             var newOtherAccount = _mapper.Map<OthersAccount>(accountVM);
+            newOtherAccount.RealAccountId = account.AccountId;
             await _context.OthersAccounts.AddAsync(newOtherAccount);
             var queryResult = await _context.SaveChangesAsync();
             return queryResult > 0 ? newOtherAccount.AccountId : 0;
@@ -70,15 +72,17 @@ namespace Infrastructure.Repositories.Persistence
         {
             //validate
             if (!ValidateCartNumber.IsValidCardNumber(otherAccountViewModel.CartNumber)) return 0;
-            var account = await _context.OthersAccounts.SingleOrDefaultAsync(x => x.AccountId.Equals(otherAccountViewModel.AccountId) && x.UserId.Equals(userId));
+            var definedAccount = await _context.OthersAccounts.SingleOrDefaultAsync(x => x.AccountId.Equals(otherAccountViewModel.AccountId) && x.UserId.Equals(userId));
+            if (definedAccount == null) return 0;
+            var account=await _context.Accounts.SingleOrDefaultAsync(x=>x.CartNumber.Equals(otherAccountViewModel.CartNumber)&&x.Currency.Equals(definedAccount.Currency));
             if (account == null) return 0;
             // processes
-            account.AccountName = otherAccountViewModel.AccountName;
-            account.Balance = otherAccountViewModel.Balance;
-            account.CartNumber = otherAccountViewModel.CartNumber;
-            _context.OthersAccounts.Update(account);
+            definedAccount.AccountName = otherAccountViewModel.AccountName;
+            definedAccount.CartNumber = otherAccountViewModel.CartNumber;
+            definedAccount.RealAccountId=account.AccountId;
+            _context.OthersAccounts.Update(definedAccount);
             var queryResult = await _context.SaveChangesAsync();
-            return queryResult > 0 ? account.AccountId : 0;
+            return queryResult > 0 ? definedAccount.AccountId : 0;
         }
 
         public async Task<bool> IsAccountForOthers(string username, int accountId)

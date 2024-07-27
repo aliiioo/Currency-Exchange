@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Application.Dtos.TransactionDtos.TransactionDto>
+﻿@model IEnumerable<Application.Dtos.TransactionDtos.UsersTransactionsDto>
 
 @{
     ViewData["Title"] = "Account";
@@ -19,9 +19,6 @@
                 @Html.DisplayNameFor(model => model.ToAccountId)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ToOtherAccountId)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.FromCurrency)
             </th>
             <th>
@@ -31,7 +28,7 @@
                 @Html.DisplayNameFor(model => model.Amount)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ConvertedAmount)
+                @Html.DisplayNameFor(model => model.UserBalance)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.ExchangeRate)
@@ -62,9 +59,6 @@
                     @Html.DisplayFor(modelItem => item.ToAccountId)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.ToOtherAccountId)
-                </td>
-                <td>
                     @Html.DisplayFor(modelItem => item.FromCurrency)
                 </td>
                 <td>
@@ -74,7 +68,7 @@
                     @Html.DisplayFor(modelItem => item.Amount)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.ConvertedAmount)
+                    @Html.DisplayFor(modelItem => item.UserBalance)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.ExchangeRate)

@@ -18,7 +18,8 @@
         <th>
             @Html.DisplayNameFor(model => model.PhoneNumber)
         </th>
-        <th></th>
+        <th>Roles</th>
+        <th>Accounts</th>
     </tr>
     </thead>
     <tbody>
@@ -34,7 +35,10 @@
                 @Html.DisplayFor(modelItem => item.PhoneNumber)
             </td>
             <td>
-                    @Html.ActionLink("Add To Admins", "AssignUserToRole", new { username=User.Identity.Name })
+                <a asp-action="AssignUserToRole" asp-route-email="@item.Email">Add To Admin Role</a>
+            </td>
+            <td>
+                <a asp-action="UsersAccounts" asp-route-email="@item.Email">User Accounts</a>
             </td>
         </tr>
     }

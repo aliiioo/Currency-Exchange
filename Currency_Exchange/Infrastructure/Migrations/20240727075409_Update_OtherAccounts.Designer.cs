@@ -4,6 +4,7 @@ using Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(CurrencyDbContext))]
-    partial class CurrencyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240727075409_Update_OtherAccounts")]
+    partial class Update_OtherAccounts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -147,15 +149,15 @@ namespace Infrastructure.Migrations
                         {
                             Id = "1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "1c9c64b2-43ef-443d-a5ab-fffe65ec5512",
-                            CreatedAt = new DateTime(2024, 7, 27, 12, 19, 29, 568, DateTimeKind.Local).AddTicks(585),
+                            ConcurrencyStamp = "e82649f1-5a1c-4701-a90d-2971231a90eb",
+                            CreatedAt = new DateTime(2024, 7, 27, 11, 24, 7, 891, DateTimeKind.Local).AddTicks(2944),
                             Email = "admin@example.com",
                             EmailConfirmed = true,
                             FullName = "Admin User",
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN@EXAMPLE.COM",
-                            PasswordHash = "AQAAAAEAACcQAAAAECchsCkgpEZFCcWUcVIe5lb18hiBU7jF/s4diN3Awk1YvS90rbEZpw+CPPeQNRIR4w==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEJI1c6tdznMw7MB7CzcttUUwzyrvld2Xj5QYsycXspDx30Qmi0xCqjdsU/VW3i4FJQ==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "",
                             TwoFactorEnabled = false,
@@ -417,9 +419,6 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<decimal>("DeductedAmount")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<decimal>("ExchangeRate")
                         .HasColumnType("decimal(18,2)");
 
@@ -433,24 +432,21 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("OthersAccountAccountId")
-                        .HasColumnType("int");
-
                     b.Property<bool>("Outer")
                         .HasColumnType("bit");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int>("ToAccountId")
+                    b.Property<int?>("ToAccountId")
                         .HasColumnType("int");
 
                     b.Property<string>("ToCurrency")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("UserBalance")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int?>("ToOtherAccountId")
+                        .HasColumnType("int");
 
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
@@ -459,9 +455,9 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("FromAccountId");
 
-                    b.HasIndex("OthersAccountAccountId");
-
                     b.HasIndex("ToAccountId");
+
+                    b.HasIndex("ToOtherAccountId");
 
                     b.HasIndex("UserId");
 
@@ -498,14 +494,14 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = "1",
-                            ConcurrencyStamp = "1f19887e-a7f0-47de-89d2-57823bba9199",
+                            ConcurrencyStamp = "f37d0f34-75ee-4b30-91cb-ac7f6ad9e2d2",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "2",
-                            ConcurrencyStamp = "a5210dac-6d56-4e7f-81fe-e44e85871d7b",
+                            ConcurrencyStamp = "5d2a6ae6-7375-4609-a492-42468773e8ba",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         });
@@ -709,15 +705,14 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.OthersAccount", null)
-                        .WithMany("Transactions")
-                        .HasForeignKey("OthersAccountAccountId");
-
                     b.HasOne("Domain.Entities.Account", "ToAccount")
                         .WithMany()
                         .HasForeignKey("ToAccountId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Domain.Entities.OthersAccount", "ToOthersAccount")
+                        .WithMany("Transactions")
+                        .HasForeignKey("ToOtherAccountId");
 
                     b.HasOne("Domain.Entities.ApplicationUser", "User")
                         .WithMany("Transactions")
@@ -726,6 +721,8 @@ namespace Infrastructure.Migrations
                     b.Navigation("FromAccount");
 
                     b.Navigation("ToAccount");
+
+                    b.Navigation("ToOthersAccount");
 
                     b.Navigation("User");
                 });

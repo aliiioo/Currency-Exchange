@@ -37,6 +37,8 @@ namespace Infrastructure.Mappings
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id)).ReverseMap();
             CreateMap<Transaction, TransactionDto>().ReverseMap();
             CreateMap<Transaction, ConfirmTransactionDto>().ReverseMap();
+            CreateMap<Transaction, TransactionDetailDto>().ReverseMap();
+            CreateMap<Transaction, UsersTransactionsDto>().ReverseMap();
             CreateMap<OthersAccount, OtherAccountViewModel>().ReverseMap();
             CreateMap<AccountViewModel, UpdateAccountViewModel>().ReverseMap();
             CreateMap<DeletedAccount, ConfirmAddressAccountForDeleteDto>().ReverseMap();

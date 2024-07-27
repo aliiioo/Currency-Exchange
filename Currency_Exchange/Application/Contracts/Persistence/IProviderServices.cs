@@ -7,11 +7,12 @@ namespace Application.Contracts.Persistence
     {
         public Task<TransactionDto> GetTransaction(int idTransaction);
         public Task<ConfirmTransactionDto> GetConfirmTransaction(int idTransaction,string userId);
+        public Task<TransactionDetailDto> GetDetailTransaction(int idTransaction,string userId);
         public Task<List<TransactionDto>> GetListTransactions(int fromIdAccount);
-        public Task<List<TransactionDto>> GetListTransactionsForAdmin();
+        public Task<List<UsersTransactionsDto>> GetListTransactionsForAdmin();
 
+        public Task<bool> CancelTransaction(int transactionId);
         public Task<int> TransformCurrency(CreateTransactionDtos  transactionVM, string username);
-        public Task<int> TransformToSelfAccountCurrency(CreateTransactionDtos  transactionVM, string username);
         public Task<bool> ConfirmTransaction(int transactionId, string username, bool isConfirm);
         public Task<List<Transaction>> CanceledPendingTransactionsByTimePass(int min);
         public Task<bool> CheckMaxOfTransaction(string userId,int accountId,decimal price);

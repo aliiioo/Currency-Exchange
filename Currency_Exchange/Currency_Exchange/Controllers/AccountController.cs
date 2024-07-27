@@ -34,6 +34,11 @@ namespace Currency_Exchange.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (!model.Email.ToLower().EndsWith(".com"))
+                {
+                    ModelState.AddModelError("","Email Type is Not Normal");
+                    return View(model);
+                }
                 var user = new ApplicationUser { UserName = model.Email, Email = model.Email ,PhoneNumber = model.Phone,FullName = model.FullName};
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
@@ -75,6 +80,11 @@ namespace Currency_Exchange.Controllers
                 return RedirectToAction("Index", "Home");
             if (ModelState.IsValid)
             {
+                if (!model.Email.ToLower().EndsWith(".com"))
+                {
+                    ModelState.AddModelError("", "Email Type is Not Normal");
+                    return View(model);
+                }
                 var user = await _userManager.FindByNameAsync(model.Email);
                 if (user.EmailConfirmed == false)
                 {
@@ -92,7 +102,7 @@ namespace Currency_Exchange.Controllers
                 {
                     return RedirectToAction("Index", "Home");
                 }
-                ModelState.AddModelError("", "Wrong Arrive");
+                ModelState.AddModelError("", "Error Login");
             }
             return View(model);
         }

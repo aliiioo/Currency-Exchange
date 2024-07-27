@@ -9,8 +9,8 @@ namespace Domain.Entities
         public int TransactionId { get; set; }
         public string? UserId { get; set; }
         public int FromAccountId { get; set; }
-        public int? ToAccountId { get; set; }
-        public int? ToOtherAccountId { get; set; }
+        public int ToAccountId { get; set; }
+        //public int? ToOtherAccountId { get; set; }
         [Required]
         public string FromCurrency { get; set; }
         [Required]
@@ -18,6 +18,9 @@ namespace Domain.Entities
         [Required]
         [Range(0,double.MaxValue)]
         public decimal Amount { get; set; } = 0;
+
+        public decimal UserBalance { get; set; } = 0;
+        public decimal DeductedAmount { get; set; } = 0;
         [Range(0,40)]
         public decimal ExchangeRate { get; set; } = 0;
         [Range(0, 40)]
@@ -34,8 +37,8 @@ namespace Domain.Entities
         [ForeignKey("ToAccountId")]
         public Account? ToAccount { get; set; }
 
-        [ForeignKey("ToOtherAccountId")]
-        public OthersAccount? ToOthersAccount{ get; set; }
+        // [ForeignKey("ToOtherAccountId")]
+        // public OthersAccount? ToOthersAccount{ get; set; }
 
         [ForeignKey("UserId")]
         public ApplicationUser? User { get; set; }

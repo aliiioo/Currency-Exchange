@@ -43,7 +43,6 @@ namespace Currency_Exchange.Security
                 return input.Replace("--", "")
                     .Replace(";", "")
                     .Replace("#", "")
-                    .Replace(",", "")
                     .Replace("%", "")
                     .Replace("=", "")
                     .Replace("*", "");

@@ -1,4 +1,6 @@
-﻿namespace Application.Dtos.OthersAccountDto
+﻿using System.Security.AccessControl;
+
+namespace Application.Dtos.OthersAccountDto
 {
     public class OtherAccountViewModel
     {
@@ -7,5 +9,6 @@
         public string AccountName { get; set; } = string.Empty;
         public string CartNumber { get; set; } = string.Empty;
         public decimal Balance { get; set; }
+        public int RealAccountId { get; set; }
     }
 }

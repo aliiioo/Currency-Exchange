@@ -61,7 +61,12 @@ namespace Currency_Exchange.Controllers
                 _logger.LogError($"Unauthorized entry {User.Identity?.Name}");
                 return RedirectToAction("Error","Home");
             }
-            await _othersAccountServices.CreateOthersAccountAsync(createAccountVM);
+            var account= await _othersAccountServices.CreateOthersAccountAsync(createAccountVM);
+            if (account == 0)
+            {
+                const string error = "Don't Have Any Account With This Info";
+                return RedirectToAction("Error", "Home",new {error});
+            }
             return RedirectToAction("Index", new { User.Identity?.Name });
         }
 
@@ -87,7 +92,12 @@ namespace Currency_Exchange.Controllers
                 _logger.LogError($"Unauthorized entry {User.Identity?.Name}");
                 return RedirectToAction("Error", "Home");
             }
-            await _othersAccountServices.UpdateOthersAccountAsync(accountVM,accountVM.UserId);
+            var account = await _othersAccountServices.UpdateOthersAccountAsync(accountVM,accountVM.UserId);
+            if (account == 0)
+            {
+                const string error = "Don't Have Any Account With This Info";
+                return RedirectToAction("Error", "Home", new { error });
+            }
             return RedirectToAction("Index");
         }
 

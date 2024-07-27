@@ -21,18 +21,18 @@ namespace Currency_Exchange.Controllers
             _adminServices = adminServices;
         }
         [HttpGet]
-
         public async Task<IActionResult> Index()
         {
-            var users = await _userManager.GetUsersInRoleAsync("Admin");
+            var adminUsers = await _userManager.GetUsersInRoleAsync("Admin");
             var listUserDto = new List<UserDto>();
-            foreach (var item in users)
+            foreach (var item in adminUsers)
             {
                 var userDto= new UserDto
                 {
                     Email = item.Email,
                     FullName = item.FullName,
-                    PhoneNumber = item.PhoneNumber
+                    PhoneNumber = item.PhoneNumber,
+                    IsAdmin = true
                 };
                 listUserDto.Add(userDto);
             }
@@ -52,34 +52,35 @@ namespace Currency_Exchange.Controllers
                 userDto.Email = item.Email;
                 userDto.FullName = item.FullName;
                 userDto.PhoneNumber = item.PhoneNumber;
+                userDto.IsAdmin = false;
                 listUserDto.Add(userDto);
             }
 
             return View(listUserDto);
         }
 
-        public async Task<bool> AssignUserToRole(string username, string role="Admin")
+        public async Task<IActionResult> AssignUserToRole(string email, string role="Admin")
         {
-            var user = await _userManager.FindByNameAsync(username);
-            if (!user.EmailConfirmed) return false;
+            var user = await _userManager.FindByEmailAsync(email);
+            if (!user.EmailConfirmed) return RedirectToAction("Index");
 
-            if (!await _roleManager.RoleExistsAsync(role) == false)
+            if (await _roleManager.RoleExistsAsync(role) == false)
             {
-                return false;
+                return RedirectToAction("Index");
             }
             await _userManager.AddToRoleAsync(user, role);
-            return true;
+            await _userManager.RemoveFromRoleAsync(user, "Customer");
+            return RedirectToAction("Index");
 
         }
 
-        public async Task<bool> RemoveUserRole(string username)
+        public async Task<IActionResult> RemoveUserRole(string email)
         {
-            var user = await _userManager.FindByNameAsync(username);
-            if (!user.EmailConfirmed) return false;
+            var user = await _userManager.FindByNameAsync(email);
+            if (!user.EmailConfirmed) return RedirectToAction("Index");
             await _userManager.RemoveFromRoleAsync(user, "Admin");
             await _userManager.AddToRoleAsync(user, "Customer");
-            return true;
-
+            return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> UsersAccounts(string email)

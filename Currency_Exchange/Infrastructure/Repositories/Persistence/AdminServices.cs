@@ -59,7 +59,7 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<List<DeleteAccountAddressDto>> GetAccountDeleteInfoForAdmin()
         {
-            return _mapper.Map<List<DeleteAccountAddressDto>>(await _context.DeletedAccounts.ToListAsync());
+            return _mapper.Map<List<DeleteAccountAddressDto>>(await _context.DeletedAccounts.IgnoreAutoIncludes().ToListAsync());
 
         }
 

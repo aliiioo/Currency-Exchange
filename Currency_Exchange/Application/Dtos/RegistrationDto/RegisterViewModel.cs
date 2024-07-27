@@ -13,6 +13,8 @@ namespace Application.Dtos.OthersAccountDtos
         [EmailAddress]
         public string Email { get; set; }
         [Phone]
+        [MinLength(10)]
+        [MaxLength(14)]
         public string Phone { get; set; }
 
         [Required]

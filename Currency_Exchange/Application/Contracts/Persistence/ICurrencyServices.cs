@@ -25,7 +25,7 @@ namespace Application.Contracts.Persistence
         public Task<UpdateRateDtos> GetCurrencyRateByIdAsync(int rateId);
 
         public Task<bool> IsExchangePriceAccept(int currencyId, decimal price);
-        public Task<bool> IsTransformPriceAccept(int currencyId, decimal price);
+        public Task<bool> IsTransformPriceAccept(CreateFeeDtos createFeeDto);
 
 
         public Task<bool> IsExistCurrencyByCodeAsync(string codeCurrency);
