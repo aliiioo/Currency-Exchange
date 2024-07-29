@@ -31,9 +31,10 @@ namespace Application.API_Calls
                 {
                     PropertyNameCaseInsensitive = true,
                 };
-                var dataReder = await response.Content.ReadAsStringAsync();
-                var data = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, decimal>>>(dataReder);
-                return data.Values.FirstOrDefault().FirstOrDefault().Value;
+                var dataReader = await response.Content.ReadAsStringAsync();
+                var data = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, decimal>>>(dataReader);
+                if (data != null) return data.Values.FirstOrDefault().FirstOrDefault().Value;
+                return 1;
             }
             catch (HttpRequestException ex)
             {

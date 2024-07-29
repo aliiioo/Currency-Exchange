@@ -24,19 +24,7 @@ namespace Currency_Exchange.Controllers
         public async Task<IActionResult> Index()
         {
             var adminUsers = await _userManager.GetUsersInRoleAsync("Admin");
-            var listUserDto = new List<UserDto>();
-            foreach (var item in adminUsers)
-            {
-                var userDto= new UserDto
-                {
-                    Email = item.Email,
-                    FullName = item.FullName,
-                    PhoneNumber = item.PhoneNumber,
-                    IsAdmin = true
-                };
-                listUserDto.Add(userDto);
-            }
-
+            var listUserDto = adminUsers.Select(item => new UserDto { Email = item.Email, FullName = item.FullName, PhoneNumber = item.PhoneNumber, IsAdmin = true }).ToList();
             return View(listUserDto);
         }
 
@@ -45,17 +33,7 @@ namespace Currency_Exchange.Controllers
         public async Task<IActionResult> IndexCustomer()
         {
             var users = await _userManager.GetUsersInRoleAsync("Customer");
-            var listUserDto = new List<UserDto>();
-            foreach (var item in users)
-            {
-                var userDto = new UserDto();
-                userDto.Email = item.Email;
-                userDto.FullName = item.FullName;
-                userDto.PhoneNumber = item.PhoneNumber;
-                userDto.IsAdmin = false;
-                listUserDto.Add(userDto);
-            }
-
+            var listUserDto = users.Select(item => new UserDto { Email = item.Email, FullName = item.FullName, PhoneNumber = item.PhoneNumber, IsAdmin = false }).ToList();
             return View(listUserDto);
         }
 

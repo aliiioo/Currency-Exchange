@@ -7,4 +7,4 @@
         public decimal Balance { get; set; }
         public bool IsConfirm { get; set; }
     }
-}
+ }  

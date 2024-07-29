@@ -111,7 +111,7 @@ namespace Infrastructure.Repositories.Persistence
         public async Task<decimal> GetTransformFeeCurrencyAsync(string fromCurrency, string toCurrency, decimal price)
         {
             var priceFee = await _context.CurrencyTransformFees.SingleOrDefaultAsync(x =>
-                x.FromCurrency.Equals(fromCurrency) && x.ToCurrency.Equals(toCurrency) && x.StartRange < price && x.EndRange > price);
+                x.FromCurrency.Equals(fromCurrency) && x.ToCurrency.Equals(toCurrency) && x.StartRange < price && x.EndRange >= price);
             return priceFee != null ? (price * priceFee.PriceFee) / 100 : 0;
         }
 
@@ -121,7 +121,7 @@ namespace Infrastructure.Repositories.Persistence
             if (fromCurrency.Equals(toCurrency)) return 0;
             // processes
             var priceFee = await _context.CurrencyExchangeFees.SingleOrDefaultAsync(x =>
-                x.FromCurrency.Equals(fromCurrency) && x.ToCurrency.Equals(toCurrency) && x.StartRange < price && x.EndRange > price);
+                x.FromCurrency.Equals(fromCurrency) && x.ToCurrency.Equals(toCurrency) && x.StartRange < price && x.EndRange >= price);
             return priceFee?.PriceFee * price / 100 ?? 0;
         }
 
@@ -140,15 +140,12 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<bool> IsExistCurrencyByCodeAsync(string codeCurrency)
         {
-            var currency = await _context.Currencies.AnyAsync(x => x.CurrencyCode.Equals(codeCurrency));
-            return currency;
-
+            return await _context.Currencies.AnyAsync(x => x.CurrencyCode.Equals(codeCurrency));
         }
 
         public async Task<bool> IsExistCurrencyByCodeAsync(string firstCodeCurrency, string secondCodeCurrency)
         {
-            var currency = await _context.Currencies.AnyAsync(x => x.CurrencyCode.Equals(firstCodeCurrency) && x.CurrencyCode.Equals(secondCodeCurrency));
-            return currency;
+            return await _context.Currencies.AnyAsync(x => x.CurrencyCode.Equals(firstCodeCurrency) && x.CurrencyCode.Equals(secondCodeCurrency));
         }
 
 
@@ -184,6 +181,7 @@ namespace Infrastructure.Repositories.Persistence
             //validate
             var isExistCurrency = await IsExistCurrencyByCodeAsync(currencyVM.CurrencyCode);
             if (isExistCurrency) return 0;
+            if (currencyVM.CurrencyCode.Length is > 4 or < 3) return 0;
             // processes
             currencyVM.CurrencyCode = currencyVM.CurrencyCode.ToUpper();
             var currency = _mapper.Map<Currency>(currencyVM);
@@ -201,7 +199,7 @@ namespace Infrastructure.Repositories.Persistence
             var feesList = await GetCurrencyExchangeFeeAsync(currencyId);
             var currentIndex = feesList.IndexOf(fee);
             var nextItem = currentIndex < feesList.Count - 1 ? feesList[currentIndex + 1] : null;
-            if (nextItem!=null)
+            if (nextItem != null)
             {
                 // first or middle item  
                 nextItem.StartRange = fee.StartRange;
@@ -276,7 +274,7 @@ namespace Infrastructure.Repositories.Persistence
             var fee = _mapper.Map<CurrencyTransformFees>(Model);
             if (lastOldFee != null)
             {
-                if (lastOldFee.EndRange+1 > fee.EndRange)
+                if (lastOldFee.EndRange + 1 > fee.EndRange)
                 {
                     return 0;
                 }
@@ -299,21 +297,21 @@ namespace Infrastructure.Repositories.Persistence
             var fee = await _context.CurrencyTransformFees.SingleOrDefaultAsync(x => x.FeeId.Equals(feeId));
             if (fee == null) return false;
             var feesList = await GetCurrencyTransformFeeAsync(fee.CurrencyId);
-            feesList=feesList.Where(x => x.FromCurrency.Equals(fee.FromCurrency) && x.ToCurrency.Equals(fee.ToCurrency)).ToList();
+            feesList = feesList.Where(x => x.FromCurrency.Equals(fee.FromCurrency) && x.ToCurrency.Equals(fee.ToCurrency)).ToList();
             var currentIndex = feesList.IndexOf(fee);
             var nextItem = currentIndex < feesList.Count - 1 ? feesList[currentIndex + 1] : null;
             var previousItem = currentIndex > 0 ? feesList[currentIndex - 1] : null;
             if (nextItem != null)
             {
                 // first or middle item  
-                if (nextItem.PriceFee>feePrice)
+                if (nextItem.PriceFee > feePrice)
                 {
                     return false;
                 }
             }
-            if (previousItem!=null)
+            if (previousItem != null)
             {
-                if (previousItem.PriceFee<feePrice)
+                if (previousItem.PriceFee < feePrice)
                 {
                     return false;
                 }
@@ -336,7 +334,7 @@ namespace Infrastructure.Repositories.Persistence
             var fee = _mapper.Map<CurrencyExchangeFees>(Model);
             if (lastOldFee != null)
             {
-                if (lastOldFee.EndRange+1 > fee.EndRange)
+                if (lastOldFee.EndRange + 1 > fee.EndRange)
                 {
                     return 0;
                 }

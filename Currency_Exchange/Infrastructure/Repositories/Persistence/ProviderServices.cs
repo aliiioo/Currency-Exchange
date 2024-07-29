@@ -1,17 +1,13 @@
 ﻿using Application.Contracts.Persistence;
 using Application.Dtos.AccountDtos;
-using Application.Dtos.OthersAccountDto;
 using Application.Dtos.TransactionDtos;
 using Application.Statics;
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Principal;
 using System.Transactions;
-using Infrastructure.Migrations;
 using Transaction = Domain.Entities.Transaction;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Infrastructure.Repositories.Persistence
 {
@@ -19,15 +15,13 @@ namespace Infrastructure.Repositories.Persistence
     {
         private readonly ICurrencyServices _currencyServices;
         private readonly IAccountServices _accountServices;
-        private readonly IOthersAccountServices _othersAccountServices;
         private readonly CurrencyDbContext _context;
         private readonly IMapper _mapper;
 
-        public ProviderServices(ICurrencyServices currencyServices, IAccountServices accountServices, IOthersAccountServices othersAccountServices, CurrencyDbContext context, IMapper mapper)
+        public ProviderServices(ICurrencyServices currencyServices, IAccountServices accountServices, CurrencyDbContext context, IMapper mapper)
         {
             _currencyServices = currencyServices;
             _accountServices = accountServices;
-            _othersAccountServices = othersAccountServices;
             _context = context;
             _mapper = mapper;
         }

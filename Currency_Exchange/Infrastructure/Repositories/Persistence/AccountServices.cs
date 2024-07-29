@@ -236,6 +236,7 @@ namespace Infrastructure.Repositories.Persistence
                     x.AccountId.Equals(accountId) && x.UserId.Equals(userId));
             if (accountDeleteInfo != null)
             {
+                // Delete old version
                _context.DeletedAccounts.Remove(accountDeleteInfo);
                await _context.SaveChangesAsync();
             }

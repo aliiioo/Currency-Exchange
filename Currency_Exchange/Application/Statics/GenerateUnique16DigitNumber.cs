@@ -20,7 +20,6 @@ namespace Application.Statics
         }
 
 
-
         private static string GenerateRandomNumber(int length)
         {
             using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())

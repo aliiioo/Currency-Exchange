@@ -8,9 +8,6 @@ namespace Application.Dtos.AccountDtos
         [MaxLength(1200)]
         [Required]
         public string Address { get; set; }
-        
-
-
 
     }
 }

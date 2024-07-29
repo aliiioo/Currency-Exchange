@@ -13,14 +13,12 @@ namespace Infrastructure.Repositories.Persistence
         private readonly CurrencyDbContext _context;
         private readonly IMapper _mapper;
         private readonly ICurrencyServices _currency;
-        private readonly IAccountServices _accountServices;
 
-        public OthersAccountServices(CurrencyDbContext context, IMapper mapper, ICurrencyServices currency, IAccountServices accountServices)
+        public OthersAccountServices(CurrencyDbContext context, IMapper mapper, ICurrencyServices currency)
         {
             _context = context;
             _mapper = mapper;
             _currency = currency;
-            _accountServices = accountServices;
         }
         public async Task<List<OtherAccountViewModel>> GetListOthersAccountsByNameAsync(string username)
         {

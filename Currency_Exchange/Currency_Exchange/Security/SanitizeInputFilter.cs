@@ -21,7 +21,7 @@ namespace Currency_Exchange.Security
                 // Do nothing
             }
 
-            private void SanitizeObjectProperties(object obj)
+            private static void SanitizeObjectProperties(object obj)
             {
                 if (obj == null) return;
 
@@ -38,14 +38,19 @@ namespace Currency_Exchange.Security
                 }
             }
 
-            private string CleanInput(string input)
+            private static string CleanInput(string input)
             {
                 return input.Replace("--", "")
                     .Replace(";", "")
                     .Replace("#", "")
                     .Replace("%", "")
                     .Replace("=", "")
-                    .Replace("*", "");
+                    .Replace("*", "")
+                    .Replace("SELECT", "")
+                    .Replace("select", "")
+                    .Replace("FROM", "")
+                    .Replace("from", "")
+                    ;
             }
         }
    
