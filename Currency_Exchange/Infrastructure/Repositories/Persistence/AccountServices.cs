@@ -141,10 +141,12 @@ namespace Infrastructure.Repositories.Persistence
             {
                 FromCurrency = balanceDto.FromCurrency,
                 ToCurrency = account.Currency,
+                UserBalance = account.Balance,
                 Amount = balanceDto.Amount,
                 CompletedAt = DateTime.UtcNow,
                 FromAccountId = account.AccountId,
                 ToAccountId = account.AccountId,
+                ExchangeRate =await _currency.GetPriceRateExchange(balanceDto.FromCurrency,balanceDto.ToCurrency),
                 Status = StatusEnum.Completed,
                 Outer = false,
                 UserId = username
@@ -169,12 +171,16 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<List<UsersTransactionsDto>> GetUserAccountTransactionsAsync(int accountId)
         {
-            var transactions = await _context.Transactions.Where(x => x.FromAccountId == accountId).ToListAsync();
+            var transactions = await _context.Transactions.Where(x => x.FromAccountId == accountId||x.ToAccountId.Equals(accountId)).ToListAsync();
             var transactionDto = new List<UsersTransactionsDto>();
             foreach (var item in transactions)
             {
                 var dto = _mapper.Map<UsersTransactionsDto>(item);
-                dto.ToAccountId = _context.Accounts.SingleOrDefaultAsync(x => x.AccountId.Equals(item.ToAccountId)).Result.AccountName;
+                if (accountId.Equals(item.ToAccountId)&&!item.ToAccountId.Equals(item.FromAccountId))
+                {
+                    dto.FromSender = false;
+                }
+                dto.ToAccountId =_context.Accounts.SingleOrDefaultAsync(x => x.AccountId.Equals(item.ToAccountId)).Result.AccountName;
                 transactionDto.Add(dto);
             }
             return transactionDto;
@@ -182,8 +188,12 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<List<UsersTransactionsDto>> GetUserTransactions(string userId)
         {
-            var transaction = await _context.Users.Include(x => x.Transactions).Where(x => x.Id.Equals(userId)).SelectMany(x => x.Transactions).ToListAsync();
-            return _mapper.Map<List<UsersTransactionsDto>>(transaction);
+            // var transaction = await _context.Users.Include(x => x.Transactions)
+            //     .Where(x => x.Id.Equals(userId))
+            //     .SelectMany(x => x.Transactions).ToListAsync();
+            var transactions = await _context.Accounts.Include(x => x.Transactions)
+                .Where(x => x.UserId.Equals(userId)).SelectMany(x => x.Transactions).ToListAsync();
+            return _mapper.Map<List<UsersTransactionsDto>>(transactions);
         }
 
 
@@ -202,6 +212,8 @@ namespace Infrastructure.Repositories.Persistence
                 FromCurrency = account.Currency,
                 ToCurrency = account.Currency,
                 Amount = amount,
+                DeductedAmount = amount,
+                UserBalance = account.Balance,
                 CompletedAt = DateTime.UtcNow,
                 FromAccountId = accountId,
                 ToAccountId = accountId,
@@ -220,7 +232,7 @@ namespace Infrastructure.Repositories.Persistence
             //validate
             var account = await _context.Accounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId) && x.UserId.Equals(userId));
             if (account == null) return false;
-            var accountDeleteInfo =await _context.DeletedAccounts.SingleOrDefaultAsync(x =>
+            var accountDeleteInfo =await _context.DeletedAccounts.IgnoreQueryFilters().FirstOrDefaultAsync(x =>
                     x.AccountId.Equals(accountId) && x.UserId.Equals(userId));
             if (accountDeleteInfo != null)
             {
@@ -252,7 +264,7 @@ namespace Infrastructure.Repositories.Persistence
         public async Task<bool> ConfirmAccountDeleteInfo(int accountId, string userId)
         {
             // validate
-            var deleteAccount =await _context.DeletedAccounts.SingleOrDefaultAsync(x =>
+            var deleteAccount =await _context.DeletedAccounts.IgnoreQueryFilters().SingleOrDefaultAsync(x =>
                     x.UserId.Equals(userId) && x.AccountId.Equals(accountId));
             if (deleteAccount == null) return false;
             // processes

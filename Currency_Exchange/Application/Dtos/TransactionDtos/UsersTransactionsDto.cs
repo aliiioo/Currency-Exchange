@@ -22,6 +22,7 @@ namespace Application.Dtos.TransactionDtos
         [Required]
         public string Status { get; set; } // 'Pending', 'Completed', 'Cancelled'
         public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public DateTime? CompletedAt { get; }
+        public DateTime? CompletedAt { get; set; }
+        public bool FromSender { get; set; }=true;
     }
 }

@@ -2,6 +2,6 @@
 {
     public static class MaximumTransaction
     {
-        public static readonly decimal MaxTransaction = 1000;
+        public static readonly decimal MaxTransaction = 100;
     }
 }

@@ -3,6 +3,7 @@ using Application.Statics;
 using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Currency_Exchange.Controllers
 {
@@ -11,7 +12,7 @@ namespace Currency_Exchange.Controllers
     {
         private readonly IProviderServices _providerServices;
         private readonly IAdminServices _adminServices;
-        
+
         public AdminController(IProviderServices providerServices, IAdminServices adminServices)
         {
             _providerServices = providerServices;
@@ -47,6 +48,7 @@ namespace Currency_Exchange.Controllers
             var accounts = await _adminServices.GetDisActiveAccountsForAdmin();
             return View(accounts);
         }
+
 
         [HttpGet]
         public async Task<IActionResult> DeActivateAccount(int accountId)

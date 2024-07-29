@@ -153,8 +153,9 @@ namespace Currency_Exchange.Controllers
             {
                 return View(vmdto);
             }
+            if (!vmdto.IsConfirm) return RedirectToAction("Index");
             var result = await _accountServices.DeleteAccountAsync(vmdto.AccountId, User.GetUserId());
-            if (result == false) return RedirectToAction("Error","Home");
+            if (result == false) return RedirectToAction("Error", "Home");
             await _accountServices.ConfirmAccountDeleteInfo(vmdto.AccountId, User.GetUserId());
             return RedirectToAction("Index");
         }
@@ -188,6 +189,7 @@ namespace Currency_Exchange.Controllers
         public async Task<IActionResult> AccountTransactions(int accountId)
         {
             var transactions = await _accountServices.GetUserAccountTransactionsAsync(accountId);
+            ViewBag.accountId=accountId;
             return View(transactions);
         }
 

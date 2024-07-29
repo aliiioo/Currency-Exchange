@@ -1,8 +1,10 @@
 ﻿using Application.Contracts.Persistence;
 using Application.Dtos.AccountDtos;
 using AutoMapper;
+using Domain.Entities;
 using Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Infrastructure.Repositories.Persistence
 {
@@ -13,8 +15,9 @@ namespace Infrastructure.Repositories.Persistence
     {
         private readonly CurrencyDbContext _context;
         private readonly IMapper _mapper;
+        
 
-        public AdminServices(CurrencyDbContext context, IMapper mapper)
+        public AdminServices(CurrencyDbContext context, IMapper mapper, ICurrencyServices currencyServices)
         {
             _context = context;
             _mapper = mapper;
@@ -59,7 +62,7 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<List<DeleteAccountAddressDto>> GetAccountDeleteInfoForAdmin()
         {
-            return _mapper.Map<List<DeleteAccountAddressDto>>(await _context.DeletedAccounts.IgnoreAutoIncludes().ToListAsync());
+            return _mapper.Map<List<DeleteAccountAddressDto>>(await _context.DeletedAccounts.ToListAsync());
 
         }
 
@@ -83,5 +86,6 @@ namespace Infrastructure.Repositories.Persistence
            
 
         }
+
     }
 }

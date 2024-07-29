@@ -64,22 +64,16 @@ namespace Infrastructure.Repositories.Persistence
             var lastPriceAccept = await _context.CurrencyExchangeFees.Where(x => x.CurrencyId.Equals(currencyId))
                 .OrderBy(x => x.ToCurrency).ThenBy(x => x.EndRange).LastOrDefaultAsync();
             if (lastPriceAccept == null) return true;
-            if (lastPriceAccept.PriceFee > price)
-            {
-                return false;
-            }
-            return true;
+            return lastPriceAccept.PriceFee >= price;
         }
 
         public async Task<bool> IsTransformPriceAccept(CreateFeeDtos createFeeDto)
         {
-            var lastPriceAccept = await _context.CurrencyTransformFees
-                .Where(x => x.CurrencyId.Equals(createFeeDto.CurrencyId)
-                            && x.FromCurrency.Equals(createFeeDto.FromCurrency) && x.ToCurrency.Equals(createFeeDto.ToCurrency))
+            var lastPriceAccept = await _context.CurrencyTransformFees.Where(x => x.CurrencyId.Equals(createFeeDto.CurrencyId)
+                    && x.FromCurrency.Equals(createFeeDto.FromCurrency) && x.ToCurrency.Equals(createFeeDto.ToCurrency))
                 .OrderBy(x => x.ToCurrency).ThenBy(x => x.EndRange).LastOrDefaultAsync();
             if (lastPriceAccept == null) return true;
-            if (lastPriceAccept.PriceFee <= createFeeDto.PriceFee) return true;
-            return false;
+            return lastPriceAccept.PriceFee >= createFeeDto.PriceFee;
         }
 
         public async Task<List<CurrencyDtoShow>> GetListCurrency()
@@ -312,14 +306,14 @@ namespace Infrastructure.Repositories.Persistence
             if (nextItem != null)
             {
                 // first or middle item  
-                if (nextItem.PriceFee<feePrice)
+                if (nextItem.PriceFee>feePrice)
                 {
                     return false;
                 }
             }
             if (previousItem!=null)
             {
-                if (previousItem.PriceFee>feePrice)
+                if (previousItem.PriceFee<feePrice)
                 {
                     return false;
                 }
@@ -372,14 +366,14 @@ namespace Infrastructure.Repositories.Persistence
             if (nextItem != null)
             {
                 // first or middle item  
-                if (nextItem.PriceFee < feePrice)
+                if (nextItem.PriceFee > feePrice)
                 {
                     return false;
                 }
             }
             if (previousItem != null)
             {
-                if (previousItem.PriceFee > feePrice)
+                if (previousItem.PriceFee < feePrice)
                 {
                     return false;
                 }

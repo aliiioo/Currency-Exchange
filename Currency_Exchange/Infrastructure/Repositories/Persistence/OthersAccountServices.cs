@@ -50,7 +50,9 @@ namespace Infrastructure.Repositories.Persistence
             if (!existCurrency) return 0;
             var account =await _context.Accounts.SingleOrDefaultAsync(x => x.CartNumber.Equals(accountVM.CartNumber) && x.Currency.Equals(accountVM.Currency));
             if (account == null) return 0;
-            // processes
+            var otherAccount = await _context.OthersAccounts.AnyAsync(x => x.UserId.Equals(accountVM.UserId) && x.CartNumber.Equals(accountVM.CartNumber));
+            if (otherAccount==true) return 0;
+                // processes
             var newOtherAccount = _mapper.Map<OthersAccount>(accountVM);
             newOtherAccount.RealAccountId = account.AccountId;
             await _context.OthersAccounts.AddAsync(newOtherAccount);

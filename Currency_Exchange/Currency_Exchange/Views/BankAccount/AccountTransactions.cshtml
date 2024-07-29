@@ -52,49 +52,64 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.TransactionId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FromAccountId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ToAccountId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FromCurrency)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ToCurrency)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Amount)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UserBalance)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DeductedAmount)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ExchangeRate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Fee)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CompletedAt)
-            </td>
-         
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TransactionId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FromAccountId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ToAccountId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FromCurrency)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ToCurrency)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Amount)
+                </td>
+                @if (item.FromSender==false)
+                {
+                    <td>
+                        -
+                    </td>
+                    <td>
+                        -
+                    </td>
+                }
+                else
+                {
+                   
+                    <td>
+                        @Html.DisplayFor(modelItem => item.UserBalance)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DeductedAmount)
+                    </td>
+
+                }
+                <td>
+                    @Html.DisplayFor(modelItem => item.ExchangeRate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Fee)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedAt)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CompletedAt)
+                </td>
+
+            </tr>
+        }
     </tbody>
 </table>

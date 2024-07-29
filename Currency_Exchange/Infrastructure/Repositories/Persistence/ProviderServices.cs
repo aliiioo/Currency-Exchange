@@ -9,7 +9,9 @@ using Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Principal;
 using System.Transactions;
+using Infrastructure.Migrations;
 using Transaction = Domain.Entities.Transaction;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Infrastructure.Repositories.Persistence
 {
@@ -100,26 +102,6 @@ namespace Infrastructure.Repositories.Persistence
         }
 
 
-
-        // public async Task<int> TransformToSelfAccountCurrency(CreateTransactionDtos transactionVM, string username)
-        // {
-        //     //validate
-        //     var isUSerAccount = await _accountServices.IsAccountForUser(username, transactionVM.SelfAccountId);
-        //     if (!isUSerAccount) return 0;
-        //     var otherUserAccount = await _accountServices.GetAccountByIdAsync(username, int.Parse(transactionVM.OthersAccountIdAsString));
-        //     if (otherUserAccount == null) return 0;
-        //     // processes
-        //     var transaction = _mapper.Map<Transaction>(transactionVM);
-        //     transaction.Status = StatusEnum.Pending;
-        //     transaction.ToAccountId = int.Parse(transactionVM.OthersAccountIdAsString);
-        //     transaction.ToCurrency = otherUserAccount.Currency;
-        //     transaction.ExchangeRate = await _currencyServices.GetPriceRateExchange(transactionVM.FromCurrency, otherUserAccount.Currency);
-        //     await _context.Transactions.AddAsync(transaction);
-        //     var queryResult = await _context.SaveChangesAsync();
-        //     return queryResult > 0 ? transaction.TransactionId : 0;
-        //
-        // }
-
         public async Task<bool> ConfirmTransaction(int transactionId, string username, bool isConfirm)
         {
             using var safeScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
@@ -140,7 +122,7 @@ namespace Infrastructure.Repositories.Persistence
                 safeScope.Complete();
                 return false;
             }
-            var checkMaxAmountDaily = await CheckMaxOfTransaction(username, transaction.FromAccountId, transaction.Amount);
+            var checkMaxAmountDaily = await CheckMaxOfTransaction(username, transaction.FromAccountId, transaction.Amount, transaction.FromCurrency);
             if (!checkMaxAmountDaily)
             {
                 await CancelTransaction(transactionId);
@@ -170,7 +152,7 @@ namespace Infrastructure.Repositories.Persistence
             var toAccountUpdate = await _accountServices.UpdateMoneyAccount(_mapper.Map<UpdateAccountViewModel>(toAccount));
             var userAccountUpdate = await _accountServices.UpdateAccount(_mapper.Map<UpdateAccountViewModel>(userAccount), transaction.UserId);
             if (userAccountUpdate == 0 || toAccountUpdate == 0) return false;
-
+            transaction.Outer = true;
             transaction.Status = StatusEnum.Completed;
             transaction.CompletedAt = DateTime.UtcNow;
             transaction.DeductedAmount = totalPriceToPay;
@@ -198,7 +180,7 @@ namespace Infrastructure.Repositories.Persistence
             return queryResult > 0 ? recentTransactions : new List<Transaction>();
         }
 
-        public async Task<bool> CheckMaxOfTransaction(string userId, int accountId, decimal price)
+        public async Task<bool> CheckMaxOfTransaction(string userId, int accountId, decimal price, string currency)
         {
             var transactions = await _context.Transactions.Where(x =>
                 x.CompletedAt != null && x.UserId != null && x.Status == StatusEnum.Completed
@@ -206,12 +188,23 @@ namespace Infrastructure.Repositories.Persistence
                 && x.UserId.Equals(userId)
                 && x.FromAccountId.Equals(accountId)
                 && x.Outer).ToListAsync();
-            var balance = transactions.Sum(x => x.Amount);
-            if (balance + price > MaximumTransaction.MaxTransaction)
+            decimal dollarBalance = 0;
+            foreach (var transaction in transactions)
             {
-                return false;
+                // increase & withdraw
+                if (transaction.ToAccountId.Equals(accountId)) continue;
+                // Transform
+                if (transaction.FromCurrency.Equals("USD"))
+                {
+                    dollarBalance += transaction.Amount;
+                }
+                else
+                {
+                    dollarBalance += await _currencyServices.CurrencyConvertor(transaction.FromCurrency, "USD", transaction.Amount);
+                }
             }
-            return true;
+            var dollarPrice = await _currencyServices.CurrencyConvertor(currency, "USD", price);
+            return dollarBalance + dollarPrice <= MaximumTransaction.MaxTransaction;
         }
 
         public async Task<string> GetNameAccountForTransaction(int accountId)

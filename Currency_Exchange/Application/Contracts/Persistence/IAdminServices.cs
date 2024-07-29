@@ -13,5 +13,7 @@ namespace Application.Contracts.Persistence
         public Task<List<DeleteAccountAddressDto>> GetAccountDeleteInfoForAdmin();
         public Task<bool> ActivateAccount(int accountId);
         public Task<bool> DeActivateAccount(int accountId);
+       
+
     }
 }
