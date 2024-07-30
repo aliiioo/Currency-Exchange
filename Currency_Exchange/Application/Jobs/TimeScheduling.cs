@@ -15,7 +15,7 @@ namespace Application.Jobs
 
         public async Task Execute(IJobExecutionContext context)
         {
-            var transactions = await _providerServices.CanceledPendingTransactionsByTimePass(10);
+            await _providerServices.CanceledPendingTransactionsByTimePass(10);
         }
     }
 }

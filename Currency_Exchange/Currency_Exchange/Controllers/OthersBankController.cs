@@ -67,7 +67,7 @@ namespace Currency_Exchange.Controllers
                 const string error = "Don't Have Any Account With This Info";
                 return RedirectToAction("Error", "Home",new {error});
             }
-            return RedirectToAction("Index", new { User.Identity?.Name });
+            return RedirectToAction("Index");
         }
 
 
@@ -106,7 +106,7 @@ namespace Currency_Exchange.Controllers
         {
             var result= await _othersAccountServices.DeleteOthersAccountAsync(accountId,User.GetUserId());
             if (result == false) return Unauthorized();
-            return RedirectToAction("Index", new { User.Identity?.Name });
+            return RedirectToAction("Index");
         }
 
         

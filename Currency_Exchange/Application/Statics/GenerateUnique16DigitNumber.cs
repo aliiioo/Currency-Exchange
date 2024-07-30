@@ -35,18 +35,18 @@ namespace Application.Statics
             }
         }
 
-        public static string FormatNumberWithDashes(string number)
-        {
-            StringBuilder formattedNumber = new StringBuilder();
-            for (int i = 0; i < number.Length; i += 4)
-            {
-                if (i > 0)
-                {
-                    formattedNumber.Append("-");
-                }
-                formattedNumber.Append(number.Substring(i, 4));
-            }
-            return formattedNumber.ToString();
-        }
+        // public static string FormatNumberWithDashes(string number)
+        // {
+        //     StringBuilder formattedNumber = new StringBuilder();
+        //     for (int i = 0; i < number.Length; i += 4)
+        //     {
+        //         if (i > 0)
+        //         {
+        //             formattedNumber.Append("-");
+        //         }
+        //         formattedNumber.Append(number.Substring(i, 4));
+        //     }
+        //     return formattedNumber.ToString();
+        // }
     }
 }

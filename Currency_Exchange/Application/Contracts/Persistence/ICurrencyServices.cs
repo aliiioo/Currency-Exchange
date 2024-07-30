@@ -1,5 +1,7 @@
-﻿using Application.Dtos.CurrencyDtos;
+﻿using System.Dynamic;
+using Application.Dtos.CurrencyDtos;
 using Domain.Entities;
+using System.Collections.Generic;
 
 namespace Application.Contracts.Persistence
 {
@@ -46,8 +48,6 @@ namespace Application.Contracts.Persistence
         public Task<int> CreateExchangeRateCurrency(RateDtos rateVM);
         public Task<bool> UpdateExchangeRateToCurrency(UpdateRateDtos rateVM);
         public Task<bool> DeleteExchangeRateCurrency(int rateId);
-
-
 
 
     }

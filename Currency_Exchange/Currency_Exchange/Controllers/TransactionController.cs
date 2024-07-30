@@ -15,15 +15,13 @@ namespace Currency_Exchange.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IProviderServices _providerServices;
         private readonly IAccountServices _accountServices;
-        private readonly ICurrencyServices _currencyServices;
         private readonly IOthersAccountServices _othersAccountServices;
 
-        public TransactionController(ILogger<HomeController> logger, IProviderServices providerServices, IAccountServices accountServices, ICurrencyServices currencyServices, IOthersAccountServices othersAccountServices)
+        public TransactionController(ILogger<HomeController> logger, IProviderServices providerServices, IAccountServices accountServices, IOthersAccountServices othersAccountServices)
         {
             _logger = logger;
             _providerServices = providerServices;
             _accountServices = accountServices;
-            _currencyServices = currencyServices;
             _othersAccountServices = othersAccountServices;
         }
         public async Task<IActionResult> TransactionsList(int accountId)
@@ -99,7 +97,6 @@ namespace Currency_Exchange.Controllers
                     return RedirectToAction("Error", "Home", new { error });
 
                 }
-
                 return RedirectToAction("TransactionDetail", new { confirmTransactionDto.TransactionId });
             }
             catch (Exception e)

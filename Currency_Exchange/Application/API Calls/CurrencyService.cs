@@ -18,8 +18,8 @@ namespace Application.API_Calls
 
         public async Task<decimal> GetExchangeRateAsync(string fromCurrency, string toCurrency)
         {
-            string api_key = "d30eacd56561ae4df8681c5bfcdf6b23ae033501824d39b82a5f59d51d0c41d4";
-            string url = $"pricemulti?fsyms={fromCurrency}&tsyms={toCurrency}&api_key={api_key}";
+            var api_key = "d30eacd56561ae4df8681c5bfcdf6b23ae033501824d39b82a5f59d51d0c41d4";
+            var url = $"pricemulti?fsyms={fromCurrency}&tsyms={toCurrency}&api_key={api_key}";
 
 
             try

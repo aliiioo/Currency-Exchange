@@ -32,7 +32,7 @@ namespace Currency_Exchange.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateCurrency(CurrencyDto Model)
         {
-            if (!TryValidateModel(model:Model))
+            if (!ModelState.IsValid)
             {
                 return View(model: Model);
             }

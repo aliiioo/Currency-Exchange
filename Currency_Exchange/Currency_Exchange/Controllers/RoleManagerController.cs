@@ -41,7 +41,6 @@ namespace Currency_Exchange.Controllers
         {
             var user = await _userManager.FindByEmailAsync(email);
             if (!user.EmailConfirmed) return RedirectToAction("Index");
-
             if (await _roleManager.RoleExistsAsync(role) == false)
             {
                 return RedirectToAction("Index");

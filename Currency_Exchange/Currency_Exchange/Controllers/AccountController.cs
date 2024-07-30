@@ -19,7 +19,7 @@ namespace Currency_Exchange.Controllers
             _messageSender = messageSender;
             _userManager = userManager;
             _signInManager = signInManager;
-            _roleManager = roleManager; 
+            _roleManager = roleManager;
         }
 
         [HttpGet]
@@ -36,20 +36,21 @@ namespace Currency_Exchange.Controllers
             {
                 if (!model.Email.ToLower().EndsWith(".com"))
                 {
-                    ModelState.AddModelError("","Email Type is Not Normal");
+                    ModelState.AddModelError("", "Email Type is Not Normal");
                     return View(model);
                 }
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email ,PhoneNumber = model.Phone,FullName = model.FullName};
+                if (model.Phone.Length is < 10 or > 14)
+                {
+                    ModelState.AddModelError("", "Mobile should be 11 - 13 Number");
+                    return View(model);
+                }
+                var user = new ApplicationUser { UserName = model.Email, Email = model.Email, PhoneNumber = model.Phone, FullName = model.FullName };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    var emailConfirmationToken =
-                        await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    var emailMessage = Url.Action("ConfirmEmail", "Account",
-                        new { username = user.UserName, token = emailConfirmationToken },
-                            Request.Scheme);
-                    if (emailMessage != null)
-                        _messageSender.SendEmailAsync(model.Email, "Email confirmation", emailMessage);
+                    var emailConfirmationToken =await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var emailMessage = Url.Action("ConfirmEmail", "Account",new { username = user.UserName, token = emailConfirmationToken }, Request.Scheme);
+                    if (emailMessage != null)  _messageSender.SendEmailAsync(user.Email, "Email confirmation", emailMessage);
                     await _userManager.AddToRoleAsync(user, "Customer");
                     await _userManager.AddClaimAsync(user, new Claim("FullName", model.FullName));
                     return RedirectToAction("Login", "Account");
@@ -92,7 +93,7 @@ namespace Currency_Exchange.Controllers
                     return View(model);
                 }
                 var result = await _signInManager.PasswordSignInAsync(
-                    model.Email, model.Password, model.RememberMe,true);
+                    model.Email, model.Password, model.RememberMe, true);
                 if (result.IsLockedOut)
                 {
                     ModelState.AddModelError("", "You Are Lock");

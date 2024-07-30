@@ -13,14 +13,12 @@ namespace Currency_Exchange.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IAccountServices _accountServices;
-        private readonly IOthersAccountServices _othersAccountServices;
         private readonly ICurrencyServices _currencyServices;
 
-        public BankAccountController(ILogger<HomeController> logger, IAccountServices accountServices, IOthersAccountServices othersAccountServices, ICurrencyServices currencyServices)
+        public BankAccountController(ILogger<HomeController> logger, IAccountServices accountServices, ICurrencyServices currencyServices)
         {
             _logger = logger;
             _accountServices = accountServices;
-            _othersAccountServices = othersAccountServices;
             _currencyServices = currencyServices;
         }
         [HttpGet]
@@ -63,14 +61,14 @@ namespace Currency_Exchange.Controllers
             if (!User.GetUserId().Equals(createAccountVM.UserId))
             {
                 _logger.LogError($"Hacker {User.Identity?.Name}");
-                var Error = "You are UnNormal ";
-                return RedirectToAction("Error","Home",new{Error} );
+                const string error = "You are UnNormal ";
+                return RedirectToAction("Error","Home",new{error} );
             }
             var bankId=await _accountServices.CreateAccount(createAccountVM);
             if (bankId != 0) return RedirectToAction("Index", new { User.Identity?.Name });
 
-            const string error = "Money is lower than 50$";
-            return RedirectToAction("Error", "Home",new {error});
+            const string errorMoney = "Money is lower than 50$";
+            return RedirectToAction("Error", "Home",new {errorMoney});
         }
 
         [HttpGet]
@@ -94,8 +92,8 @@ namespace Currency_Exchange.Controllers
             if (User.GetUserId() != accountVM.UserId || account.Balance != accountVM.Balance)
             {
                 _logger.LogError($"Hacker {User.Identity?.Name}");
-                var Error = "You are Hacker";
-                return RedirectToAction("Error", "Home", new { Error });
+                const string error = "You are Hacker";
+                return RedirectToAction("Error", "Home", new { error });
             }
             await _accountServices.UpdateAccount(accountVM, accountVM.UserId);
             return RedirectToAction("Index", new { User.Identity?.Name });
@@ -147,16 +145,16 @@ namespace Currency_Exchange.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ServiceFilter(typeof(SanitizeInputFilter))]
-        public async Task<IActionResult> ConfirmDelete(ConfirmAddressAccountForDeleteDto vmdto)
+        public async Task<IActionResult> ConfirmDelete(ConfirmAddressAccountForDeleteDto confirmAddressDto)
         {
             if (!ModelState.IsValid)
             {
-                return View(vmdto);
+                return View(confirmAddressDto);
             }
-            if (!vmdto.IsConfirm) return RedirectToAction("Index");
-            var result = await _accountServices.DeleteAccountAsync(vmdto.AccountId, User.GetUserId());
+            if (!confirmAddressDto.IsConfirm) return RedirectToAction("Index");
+            var result = await _accountServices.DeleteAccountAsync(confirmAddressDto.AccountId, User.GetUserId());
             if (result == false) return RedirectToAction("Error", "Home");
-            await _accountServices.ConfirmAccountDeleteInfo(vmdto.AccountId, User.GetUserId());
+            await _accountServices.ConfirmAccountDeleteInfo(confirmAddressDto.AccountId, User.GetUserId());
             return RedirectToAction("Index");
         }
 
