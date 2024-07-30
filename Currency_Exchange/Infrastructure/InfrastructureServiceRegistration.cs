@@ -14,6 +14,8 @@ using Infrastructure.Repositories;
 using Infrastructure.Repositories.Persistence;
 using System.Reflection;
 using Application.API_Calls;
+using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 
 namespace Infrastructure
 {
