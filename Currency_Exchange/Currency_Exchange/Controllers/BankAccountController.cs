@@ -58,13 +58,15 @@ namespace Currency_Exchange.Controllers
             {
                 _logger.LogError($"Hacker {User.Identity?.Name}");
                 const string error = "You are UnNormal ";
-                return RedirectToAction("Error","Home",new{error} );
+                return RedirectToAction("Error","Home",new{ error = error} );
             }
             var bankId=await _accountServices.CreateAccountAsync(createAccountVM);
-            if (bankId != 0) return RedirectToAction("Index", new { User.Identity?.Name });
-
+            if (bankId != 0)
+            {
+                return RedirectToAction("Index", new { User.Identity?.Name });
+            }
             const string errorMoney = "Money is lower than 50$";
-            return RedirectToAction("Error", "Home",new {errorMoney});
+            return RedirectToAction("Error", "Home",new { error = errorMoney});
         }
 
         [HttpGet]
@@ -89,7 +91,7 @@ namespace Currency_Exchange.Controllers
             {
                 _logger.LogError($"Hacker {User.Identity?.Name}");
                 const string error = "You are Hacker";
-                return RedirectToAction("Error", "Home", new { error });
+                return RedirectToAction("Error", "Home", new { error=error });
             }
             await _accountServices.UpdateAccountAsync(accountVM, accountVM.UserId);
             return RedirectToAction("Index", new { User.Identity?.Name });
@@ -211,7 +213,7 @@ namespace Currency_Exchange.Controllers
             if (result == false)
             {
                 const string error = "Account must have more than 50$ for Transaction or WithdrawalAsync";
-                return RedirectToAction("Error", "Home", new { error });
+                return RedirectToAction("Error", "Home", new { error = error });
             }
             return RedirectToAction("Index");
             

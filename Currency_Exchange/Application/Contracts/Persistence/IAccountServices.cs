@@ -1,4 +1,5 @@
 ﻿using Application.Dtos.AccountDtos;
+using Application.Dtos.ErrorsDtos;
 using Application.Dtos.OthersAccountDto;
 using Application.Dtos.TransactionDtos;
 using Microsoft.AspNetCore.Mvc.Rendering;

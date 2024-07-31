@@ -26,7 +26,7 @@ namespace Currency_Exchange.Security
                 if (obj == null) return;
 
                 var properties = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                    .Where(p => p.CanRead && p.CanWrite && p.PropertyType == typeof(string));
+                    .Where(p => p.PropertyType == typeof(string));
 
                 foreach (var property in properties)
                 {
@@ -42,14 +42,19 @@ namespace Currency_Exchange.Security
             {
                 return input.Replace("--", "")
                     .Replace(";", "")
+                    .Replace("==", "")
                     .Replace("#", "")
                     .Replace("%", "")
                     .Replace("=", "")
                     .Replace("*", "")
-                    .Replace("SELECT", "")
                     .Replace("select", "")
-                    .Replace("FROM", "")
+                    .Replace("Select", "")
+                    .Replace("SELECT", "")
+                    .Replace("delete", "")
+                    .Replace("Delete", "")
                     .Replace("from", "")
+                    .Replace("From", "")
+                    .Replace("FROM", "")
                     ;
             }
         }

@@ -76,7 +76,7 @@ namespace Currency_Exchange.Controllers
             if (!ValidateCartNumber.IsValidCardNumber(cartNumber))
             {
                 const string error = "cart number is not valid";
-               return RedirectToAction("Error", "Home",new{error});
+               return RedirectToAction("Error", "Home",new{erorr=error});
             }
             var account = await _adminServices.GetAccountByCartNumberForAdminAsync(cartNumber);
             if (account!=null) ViewBag.accountId = account.AccountId;

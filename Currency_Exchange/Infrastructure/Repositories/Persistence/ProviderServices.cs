@@ -99,170 +99,153 @@ namespace Infrastructure.Repositories.Persistence
 
 
 
-        public async Task<bool> ConfirmTransactionAsync(int transactionId, string username, bool isConfirm)
-        {
-            using var safeScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-
-            // Validations
-            var transaction = await _context.Transactions.SingleOrDefaultAsync(x => x.UserId != null && x.TransactionId.Equals(transactionId) && x.UserId.Equals(username));
-
-            if (transaction == null) return false;
-            if (isConfirm == false)
-            {
-                await CancelTransactionAsync(transactionId);
-                safeScope.Complete();
-                return false;
-            }
-            if (transaction.Status.Equals(StatusEnum.Completed) || transaction.Status.Equals(StatusEnum.Cancelled)) return false;
-            var expiredDateTime = transaction.CreatedAt.AddMinutes(10);
-            if (expiredDateTime < DateTime.UtcNow)
-            {
-                await CancelTransactionAsync(transactionId);
-                safeScope.Complete();
-                return false;
-            }
-            var checkMaxAmountDaily = await CheckDailyTransactionThreshold(username, transaction.FromAccountId, transaction.Amount, transaction.FromCurrency);
-            if (!checkMaxAmountDaily)
-            {
-                await CancelTransactionAsync(transactionId);
-                safeScope.Complete();
-                return false;
-            }
-            var userAccount = await _accountServices.GetAccountByIdAsync(transaction.UserId, transaction.FromAccountId);
-            var toAccount = await _accountServices.GetAccountByIdAsync(transaction.ToAccountId);
-            if (toAccount == null || userAccount == null)
-            {
-                await CancelTransactionAsync(transactionId);
-                safeScope.Complete();
-                return false;
-            }
-
-            // processes
-            if (!toAccount.Currency.Equals(transaction.FromCurrency))
-            {
-                toAccount.Balance += await _currencyServices.ConvertCurrencyAsync(userAccount.Currency, toAccount.Currency, transaction.Amount);
-            }
-            else
-            {
-                toAccount.Balance += transaction.Amount;
-            }
-            var totalPriceToPay = transaction.Fee + transaction.Amount;
-            userAccount.Balance -= totalPriceToPay;
-            var toAccountUpdate = await _accountServices.UpdateAccountBalanceAsync(_mapper.Map<UpdateAccountViewModel>(toAccount));
-            var userAccountUpdate = await _accountServices.UpdateAccountAsync(_mapper.Map<UpdateAccountViewModel>(userAccount), transaction.UserId);
-            if (userAccountUpdate == 0 || toAccountUpdate == 0) return false;
-            transaction.Outer = true;
-            transaction.Status = StatusEnum.Completed;
-            transaction.CompletedAt = DateTime.UtcNow;
-            transaction.DeductedAmount = totalPriceToPay;
-            transaction.UserBalance = userAccount.Balance;
-            _context.Transactions.Update(transaction);
-            var result = await _context.SaveChangesAsync() > 0;
-            if (result == false) return false;
-            safeScope.Complete();
-            return true;
-
-        }
-
-
-        //public async Task<ResultDto> ConfirmTransactionAsync(int transactionId, string username)
+        //public async Task<bool> ConfirmTransactionAsync(int transactionId, string userId, bool isConfirm)
         //{
-        //    var res = new ResultDto();
-        //    var invalidStatusForConfirm = new List<StatusEnum>()
-        //    {
-        //        StatusEnum.Cancelled,
-        //        StatusEnum.Completed
-        //    };
+        //    using var safeScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-        //    using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+        //    // Validations
+        //    var transaction = await _context.Transactions.SingleOrDefaultAsync(x => x.UserId != null && x.TransactionId.Equals(transactionId) && x.UserId.Equals(userId));
 
-        //    #region transaction validation
-        //    var transaction = await _context.Transactions.SingleOrDefaultAsync(x => x.UserId != null
-        //                                   && x.TransactionId.Equals(transactionId)
-        //                                   && x.UserId.Equals(username));
-
-        //    if (transaction == null)
-        //    {
-        //        res.Message = "There is no transaction with this Id in DB!";
-        //        return res;
-        //    }
-
-        //    if (invalidStatusForConfirm.Contains(transaction.Status))
-        //    {
-        //        res.Message = "Transaction status is not valid for confirm!";
-        //        return res;
-        //    }
-
+        //    if (transaction == null) return false;
+        //    if (!transaction.Status.Equals(StatusEnum.Pending)) return false;
         //    var expiredDateTime = transaction.CreatedAt.AddMinutes(10);
         //    if (expiredDateTime < DateTime.UtcNow)
         //    {
-        //        res.Message = "Transaction has been expired";
-        //        return res;
+        //        await CancelTransactionAsync(transactionId);
+        //        safeScope.Complete();
+        //        return false;
+        //    }
+        //    var checkMaxAmountDaily = await CheckDailyTransactionThreshold(userId, transaction.FromAccountId, transaction.Amount, transaction.FromCurrency);
+        //    if (!checkMaxAmountDaily)
+        //    {
+        //        await CancelTransactionAsync(transactionId);
+        //        safeScope.Complete();
+        //        return false;
+        //    }
+        //    var userAccount = await _accountServices.GetAccountByIdAsync(transaction.UserId, transaction.FromAccountId);
+        //    var toAccount = await _accountServices.GetAccountByIdAsync(transaction.ToAccountId);
+        //    if (toAccount == null || userAccount == null)
+        //    {
+        //        await CancelTransactionAsync(transactionId);
+        //        safeScope.Complete();
+        //        return false;
         //    }
 
-        //    var isExceededFromThreshold = await CheckDailyTransactionThreshold(username, transaction.FromAccountId, transaction.Amount, transaction.FromCurrency);
-        //    if (!isExceededFromThreshold)
+        //    // processes
+        //    if (!toAccount.Currency.Equals(transaction.FromCurrency))
         //    {
-        //        res.Message = "Transaction amount exceeded from daily threshold";
-        //        return res;
-        //    }
-
-        //    var sourceAccount = await _accountServices.GetAccountByIdAsync(transaction.UserId, transaction.FromAccountId);
-
-        //    var destinationAccount = await _accountServices.GetAccountByIdAsync(transaction.ToAccountId);
-
-        //    if (destinationAccount == null || sourceAccount == null)
-        //    {
-        //        res.Message = "Destination Account or Source Account is invalid!";
-        //        return res;
-        //    }
-
-        //    #endregion
-
-        //    // handle request
-        //    if (!destinationAccount.Currency.Equals(sourceAccount.Currency))
-        //    {
-        //        var convertedAmount = await _currencyServices.ConvertCurrencyAsync(sourceAccount.Currency,
-        //            destinationAccount.Currency, transaction.Amount);
-        //        destinationAccount.Balance += convertedAmount;
+        //        toAccount.Balance += await _currencyServices.ConvertCurrencyAsync(userAccount.Currency, toAccount.Currency, transaction.Amount);
         //    }
         //    else
         //    {
-        //        destinationAccount.Balance += transaction.Amount;
+        //        toAccount.Balance += transaction.Amount;
         //    }
-
-        //    var totalAmountPlusFee = transaction.Fee + transaction.Amount;
-
-        //    sourceAccount.Balance -= totalAmountPlusFee;
-
-        //    var updateDestinationBalanceRes = await _accountServices.UpdateAccountBalanceAsync(_mapper.Map<UpdateAccountViewModel>(destinationAccount));
-        //    var updateSourceBalanceRes = await _accountServices.UpdateAccountAsync(_mapper.Map<UpdateAccountViewModel>(sourceAccount), transaction.UserId);
-
-        //    if (updateSourceBalanceRes == 0 || updateDestinationBalanceRes == 0)
-        //    {
-        //        res.Message = "No records were affected! (Transaction has been rollback!)";
-        //        return res;
-        //    }
-
-        //    // cofirm status of transaction
+        //    var totalPriceToPay = transaction.Fee + transaction.Amount;
+        //    userAccount.Balance -= totalPriceToPay;
+        //    var toAccountUpdate = await _accountServices.UpdateAccountBalanceAsync(_mapper.Map<UpdateAccountViewModel>(toAccount));
+        //    var userAccountUpdate = await _accountServices.UpdateAccountAsync(_mapper.Map<UpdateAccountViewModel>(userAccount), transaction.UserId);
+        //    if (userAccountUpdate == 0 || toAccountUpdate == 0) return false;
         //    transaction.Outer = true;
         //    transaction.Status = StatusEnum.Completed;
         //    transaction.CompletedAt = DateTime.UtcNow;
-        //    transaction.DeductedAmount = totalAmountPlusFee;
-        //    transaction.UserBalance = sourceAccount.Balance;
+        //    transaction.DeductedAmount = totalPriceToPay;
+        //    transaction.UserBalance = userAccount.Balance;
         //    _context.Transactions.Update(transaction);
-
-        //    if (await _context.SaveChangesAsync() <= 0)
-        //    {
-        //        res.Message = "Failed to save changes to the database. No records were affected.";
-        //        return res;
-        //    }
-
-        //    transactionScope.Complete();
-        //    res.IsSucceeded = true;
-        //    return res;
+        //    var result = await _context.SaveChangesAsync() > 0;
+        //    if (result == false) return false;
+        //    safeScope.Complete();
+        //    return true;
 
         //}
+
+
+        public async Task<ResultDto> ConfirmTransactionAsync(int transactionId, string userId)
+        {
+            var res = new ResultDto();
+            using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+            #region transaction validation
+            var transaction = await _context.Transactions.SingleOrDefaultAsync(x => x.UserId != null
+                                           && x.TransactionId.Equals(transactionId)
+                                           && x.UserId.Equals(userId));
+            if (transaction == null)
+            {
+                res.Message = "There is no transaction with this Id in DB!";
+                return res;
+            }
+
+            if (!transaction.Status.Equals(StatusEnum.Pending))
+            {
+                res.Message = "Transaction status is not valid for confirm!";
+                return res;
+            }
+
+            if (transaction.CreatedAt.AddMinutes(10) < DateTime.UtcNow)
+            {
+                res.Message = "Transaction has been expired";
+                return res;
+            }
+
+            var isExceededFromThreshold = await CheckDailyTransactionThreshold(userId, transaction.FromAccountId, transaction.Amount, transaction.FromCurrency);
+            if (!isExceededFromThreshold)
+            {
+                res.Message = "Transaction amount exceeded from daily threshold";
+                return res;
+            }
+
+            var sourceAccount = await _accountServices.GetAccountByIdAsync(transaction.UserId, transaction.FromAccountId);
+            var destinationAccount = await _accountServices.GetAccountByIdAsync(transaction.ToAccountId);
+
+            if (destinationAccount == null || sourceAccount == null)
+            {
+                res.Message = "Destination Account or Source Account is invalid!";
+                return res;
+            }
+
+            #endregion
+
+            // handle request
+            if (!destinationAccount.Currency.Equals(sourceAccount.Currency))
+            {
+                var convertedAmount = await _currencyServices.ConvertCurrencyAsync(sourceAccount.Currency,
+                    destinationAccount.Currency, transaction.Amount);
+                destinationAccount.Balance += convertedAmount;
+            }
+            else
+            {
+                destinationAccount.Balance += transaction.Amount;
+            }
+
+            var totalAmountPlusFee = transaction.Fee + transaction.Amount;
+            sourceAccount.Balance -= totalAmountPlusFee;
+
+            var updateDestinationBalanceRes = await _accountServices.UpdateAccountBalanceAsync(_mapper.Map<UpdateAccountViewModel>(destinationAccount));
+            var updateSourceBalanceRes = await _accountServices.UpdateAccountAsync(_mapper.Map<UpdateAccountViewModel>(sourceAccount), transaction.UserId);
+
+            if (updateSourceBalanceRes == 0 || updateDestinationBalanceRes == 0)
+            {
+                res.Message = "No records were affected! (Transaction has been rollback!)";
+                return res;
+            }
+
+            // confirm status of transaction
+            transaction.Outer = true;
+            transaction.Status = StatusEnum.Completed;
+            transaction.CompletedAt = DateTime.UtcNow;
+            transaction.DeductedAmount = totalAmountPlusFee;
+            transaction.UserBalance = sourceAccount.Balance;
+            _context.Transactions.Update(transaction);
+
+            if (await _context.SaveChangesAsync() <= 0)
+            {
+                res.Message = "Failed to save changes to the database. No records were affected.";
+                return res;
+            }
+            transactionScope.Complete();
+            res.IsSucceeded = true;
+            return res;
+
+        }
 
         public async Task<List<Transaction>> CanceledPendingTransactionsByTimePassAsync(int min)
         {

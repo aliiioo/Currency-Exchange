@@ -150,7 +150,7 @@ namespace Infrastructure.Repositories.Persistence
             if (!await _currency.IsExistCurrencyByCodeAsync(balanceDto.ToCurrency)) return false;
             var account = await _context.Accounts.FirstOrDefaultAsync(x => x.AccountId.Equals(balanceDto.AccountId) && x.UserId.Equals(username));
             if (account == null) return false;
-            if (!balanceDto.ToCurrency.Equals(account.Currency)) return false;
+            if (!balanceDto.ToCurrency.ToUpper().Equals(account.Currency)) return false;
             // processes
             if (balanceDto.FromCurrency != balanceDto.ToCurrency)
             {

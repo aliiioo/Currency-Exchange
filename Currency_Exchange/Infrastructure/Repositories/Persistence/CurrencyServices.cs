@@ -143,7 +143,8 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<bool> IsExistCurrencyByCodeAsync(string codeCurrency)
         {
-            return await _context.Currencies.AnyAsync(x => x.CurrencyCode.Equals(codeCurrency));
+
+            return await _context.Currencies.AnyAsync(x => x.CurrencyCode.Equals(codeCurrency.ToUpper()));
         }
 
         public async Task<bool> IsExistCurrencyByCodeAsync(string firstCodeCurrency, string secondCodeCurrency)
@@ -352,13 +353,28 @@ namespace Infrastructure.Repositories.Persistence
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<int> CreateExchangeFeeToCurrencyAsync(CreateFeeDtos Model)
+        public async Task<ResultDto> CreateExchangeFeeToCurrencyAsync(CreateFeeDtos Model)
         {
+            var result = new ResultDto();
             //validate
-            if (Model.PriceFee is < 0 or > 40) return 0;
-            if (Model.ToCurrency.Equals(Model.FromCurrency)) return 1;
-            var isPriceExecpt = await IsExchangePriceAccept(Model.CurrencyId, Model.PriceFee);
-            if (isPriceExecpt == false) return 0;
+            if (Model.PriceFee is < 0 or > 40)
+            {
+                result.Message="Price Must be in range 0% to 40% ";
+                return result;
+            }
+
+            if (Model.ToCurrency.Equals(Model.FromCurrency))
+            {
+                result.Message = "Don't Have Fee with same Currency ";
+                return result;
+            }
+
+            var isPriceAccept= await IsExchangePriceAccept(Model.CurrencyId, Model.PriceFee);
+            if (isPriceAccept == false)
+            {
+                result.Message = "Fee Price Must be Between Next And Previous";
+                return result;
+            }
 
             var lastOldFee = GetListExchangeFeesAsync(Model.FromCurrency, Model.ToCurrency).Result.LastOrDefault();
             var fee = _mapper.Map<CurrencyExchangeFees>(Model);
@@ -366,7 +382,8 @@ namespace Infrastructure.Repositories.Persistence
             {
                 if (lastOldFee.EndRange + 1 > fee.EndRange)
                 {
-                    return 0;
+                    result.Message = "End Range Must Bigger than Previous";
+                    return result;
                 }
                 fee.StartRange = lastOldFee.EndRange + 1;
             }
@@ -374,10 +391,16 @@ namespace Infrastructure.Repositories.Persistence
             {
                 fee.StartRange = 0;
             }
-            // processes
+            // Handel Request
             await _context.CurrencyExchangeFees.AddAsync(fee);
-            var queryResult = await _context.SaveChangesAsync();
-            return queryResult > 0 ? fee.FeeId : 0;
+            await _context.SaveChangesAsync();
+            if (await _context.SaveChangesAsync()<=0)
+            {
+                result.Message = "Exchange dose not SAve Try it again";
+                return result;
+            }
+            result.IsSucceeded = true;
+            return result;
         }
 
         public async Task<bool> UpdateExchangeFeeToCurrencyAsync(int feeId, decimal feePrice)
@@ -416,7 +439,7 @@ namespace Infrastructure.Repositories.Persistence
         {
 
             var currency = GetListCurrencyAsync().Result
-                .Select(x => new SelectListItem { Value = x.CurrencyCode.ToString(), Text = x.CurrencyCode.ToString() }).ToList();
+                .Select(x => new SelectListItem { Value = x.CurrencyCode.ToUpper().ToString(), Text = x.CurrencyCode.ToString() }).ToList();
             currency.Insert(0, new SelectListItem { Value = "", Text = "Choice" });
             return currency;
         }

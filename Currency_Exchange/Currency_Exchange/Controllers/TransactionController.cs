@@ -57,12 +57,12 @@ namespace Currency_Exchange.Controllers
             {
                 var error = $"{User.Identity?.Name} Want To Hack ";
                 _logger.LogError(error);
-                return RedirectToAction("Error", "Home", new { error });
+                return RedirectToAction("Error", "Home", new { error = error });
             }
             if (transactionDto.SelfAccountId.Equals(int.Parse(transactionDto.OthersAccountIdAsString)))
             {
                 const string error = "Transform to Your Current Account Is Not Allow";
-                return RedirectToAction("Error", "Home", new { error });
+                return RedirectToAction("Error", "Home", new { error = error });
             }
             var transactionId = await _providerServices.TransformCurrencyAsync(transactionDto, User.GetUserId());
             if (transactionId == 0) return BadRequest();
@@ -88,13 +88,18 @@ namespace Currency_Exchange.Controllers
             }
             try
             {
-                var result = await _providerServices.ConfirmTransactionAsync(confirmTransactionDto.TransactionId, User.GetUserId(), confirmTransactionDto.IsConfirm);
-                if (result == false)
+                if (confirmTransactionDto.IsConfirm)
                 {
-                    var error = $" Transaction Wrong May it timeOut Or Limit Money {User.Identity?.Name}";
-                    _logger.LogError(error);
-                    return RedirectToAction("Error", "Home", new { error });
-
+                    var result = await _providerServices.ConfirmTransactionAsync(confirmTransactionDto.TransactionId, User.GetUserId());
+                    if (result.IsSucceeded == false)
+                    {
+                        _logger.LogError(result.Message);
+                        return RedirectToAction("Error", "Home", new { error=result.Message});
+                    }
+                }
+                else
+                {
+                    var result = await _providerServices.CancelTransactionAsync(confirmTransactionDto.TransactionId);
                 }
                 return RedirectToAction("TransactionDetail", new { confirmTransactionDto.TransactionId });
             }
@@ -102,7 +107,7 @@ namespace Currency_Exchange.Controllers
             {
                 var error = $" More Request for Transaction {User.Identity?.Name} for {e}";
                 _logger.LogError(error);
-                return RedirectToAction("Error", "Home", new { Error = error });
+                return RedirectToAction("Error", "Home", new { error = error });
 
             }
         }

@@ -41,13 +41,9 @@ namespace Currency_Exchange.Controllers
                 return View(Model);
             }
             var fee = await _currencyServices.CreateExchangeFeeToCurrencyAsync(Model);
-            if (fee == 0)
+            if (!fee.IsSucceeded)
             {
-                var currency = _currencyServices.GetSelectListItemsCurrency();
-                ViewBag.currency = currency;
-                ViewBag.currentId = Model.CurrencyId;
-                ViewBag.currencyCode = Model.FromCurrency;
-                return View(Model);
+                return RedirectToAction("Error", "Home", new { error = fee.Message });
             }
             return RedirectToAction("index", "CurrencyAccounts");
         }

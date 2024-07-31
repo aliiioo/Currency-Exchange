@@ -42,7 +42,7 @@ namespace Application.Contracts.Persistence
         //Fee's
         public Task<int> CreateTransformFeeToCurrencyAsync(CreateFeeDtos Model);
         public Task<bool> UpdateTransformFeeToCurrencyAsync(int feeId, decimal feePrice);
-        public Task<int> CreateExchangeFeeToCurrencyAsync(CreateFeeDtos Model);
+        public Task<ResultDto> CreateExchangeFeeToCurrencyAsync(CreateFeeDtos Model);
         public Task<bool> UpdateExchangeFeeToCurrencyAsync(int feeId, decimal feePrice);
         public Task<bool> DeleteExchangeFeeToCurrencyAsync(int feeId, int currencyId);
         public Task<bool> DeleteTransformFeeToCurrencyAsync(int feeId, int currencyId);

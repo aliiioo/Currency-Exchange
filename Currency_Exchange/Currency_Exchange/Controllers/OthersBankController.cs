@@ -63,7 +63,7 @@ namespace Currency_Exchange.Controllers
             if (account == 0)
             {
                 const string error = "Don't Have Any Account With This Info";
-                return RedirectToAction("Error", "Home",new {error});
+                return RedirectToAction("Error", "Home",new {error = error});
             }
             return RedirectToAction("Index");
         }
@@ -94,7 +94,7 @@ namespace Currency_Exchange.Controllers
             if (account == 0)
             {
                 const string error = "Don't Have Any Account With This Info";
-                return RedirectToAction("Error", "Home", new { error });
+                return RedirectToAction("Error", "Home", new { error = error });
             }
             return RedirectToAction("Index");
         }

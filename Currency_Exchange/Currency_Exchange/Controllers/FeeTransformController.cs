@@ -64,7 +64,7 @@ namespace Currency_Exchange.Controllers
             }
             var transformFee = await _currencyServices.UpdateTransformFeeToCurrencyAsync(feeId,feePrice);
             const string error = "Price Must be in range next and previous";
-            return transformFee==false ? RedirectToAction("Error", "Home",new {error}) : RedirectToAction("index", "CurrencyAccounts");
+            return transformFee==false ? RedirectToAction("Error", "Home",new {error = error}) : RedirectToAction("index", "CurrencyAccounts");
         }
 
         [HttpGet]
