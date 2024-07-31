@@ -36,23 +36,23 @@ namespace Infrastructure.Repositories.Persistence
             return _mapper.Map<List<AccountViewModel>>(accounts);
         }
 
-        public async Task<List<AccountViewModel>> GetDisActiveAccountsForAdmin()
+        public async Task<List<AccountViewModel>> GetDisActiveAccountsForAdminAsync()
         {
             var accounts = await _context.Accounts.IgnoreQueryFilters().Where(x => !x.IsDeleted && !x.IsActive).ToListAsync();
             return _mapper.Map<List<AccountViewModel>>(accounts);
         }
 
-        public async Task<AccountViewModel> GetAccountByIdForAdmin(int accountId)
+        public async Task<AccountViewModel> GetAccountByIdForAdminAsync(int accountId)
         {
             return _mapper.Map<AccountViewModel>(await _context.Accounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId)));
         }
 
-        public async Task<AccountViewModel> GetAccountByCartNumberForAdmin(string cartNumber)
+        public async Task<AccountViewModel> GetAccountByCartNumberForAdminAsync(string cartNumber)
         {
             return _mapper.Map<AccountViewModel>(await _context.Accounts.SingleOrDefaultAsync(x => x.CartNumber.Equals(cartNumber)));
         }
 
-        public async Task<List<AccountViewModel>> GetUsersAccountsForAdmin(string email)
+        public async Task<List<AccountViewModel>> GetUsersAccountsForAdminAsync(string email)
         {
             var account = await _context.Users.Where(x => x.Email.Equals(email)).SelectMany(x => x.Accounts)
                 .ToListAsync();
@@ -60,13 +60,13 @@ namespace Infrastructure.Repositories.Persistence
 
         }
 
-        public async Task<List<DeleteAccountAddressDto>> GetAccountDeleteInfoForAdmin()
+        public async Task<List<DeleteAccountAddressDto>> GetAccountDeleteInfoForAdminAsync()
         {
             return _mapper.Map<List<DeleteAccountAddressDto>>(await _context.DeletedAccounts.ToListAsync());
 
         }
 
-        public async Task<bool> ActivateAccount(int accountId)
+        public async Task<bool> ActivateAccountAsync(int accountId)
         {
             var account = await _context.Accounts.IgnoreQueryFilters().SingleOrDefaultAsync(x => x.AccountId.Equals(accountId));
             if (account == null) return false;
@@ -76,7 +76,7 @@ namespace Infrastructure.Repositories.Persistence
 
         }
 
-        public async Task<bool> DeActivateAccount(int accountId)
+        public async Task<bool> DeActivateAccountAsync(int accountId)
         {
             var account = await _context.Accounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId));
             if (account == null) return false;

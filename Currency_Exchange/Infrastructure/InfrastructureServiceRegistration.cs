@@ -33,6 +33,7 @@ namespace Infrastructure
             services.AddScoped<IOthersAccountServices, OthersAccountServices>();
             services.AddScoped<IProviderServices,ProviderServices>();
             services.AddScoped<IAdminServices,AdminServices>();
+            services.AddScoped<IUserServices,UserServices>();
             services.AddTransient<IApiServices, CurrencyService>();
            
 

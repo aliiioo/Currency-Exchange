@@ -21,9 +21,7 @@ namespace Currency_Exchange.Controllers
         [HttpGet]
         public IActionResult Create(int currentId,string currencyCode)
         {
-            var currency = _currencyServices.GetListCurrency().Result
-                .Select(x => new SelectListItem { Value = x.CurrencyCode.ToString(), Text = x.CurrencyCode.ToString() }).ToList();
-            currency.Insert(0, new SelectListItem { Value = "", Text = "انتحاب کنید" });
+            var currency = _currencyServices.GetSelectListItemsCurrency();
             ViewBag.currency=currency;
             ViewBag.currentId=currentId;
             ViewBag.currencyCode=currencyCode;
@@ -36,13 +34,11 @@ namespace Currency_Exchange.Controllers
         {
             if (!ModelState.IsValid||string.IsNullOrEmpty(rateDto.ToCurrency))
             {
-                var currency = _currencyServices.GetListCurrency().Result
-                    .Select(x => new SelectListItem { Value = x.CurrencyCode.ToString(), Text = x.CurrencyCode.ToString() }).ToList();
-                currency.Insert(0, new SelectListItem { Value = "", Text = "انتحاب کنید" });
+                var currency = _currencyServices.GetSelectListItemsCurrency();
                 ViewBag.currency = currency;
                 return View(rateDto);
             }
-            var rate = await _currencyServices.CreateExchangeRateCurrency(rateDto);
+            var rate = await _currencyServices.CreateExchangeRateCurrencyAsync(rateDto);
             if (rate == 0)
             {
                 return View(rateDto);
@@ -67,14 +63,14 @@ namespace Currency_Exchange.Controllers
             {
                 return View(rateDto);
             }
-            var transformFee = await _currencyServices.UpdateExchangeRateToCurrency(rateDto);
+            var transformFee = await _currencyServices.UpdateExchangeRateToCurrencyAsync(rateDto);
             return transformFee == false? RedirectToAction("Error", "Home"): RedirectToAction("index", "CurrencyAccounts");
         }
 
         [HttpGet]
         public async Task<IActionResult> Delete(int feeId)
         {
-            var result = await _currencyServices.DeleteExchangeRateCurrency(feeId);
+            var result = await _currencyServices.DeleteExchangeRateCurrencyAsync(feeId);
             return result ? RedirectToAction("Index", "CurrencyAccounts") : RedirectToAction("Error", "Home");
         }
 

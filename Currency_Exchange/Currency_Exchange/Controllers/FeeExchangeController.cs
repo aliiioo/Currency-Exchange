@@ -21,9 +21,7 @@ namespace Currency_Exchange.Controllers
         [HttpGet]
         public IActionResult Create(int currentId, string currencyCode)
         {
-            var currency = _currencyServices.GetListCurrency().Result
-                .Select(x => new SelectListItem { Value = x.CurrencyCode.ToString(), Text = x.CurrencyCode.ToString() }).ToList();
-            currency.Insert(0, new SelectListItem { Value = "", Text = "انتحاب کنید" });
+            var currency = _currencyServices.GetSelectListItemsCurrency();
             ViewBag.currency = currency;
             ViewBag.currentId = currentId;
             ViewBag.currencyCode = currencyCode;
@@ -36,20 +34,16 @@ namespace Currency_Exchange.Controllers
         {
             if (!ModelState.IsValid||string.IsNullOrEmpty(Model.ToCurrency))
             {
-                var currency = _currencyServices.GetListCurrency().Result
-                    .Select(x => new SelectListItem { Value = x.CurrencyCode.ToString(), Text = x.CurrencyCode.ToString() }).ToList();
-                currency.Insert(0, new SelectListItem { Value = "", Text = "انتحاب کنید" });
+                var currency = _currencyServices.GetSelectListItemsCurrency();
                 ViewBag.currency = currency;
                 ViewBag.currentId = Model.CurrencyId;
                 ViewBag.currencyCode = Model.FromCurrency;
                 return View(Model);
             }
-            var fee = await _currencyServices.CreateExchangeFeeToCurrency(Model);
+            var fee = await _currencyServices.CreateExchangeFeeToCurrencyAsync(Model);
             if (fee == 0)
             {
-                var currency = _currencyServices.GetListCurrency().Result
-                    .Select(x => new SelectListItem { Value = x.CurrencyCode.ToString(), Text = x.CurrencyCode.ToString() }).ToList();
-                currency.Insert(0, new SelectListItem { Value = "", Text = "انتحاب کنید" });
+                var currency = _currencyServices.GetSelectListItemsCurrency();
                 ViewBag.currency = currency;
                 ViewBag.currentId = Model.CurrencyId;
                 ViewBag.currencyCode = Model.FromCurrency;
@@ -75,7 +69,7 @@ namespace Currency_Exchange.Controllers
             {
                 return View();
             }
-            var transformFee = await _currencyServices.UpdateExchangeFeeToCurrency(feeId, feePrice);
+            var transformFee = await _currencyServices.UpdateExchangeFeeToCurrencyAsync(feeId, feePrice);
             const string error = "Price Must be in range next and previous";
             return transformFee==false ? RedirectToAction("Error", "Home",new{error}) : RedirectToAction("index", "CurrencyAccounts");
         }
@@ -83,7 +77,7 @@ namespace Currency_Exchange.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int feeId, int currentId)
         {
-            var result = await _currencyServices.DeleteExchangeFeeToCurrency(feeId, currentId);
+            var result = await _currencyServices.DeleteExchangeFeeToCurrencyAsync(feeId, currentId);
             return result ? RedirectToAction("Index", "CurrencyAccounts") : RedirectToAction("Error", "Home");
         }
 

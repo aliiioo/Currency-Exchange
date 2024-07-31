@@ -38,9 +38,7 @@ namespace Currency_Exchange.Controllers
         [HttpGet]
         public IActionResult CreateBankAccount()
         {
-            var currency = _currencyServices.GetListCurrency().Result
-                .Select(x => new SelectListItem { Value = x.CurrencyCode.ToString(), Text = x.CurrencyCode.ToString() }).ToList();
-            currency.Insert(0, new SelectListItem { Value = "", Text = "انتحاب کنید" });
+            var currency = _currencyServices.GetSelectListItemsCurrency();
             ViewBag.currency = currency;
             return View();
         }
@@ -52,9 +50,7 @@ namespace Currency_Exchange.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var currency = _currencyServices.GetListCurrency().Result
-                    .Select(x => new SelectListItem { Value = x.CurrencyCode.ToString(), Text = x.CurrencyCode.ToString() }).ToList();
-                currency.Insert(0, new SelectListItem { Value = "", Text = "انتحاب کنید" });
+                var currency = _currencyServices.GetSelectListItemsCurrency();
                 ViewBag.currency = currency;
                 return View(createAccountVM);
             }
@@ -64,7 +60,7 @@ namespace Currency_Exchange.Controllers
                 const string error = "You are UnNormal ";
                 return RedirectToAction("Error","Home",new{error} );
             }
-            var bankId=await _accountServices.CreateAccount(createAccountVM);
+            var bankId=await _accountServices.CreateAccountAsync(createAccountVM);
             if (bankId != 0) return RedirectToAction("Index", new { User.Identity?.Name });
 
             const string errorMoney = "Money is lower than 50$";
@@ -74,7 +70,7 @@ namespace Currency_Exchange.Controllers
         [HttpGet]
         public async Task<IActionResult> UpdateBankAccount(int accountId)
         {
-            var account = await _accountServices.GetAccountByIdAsyncForUpdate(User.GetUserId(), accountId);
+            var account = await _accountServices.GetAccountByIdForUpdateAsync(User.GetUserId(), accountId);
             return View(account);
 
         }
@@ -95,7 +91,7 @@ namespace Currency_Exchange.Controllers
                 const string error = "You are Hacker";
                 return RedirectToAction("Error", "Home", new { error });
             }
-            await _accountServices.UpdateAccount(accountVM, accountVM.UserId);
+            await _accountServices.UpdateAccountAsync(accountVM, accountVM.UserId);
             return RedirectToAction("Index", new { User.Identity?.Name });
         }
 
@@ -109,7 +105,7 @@ namespace Currency_Exchange.Controllers
             else
             {
                 var result = await _accountServices.DeleteAccountAsync(accountId, User.GetUserId());
-                await _accountServices.SaveAccountAddressForSendMoney(accountId, User.GetUserId(), "");
+                await _accountServices.AccountAddressAsync(accountId, User.GetUserId(), "");
                 if (result == false) return Unauthorized();
                 return RedirectToAction("Index");
             }
@@ -130,7 +126,7 @@ namespace Currency_Exchange.Controllers
             {
                 return View(vmDto);
             }
-            var result= await _accountServices.SaveAccountAddressForSendMoney(vmDto.AccountId, User.GetUserId(),vmDto.Address);
+            var result= await _accountServices.AccountAddressAsync(vmDto.AccountId, User.GetUserId(),vmDto.Address);
             if (result == false) return Unauthorized();
             return RedirectToAction("ConfirmDelete" ,new {vmDto.AccountId});
         }
@@ -138,7 +134,7 @@ namespace Currency_Exchange.Controllers
         [HttpGet]
         public async Task<IActionResult> ConfirmDelete(int accountId)
         {
-            var confirmAccountDelete = await _accountServices.GetConfirmAccountDeleteInfo(accountId, User.GetUserId());
+            var confirmAccountDelete = await _accountServices.GetConfirmAccountDeleteInfoAsync(accountId, User.GetUserId());
             return View(confirmAccountDelete);
         }
 
@@ -154,16 +150,14 @@ namespace Currency_Exchange.Controllers
             if (!confirmAddressDto.IsConfirm) return RedirectToAction("Index");
             var result = await _accountServices.DeleteAccountAsync(confirmAddressDto.AccountId, User.GetUserId());
             if (result == false) return RedirectToAction("Error", "Home");
-            await _accountServices.ConfirmAccountDeleteInfo(confirmAddressDto.AccountId, User.GetUserId());
+            await _accountServices.ConfirmAccountDeleteInfoAsync(confirmAddressDto.AccountId, User.GetUserId());
             return RedirectToAction("Index");
         }
 
         [HttpGet]
         public IActionResult IncreaseBalance(int accountId, string accountCurrency)
         {
-            var currency = _currencyServices.GetListCurrency().Result
-                .Select(x => new SelectListItem { Value = x.CurrencyCode.ToString(), Text = x.CurrencyCode.ToString() }).ToList();
-            currency.Insert(0, new SelectListItem { Value = "", Text = "انتحاب کنید" });
+            var currency = _currencyServices.GetSelectListItemsCurrency();
             ViewBag.currency = currency;
             ViewBag.accountCurrency = accountCurrency;
             ViewBag.accountId = accountId;
@@ -178,7 +172,7 @@ namespace Currency_Exchange.Controllers
             {
                 return View(balanceDto);
             }
-            var result = await _accountServices.IncreaseAccountBalance(balanceDto, User.GetUserId());
+            var result = await _accountServices.IncreaseAccountBalanceAsync(balanceDto, User.GetUserId());
             if (result == false) return Unauthorized();
             return RedirectToAction("Index");
         }
@@ -193,7 +187,7 @@ namespace Currency_Exchange.Controllers
 
         public async Task<IActionResult> UserTransactions()
         {
-            var transactions = await _accountServices.GetUserTransactions(User.GetUserId());
+            var transactions = await _accountServices.GetUserTransactionsAsync(User.GetUserId());
             return View(transactions);
         }
 
@@ -213,10 +207,10 @@ namespace Currency_Exchange.Controllers
             {
                 return View(withdrawalDto);
             }
-            var result = await _accountServices.Withdrawal(withdrawalDto.AccountId, User.GetUserId(), withdrawalDto.Amount);
+            var result = await _accountServices.WithdrawalAsync(withdrawalDto.AccountId, User.GetUserId(), withdrawalDto.Amount);
             if (result == false)
             {
-                const string error = "Account must have more than 50$ for Transaction or Withdrawal";
+                const string error = "Account must have more than 50$ for Transaction or WithdrawalAsync";
                 return RedirectToAction("Error", "Home", new { error });
             }
             return RedirectToAction("Index");

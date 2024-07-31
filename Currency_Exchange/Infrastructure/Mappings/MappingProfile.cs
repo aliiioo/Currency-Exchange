@@ -43,6 +43,7 @@ namespace Infrastructure.Mappings
             CreateMap<AccountViewModel, UpdateAccountViewModel>().ReverseMap();
             CreateMap<DeletedAccount, ConfirmAddressAccountForDeleteDto>().ReverseMap();
             CreateMap<DeletedAccount, DeleteAccountAddressDto>().ReverseMap();
+            CreateMap<AccountViewModel, OtherAccountViewModel>().ReverseMap();
 
 
         }

@@ -7,6 +7,7 @@ using Domain.Entities;
 using Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using System.Transactions;
+using Application.Dtos.ErrorsDtos;
 using Transaction = Domain.Entities.Transaction;
 
 namespace Infrastructure.Repositories.Persistence
@@ -26,12 +27,12 @@ namespace Infrastructure.Repositories.Persistence
             _mapper = mapper;
         }
 
-        public async Task<TransactionDto> GetTransaction(int idTransaction)
+        public async Task<TransactionDto> GetTransactionAsync(int idTransaction)
         {
             return _mapper.Map<TransactionDto>(await _context.Transactions.SingleOrDefaultAsync(x => x.TransactionId.Equals(idTransaction)));
         }
 
-        public async Task<ConfirmTransactionDto> GetConfirmTransaction(int idTransaction, string userId)
+        public async Task<ConfirmTransactionDto> GetConfirmTransactionAsync(int idTransaction, string userId)
         {
             var confirmTransaction = _mapper.Map<ConfirmTransactionDto>(await _context.Transactions.SingleOrDefaultAsync(x => x.UserId != null && x.TransactionId.Equals(idTransaction) && x.UserId.Equals(userId)));
             // Get Name Of Accounts
@@ -40,7 +41,7 @@ namespace Infrastructure.Repositories.Persistence
             return confirmTransaction;
         }
 
-        public async Task<TransactionDetailDto> GetDetailTransaction(int idTransaction, string userId)
+        public async Task<TransactionDetailDto> GetDetailTransactionAsync(int idTransaction, string userId)
         {
             var confirmTransaction = _mapper.Map<TransactionDetailDto>(await _context.Transactions.SingleOrDefaultAsync(x => x.UserId != null && x.TransactionId.Equals(idTransaction) && x.UserId.Equals(userId)));
             // Get Name Of Accounts
@@ -49,17 +50,17 @@ namespace Infrastructure.Repositories.Persistence
             return confirmTransaction;
         }
 
-        public async Task<List<TransactionDto>> GetListTransactions(int fromIdAccount)
+        public async Task<List<TransactionDto>> GetListTransactionsAsync(int fromIdAccount)
         {
             return _mapper.Map<List<TransactionDto>>(await _context.Transactions.Where(x => x.FromAccountId.Equals(fromIdAccount)).ToListAsync());
         }
 
-        public async Task<List<UsersTransactionsDto>> GetListTransactionsForAdmin()
+        public async Task<List<UsersTransactionsDto>> GetListTransactionsForAdminAsync()
         {
             return _mapper.Map<List<UsersTransactionsDto>>(await _context.Transactions.ToListAsync());
         }
 
-        public async Task<bool> CancelTransaction(int transactionId)
+        public async Task<bool> CancelTransactionAsync(int transactionId)
         {
             var transaction = await _context.Transactions.SingleOrDefaultAsync(x => x.TransactionId.Equals(transactionId));
             if (transaction == null)
@@ -71,18 +72,18 @@ namespace Infrastructure.Repositories.Persistence
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<int> TransformCurrency(CreateTransactionDtos transactionVM, string username)
+        public async Task<int> TransformCurrencyAsync(CreateTransactionDtos transactionVM, string username)
         {
             //validate
-            var isUserAccount = await _accountServices.IsAccountForUser(username, transactionVM.SelfAccountId);
+            var isUserAccount = await _accountServices.IsAccountForUserAsync(username, transactionVM.SelfAccountId);
             if (!isUserAccount) return 0;
             var otherAccount = await _accountServices.GetAccountByIdAsync(int.Parse(transactionVM.OthersAccountIdAsString));
             if (otherAccount == null) return 0;
             // processes
             var transaction = _mapper.Map<Transaction>(transactionVM);
             transaction.Status = StatusEnum.Pending;
-            transaction.ExchangeRate = await _currencyServices.GetPriceRateExchange(transactionVM.FromCurrency, otherAccount.Currency);
-            var isUsersSelfAccount = await _accountServices.IsAccountForUser(username, int.Parse(transactionVM.OthersAccountIdAsString));
+            transaction.ExchangeRate = await _currencyServices.GetPriceRateExchangeAsync(transactionVM.FromCurrency, otherAccount.Currency);
+            var isUsersSelfAccount = await _accountServices.IsAccountForUserAsync(username, int.Parse(transactionVM.OthersAccountIdAsString));
             if (!isUsersSelfAccount)
             {
                 transaction.Fee = await _currencyServices.GetTransformFeeCurrencyAsync(transactionVM.FromCurrency, otherAccount.Currency, transactionVM.Amount);
@@ -96,15 +97,19 @@ namespace Infrastructure.Repositories.Persistence
         }
 
 
-        public async Task<bool> ConfirmTransaction(int transactionId, string username, bool isConfirm)
+
+
+        public async Task<bool> ConfirmTransactionAsync(int transactionId, string username, bool isConfirm)
         {
             using var safeScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
             // Validations
             var transaction = await _context.Transactions.SingleOrDefaultAsync(x => x.UserId != null && x.TransactionId.Equals(transactionId) && x.UserId.Equals(username));
+
             if (transaction == null) return false;
             if (isConfirm == false)
             {
-                await CancelTransaction(transactionId);
+                await CancelTransactionAsync(transactionId);
                 safeScope.Complete();
                 return false;
             }
@@ -112,14 +117,14 @@ namespace Infrastructure.Repositories.Persistence
             var expiredDateTime = transaction.CreatedAt.AddMinutes(10);
             if (expiredDateTime < DateTime.UtcNow)
             {
-                await CancelTransaction(transactionId);
+                await CancelTransactionAsync(transactionId);
                 safeScope.Complete();
                 return false;
             }
-            var checkMaxAmountDaily = await CheckMaxOfTransaction(username, transaction.FromAccountId, transaction.Amount, transaction.FromCurrency);
+            var checkMaxAmountDaily = await CheckDailyTransactionThreshold(username, transaction.FromAccountId, transaction.Amount, transaction.FromCurrency);
             if (!checkMaxAmountDaily)
             {
-                await CancelTransaction(transactionId);
+                await CancelTransactionAsync(transactionId);
                 safeScope.Complete();
                 return false;
             }
@@ -127,7 +132,7 @@ namespace Infrastructure.Repositories.Persistence
             var toAccount = await _accountServices.GetAccountByIdAsync(transaction.ToAccountId);
             if (toAccount == null || userAccount == null)
             {
-                await CancelTransaction(transactionId);
+                await CancelTransactionAsync(transactionId);
                 safeScope.Complete();
                 return false;
             }
@@ -135,7 +140,7 @@ namespace Infrastructure.Repositories.Persistence
             // processes
             if (!toAccount.Currency.Equals(transaction.FromCurrency))
             {
-                toAccount.Balance += await _currencyServices.CurrencyConvertor(userAccount.Currency, toAccount.Currency, transaction.Amount);
+                toAccount.Balance += await _currencyServices.ConvertCurrencyAsync(userAccount.Currency, toAccount.Currency, transaction.Amount);
             }
             else
             {
@@ -143,8 +148,8 @@ namespace Infrastructure.Repositories.Persistence
             }
             var totalPriceToPay = transaction.Fee + transaction.Amount;
             userAccount.Balance -= totalPriceToPay;
-            var toAccountUpdate = await _accountServices.UpdateMoneyAccount(_mapper.Map<UpdateAccountViewModel>(toAccount));
-            var userAccountUpdate = await _accountServices.UpdateAccount(_mapper.Map<UpdateAccountViewModel>(userAccount), transaction.UserId);
+            var toAccountUpdate = await _accountServices.UpdateAccountBalanceAsync(_mapper.Map<UpdateAccountViewModel>(toAccount));
+            var userAccountUpdate = await _accountServices.UpdateAccountAsync(_mapper.Map<UpdateAccountViewModel>(userAccount), transaction.UserId);
             if (userAccountUpdate == 0 || toAccountUpdate == 0) return false;
             transaction.Outer = true;
             transaction.Status = StatusEnum.Completed;
@@ -159,7 +164,107 @@ namespace Infrastructure.Repositories.Persistence
 
         }
 
-        public async Task<List<Transaction>> CanceledPendingTransactionsByTimePass(int min)
+
+        //public async Task<ResultDto> ConfirmTransactionAsync(int transactionId, string username)
+        //{
+        //    var res = new ResultDto();
+        //    var invalidStatusForConfirm = new List<StatusEnum>()
+        //    {
+        //        StatusEnum.Cancelled,
+        //        StatusEnum.Completed
+        //    };
+
+        //    using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+        //    #region transaction validation
+        //    var transaction = await _context.Transactions.SingleOrDefaultAsync(x => x.UserId != null
+        //                                   && x.TransactionId.Equals(transactionId)
+        //                                   && x.UserId.Equals(username));
+
+        //    if (transaction == null)
+        //    {
+        //        res.Message = "There is no transaction with this Id in DB!";
+        //        return res;
+        //    }
+
+        //    if (invalidStatusForConfirm.Contains(transaction.Status))
+        //    {
+        //        res.Message = "Transaction status is not valid for confirm!";
+        //        return res;
+        //    }
+
+        //    var expiredDateTime = transaction.CreatedAt.AddMinutes(10);
+        //    if (expiredDateTime < DateTime.UtcNow)
+        //    {
+        //        res.Message = "Transaction has been expired";
+        //        return res;
+        //    }
+
+        //    var isExceededFromThreshold = await CheckDailyTransactionThreshold(username, transaction.FromAccountId, transaction.Amount, transaction.FromCurrency);
+        //    if (!isExceededFromThreshold)
+        //    {
+        //        res.Message = "Transaction amount exceeded from daily threshold";
+        //        return res;
+        //    }
+
+        //    var sourceAccount = await _accountServices.GetAccountByIdAsync(transaction.UserId, transaction.FromAccountId);
+
+        //    var destinationAccount = await _accountServices.GetAccountByIdAsync(transaction.ToAccountId);
+
+        //    if (destinationAccount == null || sourceAccount == null)
+        //    {
+        //        res.Message = "Destination Account or Source Account is invalid!";
+        //        return res;
+        //    }
+
+        //    #endregion
+
+        //    // handle request
+        //    if (!destinationAccount.Currency.Equals(sourceAccount.Currency))
+        //    {
+        //        var convertedAmount = await _currencyServices.ConvertCurrencyAsync(sourceAccount.Currency,
+        //            destinationAccount.Currency, transaction.Amount);
+        //        destinationAccount.Balance += convertedAmount;
+        //    }
+        //    else
+        //    {
+        //        destinationAccount.Balance += transaction.Amount;
+        //    }
+
+        //    var totalAmountPlusFee = transaction.Fee + transaction.Amount;
+
+        //    sourceAccount.Balance -= totalAmountPlusFee;
+
+        //    var updateDestinationBalanceRes = await _accountServices.UpdateAccountBalanceAsync(_mapper.Map<UpdateAccountViewModel>(destinationAccount));
+        //    var updateSourceBalanceRes = await _accountServices.UpdateAccountAsync(_mapper.Map<UpdateAccountViewModel>(sourceAccount), transaction.UserId);
+
+        //    if (updateSourceBalanceRes == 0 || updateDestinationBalanceRes == 0)
+        //    {
+        //        res.Message = "No records were affected! (Transaction has been rollback!)";
+        //        return res;
+        //    }
+
+        //    // cofirm status of transaction
+        //    transaction.Outer = true;
+        //    transaction.Status = StatusEnum.Completed;
+        //    transaction.CompletedAt = DateTime.UtcNow;
+        //    transaction.DeductedAmount = totalAmountPlusFee;
+        //    transaction.UserBalance = sourceAccount.Balance;
+        //    _context.Transactions.Update(transaction);
+
+        //    if (await _context.SaveChangesAsync() <= 0)
+        //    {
+        //        res.Message = "Failed to save changes to the database. No records were affected.";
+        //        return res;
+        //    }
+
+        //    transactionScope.Complete();
+        //    res.IsSucceeded = true;
+        //    return res;
+
+        //}
+
+        public async Task<List<Transaction>> CanceledPendingTransactionsByTimePassAsync(int min)
         {
             var timer = DateTime.UtcNow.AddMinutes(-min);
             var recentTransactions = await _context.Transactions
@@ -174,19 +279,19 @@ namespace Infrastructure.Repositories.Persistence
             return queryResult > 0 ? recentTransactions : new List<Transaction>();
         }
 
-        public async Task<bool> CheckMaxOfTransaction(string userId, int accountId, decimal price, string currency)
+        public async Task<bool> CheckDailyTransactionThreshold(string userId, int sourceAccountId, decimal transactionAmount, string transactionCurrency)
         {
             var transactions = await _context.Transactions.Where(x =>
                 x.CompletedAt != null && x.UserId != null && x.Status == StatusEnum.Completed
                 && x.CompletedAt.Value.Date.Equals(DateTime.UtcNow.Date)
                 && x.UserId.Equals(userId)
-                && x.FromAccountId.Equals(accountId)
+                && x.FromAccountId.Equals(sourceAccountId)
                 && x.Outer).ToListAsync();
             decimal dollarBalance = 0;
             foreach (var transaction in transactions)
             {
                 // increase & withdraw
-                if (transaction.ToAccountId.Equals(accountId)) continue;
+                if (transaction.ToAccountId.Equals(sourceAccountId)) continue;
                 // Transform
                 if (transaction.FromCurrency.Equals("USD"))
                 {
@@ -194,10 +299,10 @@ namespace Infrastructure.Repositories.Persistence
                 }
                 else
                 {
-                    dollarBalance += await _currencyServices.CurrencyConvertor(transaction.FromCurrency, "USD", transaction.Amount);
+                    dollarBalance += await _currencyServices.ConvertCurrencyAsync(transaction.FromCurrency, "USD", transaction.Amount);
                 }
             }
-            var dollarPrice = await _currencyServices.CurrencyConvertor(currency, "USD", price);
+            var dollarPrice = await _currencyServices.ConvertCurrencyAsync(transactionCurrency, "USD", transactionAmount);
             return dollarBalance + dollarPrice <= MaximumTransaction.MaxTransaction;
         }
 

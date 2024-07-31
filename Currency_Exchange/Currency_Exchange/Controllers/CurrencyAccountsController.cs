@@ -17,7 +17,7 @@ namespace Currency_Exchange.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            var listCurrency =await _currencyServices.GetListCurrency();
+            var listCurrency =await _currencyServices.GetListCurrencyAsync();
             return View(listCurrency);
         }
         [Authorize(Roles = "Admin")]
@@ -36,8 +36,8 @@ namespace Currency_Exchange.Controllers
             {
                 return View(model: Model);
             }
-            var result= await _currencyServices.CreateCurrency(Model);
-            if (result==0)
+            var result= await _currencyServices.CreateCurrencyAsync(Model);
+            if (!result.IsSucceeded)
             {
                 return View(model: Model);
             }

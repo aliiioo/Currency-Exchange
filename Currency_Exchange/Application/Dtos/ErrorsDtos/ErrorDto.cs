@@ -8,7 +8,7 @@ namespace Application.Dtos.ErrorsDtos
 {
     public class ResultDto
     {
-        public bool Result { get; set; }=false;
-        public string ErrorMessage { get; set; }=string.Empty;
+        public bool IsSucceeded { get; set; }=false;
+        public string Message { get; set; }=string.Empty;
     }
 }

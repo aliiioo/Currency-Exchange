@@ -27,13 +27,13 @@ namespace Currency_Exchange.Controllers
 
         public async Task<IActionResult> AccountTransactions(int accountId)
         {
-            var accounts = await _providerServices.GetListTransactions(accountId);
+            var accounts = await _providerServices.GetListTransactionsAsync(accountId);
             return View(accounts);
         }
 
         public async Task<IActionResult> AllTransactions()
         {
-            var accounts = await _providerServices.GetListTransactionsForAdmin();
+            var accounts = await _providerServices.GetListTransactionsForAdminAsync();
             return View(accounts);
         }
 
@@ -45,7 +45,7 @@ namespace Currency_Exchange.Controllers
 
         public async Task<IActionResult> DisActiveAccounts()
         {
-            var accounts = await _adminServices.GetDisActiveAccountsForAdmin();
+            var accounts = await _adminServices.GetDisActiveAccountsForAdminAsync();
             return View(accounts);
         }
 
@@ -53,20 +53,20 @@ namespace Currency_Exchange.Controllers
         [HttpGet]
         public async Task<IActionResult> DeActivateAccount(int accountId)
         {
-            var result = await _adminServices.DeActivateAccount(accountId);
+            var result = await _adminServices.DeActivateAccountAsync(accountId);
             return result ? RedirectToAction("Accounts") : RedirectToAction("Error", "Home");
         }
 
         [HttpGet]
         public async Task<IActionResult> ActivateAccount(int accountId)
         {
-            var result = await _adminServices.ActivateAccount(accountId);
+            var result = await _adminServices.ActivateAccountAsync(accountId);
             return result == true ? RedirectToAction("Accounts") : RedirectToAction("Error", "Home");
         }
 
         public async Task<IActionResult> SearchAccountById(int accountId = 0)
         {
-            var account = await _adminServices.GetAccountByIdForAdmin(accountId);
+            var account = await _adminServices.GetAccountByIdForAdminAsync(accountId);
             ViewBag.accountId = accountId;
             return View(account);
 
@@ -78,19 +78,15 @@ namespace Currency_Exchange.Controllers
                 const string error = "cart number is not valid";
                return RedirectToAction("Error", "Home",new{error});
             }
-            var account = await _adminServices.GetAccountByCartNumberForAdmin(cartNumber);
-            if (account!=null)
-            {
-                ViewBag.accountId = account.AccountId;
-            }
-           
+            var account = await _adminServices.GetAccountByCartNumberForAdminAsync(cartNumber);
+            if (account!=null) ViewBag.accountId = account.AccountId;
             return View(account);
         }
 
 
         public async Task<IActionResult> AllDeletedAccountWithAddress()
         {
-            var accounts =await _adminServices.GetAccountDeleteInfoForAdmin();
+            var accounts =await _adminServices.GetAccountDeleteInfoForAdminAsync();
             return View(accounts);
         }
 

@@ -15,29 +15,28 @@ namespace Currency_Exchange.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IProviderServices _providerServices;
         private readonly IAccountServices _accountServices;
-        private readonly IOthersAccountServices _othersAccountServices;
 
-        public TransactionController(ILogger<HomeController> logger, IProviderServices providerServices, IAccountServices accountServices, IOthersAccountServices othersAccountServices)
+        public TransactionController(ILogger<HomeController> logger, IProviderServices providerServices, IAccountServices accountServices)
         {
             _logger = logger;
             _providerServices = providerServices;
             _accountServices = accountServices;
-            _othersAccountServices = othersAccountServices;
         }
         public async Task<IActionResult> TransactionsList(int accountId)
         {
-            var transactions = await _providerServices.GetListTransactions(accountId);
+            var transactions = await _providerServices.GetListTransactionsAsync(accountId);
             return View(transactions);
         }
 
         [HttpGet]
-        public IActionResult TransactionAmount(int accountId, string fromCurrency)
+        public async Task<IActionResult> TransactionAmount(int accountId, string fromCurrency)
         {
-            var othersAccount = _othersAccountServices.GetListOthersAccountsByNameAsync(User.GetUserId()).Result
-                .Select(x => new SelectListItem { Value = x.RealAccountId.ToString(), Text = x.CartNumber + "-" + x.AccountName.ToString()+"( Other )" }).ToList();
-            othersAccount.AddRange(_accountServices.GetListAccountsByNameAsync(User.GetUserId()).Result
-                .Select(x => new SelectListItem { Value = x.AccountId.ToString(), Text = x.CartNumber + "-" + x.AccountName.ToString() }).ToList());
-            othersAccount.Insert(0, new SelectListItem { Value = "", Text = "انتحاب کنید" });
+            var allAccounts=await _accountServices.GetAccountsListAsync(User.GetUserId());
+            var othersAccount = allAccounts
+            .Select(x => new SelectListItem { Value = x.RealAccountId.ToString(), Text = x.CartNumber + "-" + x.AccountName.ToString()}).ToList();
+            // othersAccount.AddRange(GetListAccountsByNameAsync(username).IsSucceeded
+            //     .Select(x => new SelectListItem { Value = x.AccountId.ToString(), Text = x.CartNumber + "-" + x.AccountName.ToString() }).ToList());
+            // othersAccount.Insert(0, new SelectListItem { Value = "", Text = "انتحاب کنید" });
             ViewBag.othersAccount = othersAccount;
             ViewBag.fromCurrency = fromCurrency;
             ViewBag.accountId = accountId;
@@ -65,7 +64,7 @@ namespace Currency_Exchange.Controllers
                 const string error = "Transform to Your Current Account Is Not Allow";
                 return RedirectToAction("Error", "Home", new { error });
             }
-            var transactionId = await _providerServices.TransformCurrency(transactionDto, User.GetUserId());
+            var transactionId = await _providerServices.TransformCurrencyAsync(transactionDto, User.GetUserId());
             if (transactionId == 0) return BadRequest();
             return RedirectToAction("ConfirmTransaction", new { transactionId });
 
@@ -74,7 +73,7 @@ namespace Currency_Exchange.Controllers
         [HttpGet]
         public async Task<IActionResult> ConfirmTransaction(int transactionId)
         {
-            var transaction = await _providerServices.GetConfirmTransaction(transactionId, User.GetUserId());
+            var transaction = await _providerServices.GetConfirmTransactionAsync(transactionId, User.GetUserId());
             return View(transaction);
         }
 
@@ -89,7 +88,7 @@ namespace Currency_Exchange.Controllers
             }
             try
             {
-                var result = await _providerServices.ConfirmTransaction(confirmTransactionDto.TransactionId, User.GetUserId(), confirmTransactionDto.IsConfirm);
+                var result = await _providerServices.ConfirmTransactionAsync(confirmTransactionDto.TransactionId, User.GetUserId(), confirmTransactionDto.IsConfirm);
                 if (result == false)
                 {
                     var error = $" Transaction Wrong May it timeOut Or Limit Money {User.Identity?.Name}";
@@ -111,7 +110,7 @@ namespace Currency_Exchange.Controllers
         [HttpGet]
         public async Task<IActionResult> TransactionDetail(int transactionId)
         {
-            var transaction = await _providerServices.GetDetailTransaction(transactionId, userId: User.GetUserId());
+            var transaction = await _providerServices.GetDetailTransactionAsync(transactionId, userId: User.GetUserId());
             return View(transaction);
         }
 

@@ -40,9 +40,7 @@ namespace Currency_Exchange.Controllers
         [HttpGet]
         public IActionResult CreateOthersBankAccount()
         {
-            var currency = _currencyServices.GetListCurrency().Result
-                .Select(x => new SelectListItem { Value = x.CurrencyCode.ToString(), Text = x.CurrencyCode.ToString()}).ToList();
-            currency.Insert(0, new SelectListItem { Value = "", Text = "انتحاب کنید" });
+            var currency = _currencyServices.GetSelectListItemsCurrency();
             ViewBag.currency= currency;
             return View();
         }

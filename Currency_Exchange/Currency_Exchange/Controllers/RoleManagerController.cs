@@ -66,7 +66,7 @@ namespace Currency_Exchange.Controllers
             {
                 return BadRequest();
             }
-            var accounts =await _adminServices.GetUsersAccountsForAdmin(email);
+            var accounts =await _adminServices.GetUsersAccountsForAdminAsync(email);
             return View(accounts);
         }
 

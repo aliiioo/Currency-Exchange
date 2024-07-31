@@ -33,25 +33,29 @@ namespace Infrastructure.Repositories.Persistence
         {
             var isValidPhoneNumber = ValidatePhoneNumber(model.Phone);
             var isValidEmail = ValidateEmail(model.Email);
-            if (!isValidEmail.Result)
+            if (!isValidEmail.IsSucceeded)
             {
                 return isValidEmail;
             }
-            return !isValidPhoneNumber.Result ? isValidPhoneNumber : new ResultDto();
+            if (!isValidPhoneNumber.IsSucceeded)
+            {
+                return isValidPhoneNumber;
+            }
+            return new ResultDto(){IsSucceeded = true};
         }
 
         public ResultDto ValidateEmail(string email)
         {
             var regex = new Regex(@"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$");
             var match = regex.Match(email);
-            return match.Success ? new ResultDto() { Result = true } : new ResultDto() { Result = false, ErrorMessage = "Email is Not True Format" };
+            return match.Success ? new ResultDto() { IsSucceeded = true } : new ResultDto() { IsSucceeded = false, Message = "Email is Not True Format" };
         }
 
         public ResultDto ValidatePhoneNumber(string phone)
         {
             var regex = new Regex(@"\(?\d{3}\)?-? *\d{3}-? *-?\d{4}");
             var match = regex.Match(phone);
-            return match.Success ? new ResultDto() { Result = true } : new ResultDto() { Result = false, ErrorMessage = "Phone Number is Not True Format" };
+            return match.Success ? new ResultDto() { IsSucceeded = true } : new ResultDto() { IsSucceeded = false, Message = "Phone Number is Not True Format" };
         }
 
         public async Task<ApplicationUser?> RegisterAsync(RegisterViewModel model)
@@ -66,23 +70,24 @@ namespace Infrastructure.Repositories.Persistence
             return null;
         }
 
-        public async Task ConfigureEmail(ApplicationUser user,string domain)
+        public async Task SendConfirmationEmail(ApplicationUser user,string domain)
         {
             var emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var url= $"{domain}/Account/CheckEmailConfirmtion?username={user.UserName}&token={emailConfirmationToken}";
-            // var url = Url.Action("CheckEmailConfirmtion", "Account", new { username = user.UserName, token = emailConfirmationToken }, Request.Scheme);
-            _messageSender.SendEmailAsync(user.Email, "Email confirmation", url);
+            var url= $"{domain}/Account/ConfirmEmail?username={user.UserName}&token={Uri.EscapeDataString(emailConfirmationToken)}";
+            // var url = Url.Action("CheckEmailConfirmation", "Account", new { username = user.UserName, token = emailConfirmationToken }, Request.Scheme);
+            _messageSender.SendEmailAsync(user.Email, "Email confirmation", $"Please confirm your account by <a href='{url}'>clicking here</a>;.",true);
         }
 
-        public async Task<ResultDto> CheckEmailConfirmtion(LoginViewModel model)
+        public async Task<ResultDto> CheckEmailConfirmation(LoginViewModel model)
         {
             var result = new ResultDto(); 
             var user = await _userManager.FindByNameAsync(model.Email);
             if (user.EmailConfirmed == false)
             {
-                result.ErrorMessage = "Email Not Confirm";
+                result.Message = "Email Not Confirm";
                 return result;
             }
+            result.IsSucceeded=true;
             return result;
 
         }
@@ -90,10 +95,10 @@ namespace Infrastructure.Repositories.Persistence
         public async Task<ResultDto> SignIn(LoginViewModel model)
         {
             var signInRes= new ResultDto();
-            var isEmailConfirm = await CheckEmailConfirmtion(model);
-            if (!isEmailConfirm.Result)
+            var isEmailConfirm = await CheckEmailConfirmation(model);
+            if (!isEmailConfirm.IsSucceeded)
             {
-                signInRes.ErrorMessage = "Email IS not confirmed";
+                signInRes.Message = "Email IS not confirmed";
                 return signInRes;
             }
             return signInRes;
@@ -104,10 +109,10 @@ namespace Infrastructure.Repositories.Persistence
             var result = new ResultDto();
             if (!userLogin.Succeeded)
             {
-                result.ErrorMessage = userLogin.IsLockedOut ? "Your Account is Lock Try it After 10 Min" : "Username or Password is wrong!";
+                result.Message = userLogin.IsLockedOut ? "Your Account is Lock Try it After 10 Min" : "Username or Password is wrong!";
                 return result;
             }
-            result.Result = true;
+            result.IsSucceeded = true;
             return result;
         }
     }

@@ -33,16 +33,16 @@ namespace Currency_Exchange.Controllers
             if (!ModelState.IsValid) return View(model);
 
             var isValidate=_userServices.ValidateModel(model);
-            if (!isValidate.Result)
+            if (!isValidate.IsSucceeded)
             {
-                ModelState.AddModelError("", isValidate.ErrorMessage);
+                ModelState.AddModelError("", isValidate.Message);
                 return View(model);
             }
             var user=await _userServices.RegisterAsync(model); 
             if (user !=null)
             {
                 var domain = $"{Request.Scheme}://{Request.Host}";
-                await _userServices.ConfigureEmail(user, domain);
+                await _userServices.SendConfirmationEmail(user, domain);
                 return RedirectToAction("Login", "Account");
             }
             return View(model);
@@ -63,17 +63,18 @@ namespace Currency_Exchange.Controllers
         {
             if (_signInManager.IsSignedIn(User))
                 return RedirectToAction("Index", "Home");
+
             if (!ModelState.IsValid) return View(model);
 
-            var isEmailConfirm= await _userServices.CheckEmailConfirmtion(model);
-            if (!isEmailConfirm.Result)
+            var isEmailConfirm= await _userServices.CheckEmailConfirmation(model);
+            if (!isEmailConfirm.IsSucceeded)
             {
-                ModelState.AddModelError("",isEmailConfirm.ErrorMessage);
+                ModelState.AddModelError("",isEmailConfirm.Message);
                 return View(model);
             }
             var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, true);
             var loginResult= await _userServices.CheckLoginStatus(result);
-            if (!loginResult.Result)
+            if (!loginResult.IsSucceeded)
             {
                 ModelState.AddModelError("", "Error Login");
                 return View(model);
@@ -90,7 +91,7 @@ namespace Currency_Exchange.Controllers
             var user = await _userManager.FindByNameAsync(userName);
             if (user == null) return NotFound();
             var result = await _userManager.ConfirmEmailAsync(user, token);
-
+            await _userManager.AddToRoleAsync(user, "Customer");
             return Content(result.Succeeded ? "Email Confirmed" : "(Error) Email Not Confirmed");
         }
 

@@ -5,17 +5,17 @@ namespace Application.Contracts.Persistence
 {
     public interface IProviderServices
     {
-        public Task<TransactionDto> GetTransaction(int idTransaction);
-        public Task<ConfirmTransactionDto> GetConfirmTransaction(int idTransaction,string userId);
-        public Task<TransactionDetailDto> GetDetailTransaction(int idTransaction,string userId);
-        public Task<List<TransactionDto>> GetListTransactions(int fromIdAccount);
-        public Task<List<UsersTransactionsDto>> GetListTransactionsForAdmin();
+        public Task<TransactionDto> GetTransactionAsync(int idTransaction);
+        public Task<ConfirmTransactionDto> GetConfirmTransactionAsync(int idTransaction,string userId);
+        public Task<TransactionDetailDto> GetDetailTransactionAsync(int idTransaction,string userId);
+        public Task<List<TransactionDto>> GetListTransactionsAsync(int fromIdAccount);
+        public Task<List<UsersTransactionsDto>> GetListTransactionsForAdminAsync();
 
-        public Task<bool> CancelTransaction(int transactionId);
-        public Task<int> TransformCurrency(CreateTransactionDtos  transactionVM, string username);
-        public Task<bool> ConfirmTransaction(int transactionId, string username, bool isConfirm);
-        public Task<List<Transaction>> CanceledPendingTransactionsByTimePass(int min);
-        public Task<bool> CheckMaxOfTransaction(string userId,int accountId,decimal price,string currency);
+        public Task<bool> CancelTransactionAsync(int transactionId);
+        public Task<int> TransformCurrencyAsync(CreateTransactionDtos  transactionVM, string username);
+        public Task<bool> ConfirmTransactionAsync(int transactionId, string username, bool isConfirm);
+        public Task<List<Transaction>> CanceledPendingTransactionsByTimePassAsync(int min);
+        public Task<bool> CheckDailyTransactionThreshold(string userId,int sourceAccountId,decimal transactionAmount,string transactionCurrency);
         public Task<string> GetNameAccountForTransaction(int accountId);
         public Task<string> GetOtherNameAccountForTransaction(int accountId);
 
