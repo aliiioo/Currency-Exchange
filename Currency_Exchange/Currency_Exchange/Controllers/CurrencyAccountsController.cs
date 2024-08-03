@@ -1,4 +1,5 @@
-﻿using Application.Contracts.Persistence;
+﻿using System.Reflection.Metadata.Ecma335;
+using Application.Contracts.Persistence;
 using Application.Dtos.CurrencyDtos;
 using Currency_Exchange.Security;
 using Microsoft.AspNetCore.Authorization;
@@ -39,7 +40,7 @@ namespace Currency_Exchange.Controllers
             var result= await _currencyServices.CreateCurrencyAsync(Model);
             if (!result.IsSucceeded)
             {
-                return View(model: Model);
+                return RedirectToAction("Error", "Home", new { error = result.Message });
             }
 
             return RedirectToAction("Index", "CurrencyAccounts");

@@ -8,4 +8,12 @@
     @ViewBag.error
 </h3>
 
-<a asp-action="Index" asp-controller="Home">Back</a>
+@if (@ViewBag.returnUrl!=null)
+{
+    <a href="@ViewBag.returnUrl">Back Page</a>
+}
+else
+{
+    <a asp-action="Index" asp-controller="Home">Back Home</a>    
+}
+

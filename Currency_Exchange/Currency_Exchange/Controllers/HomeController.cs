@@ -10,6 +10,8 @@ namespace Currency_Exchange.Controllers
         {
 
         }
+
+
         [ServiceFilter(typeof(SanitizeInputFilter))]
         public IActionResult Index()
         {
@@ -20,7 +22,12 @@ namespace Currency_Exchange.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error(string? error)
         {
+            var referrerUrl = HttpContext.Request.Headers["Referer"].ToString();
             ViewBag.error = error;
+            if (!string.IsNullOrEmpty(referrerUrl))
+            {
+                ViewBag.returnUrl = referrerUrl;
+            }
             return View();
         }
     }

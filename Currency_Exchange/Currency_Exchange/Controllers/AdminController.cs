@@ -54,14 +54,14 @@ namespace Currency_Exchange.Controllers
         public async Task<IActionResult> DeActivateAccount(int accountId)
         {
             var result = await _adminServices.DeActivateAccountAsync(accountId);
-            return result ? RedirectToAction("Accounts") : RedirectToAction("Error", "Home");
+            return result ? RedirectToAction("Accounts") : RedirectToAction("Error", "Home",new {error=""});
         }
 
         [HttpGet]
         public async Task<IActionResult> ActivateAccount(int accountId)
         {
             var result = await _adminServices.ActivateAccountAsync(accountId);
-            return result == true ? RedirectToAction("Accounts") : RedirectToAction("Error", "Home");
+            return result == true ? RedirectToAction("Accounts") : RedirectToAction("Error", "Home",new {error=""});
         }
 
         public async Task<IActionResult> SearchAccountById(int accountId = 0)

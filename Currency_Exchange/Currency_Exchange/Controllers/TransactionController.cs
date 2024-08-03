@@ -34,9 +34,6 @@ namespace Currency_Exchange.Controllers
             var allAccounts=await _accountServices.GetAccountsListAsync(User.GetUserId());
             var othersAccount = allAccounts
             .Select(x => new SelectListItem { Value = x.RealAccountId.ToString(), Text = x.CartNumber + "-" + x.AccountName.ToString()}).ToList();
-            // othersAccount.AddRange(GetListAccountsByNameAsync(username).IsSucceeded
-            //     .Select(x => new SelectListItem { Value = x.AccountId.ToString(), Text = x.CartNumber + "-" + x.AccountName.ToString() }).ToList());
-            // othersAccount.Insert(0, new SelectListItem { Value = "", Text = "انتحاب کنید" });
             ViewBag.othersAccount = othersAccount;
             ViewBag.fromCurrency = fromCurrency;
             ViewBag.accountId = accountId;
@@ -55,7 +52,7 @@ namespace Currency_Exchange.Controllers
             }
             if (!User.GetUserId().Equals(transactionDto.UserId))
             {
-                var error = $"{User.Identity?.Name} Want To Hack ";
+                var error = $"{User.Identity?.Name} Want To Hack Transaction ";
                 _logger.LogError(error);
                 return RedirectToAction("Error", "Home", new { error = error });
             }

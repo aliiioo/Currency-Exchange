@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Principal;
 using System.Collections.Generic;
 using System.Drawing.Printing;
+using System.Reflection.Metadata.Ecma335;
 using System.Security.AccessControl;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Application.API_Calls;
@@ -168,7 +169,8 @@ namespace Infrastructure.Repositories.Persistence
             .FirstOrDefaultAsync(x => x.FromCurrency.Equals(fromCurrency) && x.ToCurrency.Equals(toCurrency));
             if (rate == null)
             {
-                return await _apiServices.GetExchangeRateAsync(fromCurrency, toCurrency);
+                var apiResult= await _apiServices.GetExchangeRateAsync(fromCurrency, toCurrency);
+                return apiResult!=100 ? apiResult : 1;
             }
             return rate.Rate;
         }
@@ -178,6 +180,12 @@ namespace Infrastructure.Repositories.Persistence
             var rate = await _context.ExchangeRates
                 .FirstOrDefaultAsync(x => x.FromCurrency.Equals(fromCurrency) && x.ToCurrency.Equals(toCurrency));
             return rate != null ? rate : null;
+        }
+
+        private async Task<bool> IsCurrencyGlobalAsync(string currencyCode)
+        {
+            var result=await _apiServices.GetExchangeRateAsync(currencyCode, "USD");
+            return result != 100;
         }
 
         public async Task<ResultDto> CreateCurrencyAsync(CurrencyDto currencyVM)
@@ -191,6 +199,11 @@ namespace Infrastructure.Repositories.Persistence
                     result.Message = "Currency Code Must between 3 to 4 Char";
                     return result;
                 }
+                if (!await IsCurrencyGlobalAsync(currencyVM.CurrencyCode))
+                {
+                    result.Message = "It's Not global Currency";
+                    return result;
+                }
 
                 // validate with DB
                 if (await IsExistCurrencyByCodeAsync(currencyVM.CurrencyCode))
@@ -198,7 +211,7 @@ namespace Infrastructure.Repositories.Persistence
                     result.Message = "Currency is Exist";
                     return result;
                 }
-
+                
                 // handle request
                 currencyVM.CurrencyCode = currencyVM.CurrencyCode.ToUpper();
                 var currency = _mapper.Map<Currency>(currencyVM);

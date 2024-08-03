@@ -43,7 +43,7 @@ namespace Currency_Exchange.Controllers
             var fee = await _currencyServices.CreateExchangeFeeToCurrencyAsync(Model);
             if (!fee.IsSucceeded)
             {
-                return RedirectToAction("Error", "Home", new { error = fee.Message });
+                return RedirectToAction("Error", "Home", new { error = fee.Message});
             }
             return RedirectToAction("index", "CurrencyAccounts");
         }

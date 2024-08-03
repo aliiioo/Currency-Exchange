@@ -286,7 +286,7 @@ namespace Infrastructure.Repositories.Persistence
                 }
             }
             var dollarPrice = await _currencyServices.ConvertCurrencyAsync(transactionCurrency, "USD", transactionAmount);
-            return dollarBalance + dollarPrice <= MaximumTransaction.MaxTransaction;
+            return dollarBalance + dollarPrice <= BusinessConstants.MaxTransaction;
         }
 
         public async Task<string> GetNameAccountForTransaction(int accountId)
