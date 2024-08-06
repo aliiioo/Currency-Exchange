@@ -1,21 +1,14 @@
-﻿{
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:21518",
-      "sslPort": 44360
-    }
-  },
+{
   "profiles": {
     "Currency_Exchange": {
       "commandName": "Project",
-      "dotnetRunMessages": true,
       "launchBrowser": true,
-      "applicationUrl": "https://localhost:7205;http://localhost:5007",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "APIKey": "d30eacd56561ae4df8681c5bfcdf6b23ae033501824d39b82a5f59d51d0c41d4"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "https://localhost:7205;http://localhost:5007"
     },
     "IIS Express": {
       "commandName": "IISExpress",
@@ -23,6 +16,14 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
+    }
+  },
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:21518",
+      "sslPort": 44360
     }
   }
 }

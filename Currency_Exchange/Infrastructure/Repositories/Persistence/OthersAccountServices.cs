@@ -72,9 +72,11 @@ namespace Infrastructure.Repositories.Persistence
         {
             //validate
             if (!ValidateCartNumber.IsValidCardNumber(otherAccountViewModel.CartNumber)) return 0;
-            var definedAccount = await _context.OthersAccounts.SingleOrDefaultAsync(x => x.AccountId.Equals(otherAccountViewModel.AccountId) && x.UserId.Equals(userId));
+            var definedAccount = await _context.OthersAccounts.SingleOrDefaultAsync(x => x.AccountId.Equals(otherAccountViewModel.AccountId) 
+                && x.UserId.Equals(userId));
             if (definedAccount == null) return 0;
-            var account=await _context.Accounts.SingleOrDefaultAsync(x=>x.CartNumber.Equals(otherAccountViewModel.CartNumber)&&x.Currency.Equals(definedAccount.Currency));
+            var account=await _context.Accounts.SingleOrDefaultAsync(x=>x.CartNumber.Equals(otherAccountViewModel.CartNumber)
+                                                                        &&x.Currency.Equals(definedAccount.Currency));
             if (account == null) return 0;
             // processes
             definedAccount.AccountName = otherAccountViewModel.AccountName;

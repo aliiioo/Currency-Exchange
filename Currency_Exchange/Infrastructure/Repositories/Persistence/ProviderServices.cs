@@ -82,7 +82,8 @@ namespace Infrastructure.Repositories.Persistence
             // processes
             var transaction = _mapper.Map<Transaction>(transactionVM);
             transaction.Status = StatusEnum.Pending;
-            transaction.ExchangeRate = await _currencyServices.GetPriceRateExchangeAsync(transactionVM.FromCurrency, otherAccount.Currency);
+
+            transaction.ExchangeRate = (decimal)await _currencyServices.GetPriceRateExchangeAsync(transactionVM.FromCurrency, otherAccount.Currency);
             var isUsersSelfAccount = await _accountServices.IsAccountForUserAsync(username, int.Parse(transactionVM.OthersAccountIdAsString));
             if (!isUsersSelfAccount)
             {
@@ -276,29 +277,29 @@ namespace Infrastructure.Repositories.Persistence
                 // increase & withdraw
                 if (transaction.ToAccountId.Equals(sourceAccountId)) continue;
                 // Transform
-                if (transaction.FromCurrency.Equals("USD"))
+                if (transaction.FromCurrency.Equals(BusinessConstants.BaseCurrency))
                 {
                     dollarBalance += transaction.Amount;
                 }
                 else
                 {
-                    dollarBalance += await _currencyServices.ConvertCurrencyAsync(transaction.FromCurrency, "USD", transaction.Amount);
+                    dollarBalance += await _currencyServices.ConvertCurrencyAsync(transaction.FromCurrency, BusinessConstants.BaseCurrency, transaction.Amount);
                 }
             }
-            var dollarPrice = await _currencyServices.ConvertCurrencyAsync(transactionCurrency, "USD", transactionAmount);
+            var dollarPrice = await _currencyServices.ConvertCurrencyAsync(transactionCurrency, BusinessConstants.BaseCurrency, transactionAmount);
             return dollarBalance + dollarPrice <= BusinessConstants.MaxTransaction;
         }
 
         public async Task<string> GetNameAccountForTransaction(int accountId)
         {
             var account = await _context.Accounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId));
-            return account != null ? $"{account.AccountName} - {account.CartNumber} " : "";
+            return account != null ? $"{account.AccountName} - {account.CartNumber} " : string.Empty ;
         }
 
         public async Task<string> GetOtherNameAccountForTransaction(int accountId)
         {
             var account = await _context.OthersAccounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId));
-            return account != null ? $"{account.AccountName} - {account.CartNumber} " : "";
+            return account != null ? $"{account.AccountName} - {account.CartNumber} " : string.Empty;
         }
     }
 }

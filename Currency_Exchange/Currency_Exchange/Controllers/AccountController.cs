@@ -1,10 +1,8 @@
-﻿using Application.Contracts;
+﻿using Application.Contracts.Persistence;
 using Application.Dtos.OthersAccountDtos;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using Application.Contracts.Persistence;
 
 namespace Currency_Exchange.Controllers
 {
@@ -35,7 +33,7 @@ namespace Currency_Exchange.Controllers
             var isValidate=_userServices.ValidateModel(model);
             if (!isValidate.IsSucceeded)
             {
-                ModelState.AddModelError("", isValidate.Message);
+                ModelState.AddModelError(string.Empty, isValidate.Message);
                 return View(model);
             }
             var user=await _userServices.RegisterAsync(model); 
@@ -69,14 +67,14 @@ namespace Currency_Exchange.Controllers
             var isEmailConfirm= await _userServices.CheckEmailConfirmation(model);
             if (!isEmailConfirm.IsSucceeded)
             {
-                ModelState.AddModelError("",isEmailConfirm.Message);
+                ModelState.AddModelError(string.Empty,isEmailConfirm.Message);
                 return View(model);
             }
             var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, true);
             var loginResult= await _userServices.CheckLoginStatus(result);
             if (!loginResult.IsSucceeded)
             {
-                ModelState.AddModelError("", "Error Login");
+                ModelState.AddModelError(string.Empty, "Error Login");
                 return View(model);
 
             }

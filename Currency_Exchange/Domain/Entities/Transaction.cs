@@ -5,6 +5,11 @@ namespace Domain.Entities
 {
     public class Transaction
     {
+        public Transaction()
+        {
+            CreatedAt= DateTime.UtcNow;
+        }
+
         [Key]
         public int TransactionId { get; set; }
         public string? UserId { get; set; }
@@ -22,12 +27,12 @@ namespace Domain.Entities
         public decimal UserBalance { get; set; } = 0;
         public decimal DeductedAmount { get; set; } = 0;
         [Range(0,40)]
-        public decimal ExchangeRate { get; set; } = 0;
+        public decimal? ExchangeRate { get; set; } = 0;
         [Range(0, 40)]
         public decimal Fee { get; set; } = 0;
         [Required]
         public StatusEnum Status { get; set; } // 'Pending', 'Completed', 'Cancelled'
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; init; }
         public DateTime? CompletedAt { get; set; }
         public bool Outer { get; set; }=true;
 

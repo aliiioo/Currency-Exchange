@@ -1,6 +1,4 @@
-﻿using System.Drawing.Printing;
-using System.Linq;
-using Application.Contracts.Persistence;
+﻿using Application.Contracts.Persistence;
 using Application.Dtos.AccountDtos;
 using Application.Dtos.OthersAccountDto;
 using Application.Dtos.TransactionDtos;
@@ -8,9 +6,7 @@ using Application.Statics;
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.DbContexts;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Scaffolding;
 
 namespace Infrastructure.Repositories.Persistence
 {
@@ -99,7 +95,7 @@ namespace Infrastructure.Repositories.Persistence
         private async Task<bool> CheckMinimumBalanceCondition(string currency,decimal balance)
         {
             if (!await _currency.IsExistCurrencyByCodeAsync(currency)) return false;
-            var amount = await _currency.ConvertCurrencyAsync(currency, "USD", balance);
+            var amount = await _currency.ConvertCurrencyAsync(currency, BusinessConstants.BaseCurrency, balance);
             return amount > BusinessConstants.MinBalance;
         }
 
@@ -194,11 +190,13 @@ namespace Infrastructure.Repositories.Persistence
 
         public async Task<List<UsersTransactionsDto>> GetUserAccountTransactionsAsync(int accountId)
         {
-            var transactions = await _context.Transactions.Where(x => x.FromAccountId == accountId||x.ToAccountId.Equals(accountId)).ToListAsync();
+            var transactions = await _context.Transactions.Where(x => x.FromAccountId == accountId
+                                                                      ||x.ToAccountId.Equals(accountId)).ToListAsync();
             var transactionDto = new List<UsersTransactionsDto>();
             foreach (var item in transactions)
             {
                 var dto = _mapper.Map<UsersTransactionsDto>(item);
+                // for User Transaction
                 if (accountId.Equals(item.ToAccountId)&&!item.ToAccountId.Equals(item.FromAccountId))
                 {
                     dto.FromSender = false;
@@ -229,7 +227,7 @@ namespace Infrastructure.Repositories.Persistence
             if (amount < 0) return false;
             var account = await _context.Accounts.SingleOrDefaultAsync(x => x.AccountId.Equals(accountId) && x.UserId.Equals(userId));
             if (account == null) return false;
-            var dollar = await _currency.ConvertCurrencyAsync(account.Currency, "USD", account.Balance - amount);
+            var dollar = await _currency.ConvertCurrencyAsync(account.Currency, BusinessConstants.BaseCurrency, account.Balance - amount);
             if (dollar < BusinessConstants.MinBalance) return false;
             // processes
             account.Balance -= amount;

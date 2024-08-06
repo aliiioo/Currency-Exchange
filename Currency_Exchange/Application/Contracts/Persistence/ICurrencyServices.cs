@@ -18,7 +18,7 @@ namespace Application.Contracts.Persistence
         public Task<decimal> GetTransformFeeCurrencyAsync(string fromCurrency, string toCurrency,decimal price);
         public Task<decimal> GetExchangeFeeCurrencyAsync(string fromCurrency, string toCurrency,decimal price);
         public Task<List<CurrencyTransformFees>> GetListTransformFeesAsync(string fromCurrency, string toCurrency);
-        public Task<decimal> GetPriceRateExchangeAsync(string fromCurrency, string toCurrency);
+        public Task<decimal?> GetPriceRateExchangeAsync(string fromCurrency, string toCurrency);
         public Task<ExchangeRate> GetRateExchangeAsync(string fromCurrency, string toCurrency);
         public Task<List<CurrencyDtoShow>> GetListCurrencyAsync();
         public Task<List<CurrencyDtoShow>> GetListCurrencyWithoutBase(string currencyCode);

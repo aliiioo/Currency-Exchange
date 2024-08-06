@@ -1,10 +1,8 @@
 ﻿using Application.Contracts.Persistence;
 using Application.Dtos.AccountDtos;
 using AutoMapper;
-using Domain.Entities;
 using Infrastructure.DbContexts;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Infrastructure.Repositories.Persistence
 {
@@ -17,7 +15,7 @@ namespace Infrastructure.Repositories.Persistence
         private readonly IMapper _mapper;
         
 
-        public AdminServices(CurrencyDbContext context, IMapper mapper, ICurrencyServices currencyServices)
+        public AdminServices(CurrencyDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;

@@ -10,6 +10,7 @@ using Application.Contracts;
 using Application.Contracts.Persistence;
 using Application.Dtos.ErrorsDtos;
 using Application.Dtos.OthersAccountDtos;
+using Application.Statics;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 
@@ -46,14 +47,14 @@ namespace Infrastructure.Repositories.Persistence
 
         public ResultDto ValidateEmail(string email)
         {
-            var regex = new Regex(@"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$");
+            var regex = RegexPatterns.EmailPatternRegex;
             var match = regex.Match(email);
             return match.Success ? new ResultDto() { IsSucceeded = true } : new ResultDto() { IsSucceeded = false, Message = "Email is Not True Format" };
         }
 
         public ResultDto ValidatePhoneNumber(string phone)
         {
-            var regex = new Regex(@"\(?\d{3}\)?-? *\d{3}-? *-?\d{4}");
+            var regex = RegexPatterns.PhonePatternRegex;
             var match = regex.Match(phone);
             return match.Success ? new ResultDto() { IsSucceeded = true } : new ResultDto() { IsSucceeded = false, Message = "Phone Number is Not True Format" };
         }

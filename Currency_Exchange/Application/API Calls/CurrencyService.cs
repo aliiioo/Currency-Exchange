@@ -16,9 +16,9 @@ namespace Application.API_Calls
 
         }
 
-        public async Task<decimal> GetExchangeRateAsync(string fromCurrency, string toCurrency)
+        public async Task<decimal?> GetExchangeRateAsync(string fromCurrency, string toCurrency)
         {
-            var apiKey = Environment.GetEnvironmentVariable("d30eacd56561ae4df8681c5bfcdf6b23ae033501824d39b82a5f59d51d0c41d4");
+            var apiKey = Environment.GetEnvironmentVariable("APIKey");
             var url = $"pricemulti?fsyms={fromCurrency}&tsyms={toCurrency}&api_key={apiKey}";
 
 
@@ -34,7 +34,7 @@ namespace Application.API_Calls
                 var dataReader = await response.Content.ReadAsStringAsync();
                 var data = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, decimal>>>(dataReader);
                 if (data != null) return data.Values.FirstOrDefault().FirstOrDefault().Value;
-                return 100;
+                return null;
             }
             catch (HttpRequestException ex)
             {

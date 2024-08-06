@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Reflection;
 
 namespace Currency_Exchange.Security
 {
-    
 
-        public class SanitizeInputFilter : IActionFilter
+
+    public class SanitizeInputFilter : IActionFilter
         {
             public void OnActionExecuting(ActionExecutingContext context)
             {

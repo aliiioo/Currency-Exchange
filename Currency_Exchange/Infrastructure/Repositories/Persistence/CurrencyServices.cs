@@ -1,19 +1,13 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using Application.Contracts;
+﻿using Application.Contracts;
 using Application.Contracts.Persistence;
 using Application.Dtos.CurrencyDtos;
+using Application.Dtos.ErrorsDtos;
+using Application.Statics;
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.DbContexts;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Principal;
-using System.Collections.Generic;
-using System.Drawing.Printing;
-using System.Reflection.Metadata.Ecma335;
-using System.Security.AccessControl;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Application.API_Calls;
-using Application.Dtos.ErrorsDtos;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories.Persistence
 {
@@ -157,10 +151,10 @@ namespace Infrastructure.Repositories.Persistence
         public async Task<decimal> ConvertCurrencyAsync(string fromCurrency, string toCurrency, decimal amount)
         {
             var rate = await GetPriceRateExchangeAsync(fromCurrency, toCurrency);
-            return amount * rate;
+            return amount * rate.Value;
         }
 
-        public async Task<decimal> GetPriceRateExchangeAsync(string fromCurrency, string toCurrency)
+        public async Task<decimal?> GetPriceRateExchangeAsync(string fromCurrency, string toCurrency)
         {
             //validate
             if (fromCurrency.Equals(toCurrency)) return 1;
@@ -170,7 +164,7 @@ namespace Infrastructure.Repositories.Persistence
             if (rate == null)
             {
                 var apiResult= await _apiServices.GetExchangeRateAsync(fromCurrency, toCurrency);
-                return apiResult!=100 ? apiResult : 1;
+                return apiResult;
             }
             return rate.Rate;
         }
@@ -184,8 +178,8 @@ namespace Infrastructure.Repositories.Persistence
 
         private async Task<bool> IsCurrencyGlobalAsync(string currencyCode)
         {
-            var result=await _apiServices.GetExchangeRateAsync(currencyCode, "USD");
-            return result != 100;
+            var result=await _apiServices.GetExchangeRateAsync(currencyCode, BusinessConstants.BaseCurrency);
+            return result!=null;
         }
 
         public async Task<ResultDto> CreateCurrencyAsync(CurrencyDto currencyVM)
@@ -409,7 +403,7 @@ namespace Infrastructure.Repositories.Persistence
             await _context.SaveChangesAsync();
             if (await _context.SaveChangesAsync()<=0)
             {
-                result.Message = "Exchange dose not SAve Try it again";
+                result.Message = "Exchange dose not Save Try it again";
                 return result;
             }
             result.IsSucceeded = true;

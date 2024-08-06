@@ -2,6 +2,6 @@
 {
     public interface IApiServices
     {
-        public Task<decimal> GetExchangeRateAsync(string fromCurrency, string toCurrency);
+        public Task<decimal?> GetExchangeRateAsync(string fromCurrency, string toCurrency);
     }
 }

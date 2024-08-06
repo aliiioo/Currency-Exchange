@@ -54,14 +54,14 @@ namespace Currency_Exchange.Controllers
         public async Task<IActionResult> DeActivateAccount(int accountId)
         {
             var result = await _adminServices.DeActivateAccountAsync(accountId);
-            return result ? RedirectToAction("Accounts") : RedirectToAction("Error", "Home",new {error=""});
+            return result ? RedirectToAction("Accounts") : RedirectToAction("Error", "Home",new {error=string.Empty});
         }
 
         [HttpGet]
         public async Task<IActionResult> ActivateAccount(int accountId)
         {
             var result = await _adminServices.ActivateAccountAsync(accountId);
-            return result == true ? RedirectToAction("Accounts") : RedirectToAction("Error", "Home",new {error=""});
+            return result == true ? RedirectToAction("Accounts") : RedirectToAction("Error", "Home",new {error=string.Empty});
         }
 
         public async Task<IActionResult> SearchAccountById(int accountId = 0)
@@ -75,7 +75,7 @@ namespace Currency_Exchange.Controllers
         {
             if (!ValidateCartNumber.IsValidCardNumber(cartNumber))
             {
-                const string error = "cart number is not valid";
+                const string error = "Card Number Is Not Valid Type";
                return RedirectToAction("Error", "Home",new{erorr=error});
             }
             var account = await _adminServices.GetAccountByCartNumberForAdminAsync(cartNumber);
