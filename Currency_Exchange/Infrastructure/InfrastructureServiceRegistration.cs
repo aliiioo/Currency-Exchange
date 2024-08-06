@@ -16,6 +16,7 @@ using System.Reflection;
 using Application.API_Calls;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
+using Infrastructure.Repositories.Persistence.NewFolder;
 
 namespace Infrastructure
 {
@@ -35,6 +36,7 @@ namespace Infrastructure
             services.AddScoped<IAdminServices,AdminServices>();
             services.AddScoped<IUserServices,UserServices>();
             services.AddTransient<IApiServices, CurrencyService>();
+            services.AddTransient<ITestTransaction, TestTransactionService>();
            
 
             return services;

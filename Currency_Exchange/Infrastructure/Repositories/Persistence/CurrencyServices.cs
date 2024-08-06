@@ -8,6 +8,7 @@ using Domain.Entities;
 using Infrastructure.DbContexts;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 
 namespace Infrastructure.Repositories.Persistence
 {
