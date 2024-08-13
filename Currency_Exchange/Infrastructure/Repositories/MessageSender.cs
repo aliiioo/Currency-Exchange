@@ -16,7 +16,7 @@ namespace Infrastructure.Repositories
             var smtpClient = new SmtpClient("smtp.gmail.com")
             {
                 Port = 587,
-                Credentials = new NetworkCredential("danateldow2021@gmail.com", "ffxhhxcwmtleoykj"),
+                Credentials = new NetworkCredential("Email", "Eimll"),
                 EnableSsl = true,
             };
 

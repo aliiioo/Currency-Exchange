@@ -5,6 +5,8 @@ using Infrastructure;
 using Infrastructure.DbContexts;
 using Microsoft.AspNetCore.Identity;
 using Quartz;
+using System.Diagnostics;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -34,15 +36,20 @@ builder.Services.AddScoped<SanitizeInputFilter>();
 
 var app = builder.Build();
 
+
+var envMachine = Environment.GetEnvironmentVariable("Ali", EnvironmentVariableTarget.User);
+
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    
 }
-
-app.UseHttpsRedirection();
+app.UseDeveloperExceptionPage();
+app.UseHsts();
+// app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
